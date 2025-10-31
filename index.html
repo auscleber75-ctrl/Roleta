@@ -1,35 +1,82 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#050512">
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>ROLETA IAP 📈 🔥</title>
+
+<link rel="manifest" href="manifest.json">
+
 <style>
-/* Importa a fonte do Google Fonts */
+/* ================== CONFIGURAÇÕES GLOBAIS / FONT ================== */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&display=swap');
 
 :root{
-  --bg:#050512; --panel:#0f1220; --accent:#00fff6; --muted:#9aa0b8;
-  --zero:#00ff6a; --btn:linear-gradient(90deg,#2f3bff,#00fff6); --hot:#ff3b57; --cold:#4fa3ff;
-  --win: #00ff6a; --loss: #ff3b57;
+  --bg:#050512; 
+  --panel:#0f1220; 
+  --accent:#00fff6; 
+  --muted:#9aa0b8;
+  --zero:#00ff6a; 
+  --btn:linear-gradient(90deg,#2f3bff,#00fff6); 
+  --hot:#ff3b57; 
+  --cold:#4fa3ff;
+  --win: #00ff6a; 
+  --loss: #ff3b57;
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:'Orbitron',sans-serif;background:var(--bg);color:#e8f0ff;padding:14px}
+body{
+  margin:0;
+  font-family:'Orbitron',sans-serif;
+  background:var(--bg);
+  color:#e8f0ff;
+  padding:14px;
+}
+.hidden { display: none !important; }
+
+/* ================== LAYOUT E COMPONENTES BÁSICOS ================== */
 
 /* Header / clock */
-.header{background: linear-gradient(90deg, rgba(0,255,246,0.06), rgba(255,0,255,0.03)); border-radius:12px; padding:12px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 6px 30px rgba(0,255,246,0.04)}
+.header{
+  background: linear-gradient(90deg, rgba(0,255,246,0.06), rgba(255,0,255,0.03)); 
+  border-radius:12px; 
+  padding:12px; 
+  display:flex; 
+  justify-content:space-between; 
+  align-items:center; 
+  box-shadow:0 6px 30px rgba(0,255,246,0.04);
+}
 .title{font-weight:700;font-size:18px}
-#clock{color:var(--accent);font-weight:700;animation:pulse 2s infinite alternate}
-@keyframes pulse{0%{text-shadow:0 0 6px rgba(0,255,246,0.4)}100%{text-shadow:0 0 18px rgba(0,255,246,1)}}
+#clock{
+  color:var(--accent);
+  font-weight:700;
+  animation:pulse 2s infinite alternate;
+}
+@keyframes pulse{
+  0%{text-shadow:0 0 6px rgba(0,255,246,0.4)}
+  100%{text-shadow:0 0 18px rgba(0,255,246,1)}
+}
 
 /* card */
-.card{background:var(--panel);border-radius:12px;padding:12px;margin-top:12px;box-shadow:0 8px 40px rgba(0,0,0,0.4)}
+.card{
+  background:var(--panel);
+  border-radius:12px;
+  padding:12px;
+  margin-top:12px;
+  box-shadow:0 8px 40px rgba(0,0,0,0.4);
+}
+
+/* ================== BOTÕES E INPUTS ================== */
 
 /* grid numbers */
 .grid{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
-.number-btn{width:46px;height:46px;border-radius:50%;border:0;font-weight:700;cursor:pointer;transition:transform .14s,box-shadow .14s}
+.number-btn{
+  width:46px;height:46px;
+  border-radius:50%;
+  border:0;
+  font-weight:700;
+  cursor:pointer;
+  transition:transform .14s,box-shadow .14s;
+}
 .number-btn:hover{transform:scale(1.05)}
 .red{background:#ff2746;color:#fff}
 .black{background:#0c0c0e;color:#fff}
@@ -50,9 +97,22 @@ body{margin:0;font-family:'Orbitron',sans-serif;background:var(--bg);color:#e8f0
 }
 .control-btn:hover{opacity:0.85; box-shadow: 0 0 12px rgba(0,255,246,0.4);}
 
+.btn-win { background: var(--win); color: #021; }
+.btn-loss { background: var(--loss); color: #fff; }
+
 /* suggestion / history chips */
 .history{display:flex;gap:8px;overflow-x:auto;white-space:nowrap;padding:10px 6px}
-.chip{width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;cursor:pointer;flex:0 0 auto; transition: transform 0.15s;}
+.chip{
+  width:40px;height:40px;
+  border-radius:50%;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  cursor:pointer;
+  flex:0 0 auto; 
+  transition: transform 0.15s;
+}
 .chip:hover{transform: scale(1.1);}
 .chip.red{background:#ff2746;color:#fff}
 .chip.black{background:#0c0c0e;color:#fff}
@@ -60,9 +120,12 @@ body{margin:0;font-family:'Orbitron',sans-serif;background:var(--bg);color:#e8f0
 .chip.hot{box-shadow:0 0 16px var(--hot); border: 2px solid var(--hot);}
 .chip.cold{box-shadow:0 0 16px var(--cold); border: 2px solid var(--cold);}
 
+/* Texto de sugestão */
 .suggestionBox{font-size:14px;color:#dff;line-height:1.45}
 .suggestionTitle{font-weight:800;color:var(--accent);margin-bottom:6px}
 .iaGlow{color:var(--accent);text-shadow:0 0 14px rgba(0,255,246,0.12);animation:pulse 2s infinite alternate}
+
+/* ================== TABELAS E DASHBOARD ================== */
 
 /* Estilo para a tabela de análise */
 .analysis-table{width:100%; border-collapse: collapse; margin-top: 8px;}
@@ -74,51 +137,7 @@ body{margin:0;font-family:'Orbitron',sans-serif;background:var(--bg);color:#e8f0
 .analysis-table td:nth-child(2){font-weight:700; color: #fff;}
 .analysis-table td:nth-child(3){font-weight:700; color: var(--accent);}
 
-/* login */
-#loginScreen{
-  position:fixed;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
-  background: linear-gradient(120deg, #050512 10%, #1a0830 30%, #2f3bff 50%, #00fff6 70%, #1a0830 90%, #050512 100%);
-  background-size: 400% 400%;
-  animation: cosmicFlow 20s ease infinite;
-}
-
-#loginBox{position:relative;z-index:2;background:rgba(6,8,16,0.95);padding:26px;border-radius:14px;box-shadow:0 12px 50px rgba(0,0,0,0.6);text-align:center;width:92%;max-width:420px}
-#loginBox input{padding:10px;border-radius:8px;border:0;width:85%;margin-top:6px;font-weight:700}
-#loginBox button{margin-top:12px;padding:10px 18px;border-radius:8px;border:0;background:var(--btn);font-weight:800;cursor:pointer}
-
-.hidden { display: none !important; }
-
-/* ########## ESTILOS - GESTÃO DE BANCA ########## */
-.bankroll-grid{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  align-items: flex-start;
-}
-.bankroll-input{
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid var(--accent);
-  background: rgba(0,0,0,0.2);
-  color: #fff;
-  font-weight: 700;
-  font-family: 'Orbitron', sans-serif;
-  width: 100%;
-  text-align: center;
-  font-size: 16px;
-}
-.bankroll-actions .control-btn {
-  width: 100%;
-  margin: 4px 0;
-}
-.btn-win { background: var(--win); color: #021; }
-.btn-loss { background: var(--loss); color: #fff; }
-
+/* Dashboard de Performance */
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -143,9 +162,34 @@ body{margin:0;font-family:'Orbitron',sans-serif;background:var(--bg);color:#e8f0
 .stat-value.positive { color: var(--win); }
 .stat-value.negative { color: var(--loss); }
 
-/* Estilo para o Extrato da Banca */
+
+/* ================== GESTÃO DE BANCA ================== */
+.bankroll-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: flex-start;
+}
+.bankroll-input{
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+  background: rgba(0,0,0,0.2);
+  color: #fff;
+  font-weight: 700;
+  font-family: 'Orbitron', sans-serif;
+  width: 100%;
+  text-align: center;
+  font-size: 16px;
+}
+.bankroll-actions .control-btn {
+  width: 100%;
+  margin: 4px 0;
+}
+
+/* Extrato da Banca */
 .bankroll-history-list {
-  max-height: 110px; /* Scroll aparece depois de 3 lançamentos */
+  max-height: 110px; 
   overflow-y: auto;
   background: rgba(0,0,0,0.2);
   border-radius: 8px;
@@ -181,15 +225,61 @@ body{margin:0;font-family:'Orbitron',sans-serif;background:var(--bg);color:#e8f0
 .log-delete-btn:hover {
   opacity: 1;
 }
-/* ################################################### */
 
+/* ================== TELA DE LOGIN ================== */
 
+#loginScreen{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  /* Fundo animado */
+  background: linear-gradient(120deg, #050512 10%, #1a0830 30%, #2f3bff 50%, #00fff6 70%, #1a0830 90%, #050512 100%);
+  background-size: 400% 400%;
+  animation: cosmicFlow 20s ease infinite;
+}
+
+#loginBox{
+  position:relative;
+  z-index:2;
+  background:rgba(6,8,16,0.95);
+  padding:26px;
+  border-radius:14px;
+  box-shadow:0 12px 50px rgba(0,0,0,0.6);
+  text-align:center;
+  width:92%;
+  max-width:420px;
+}
+#loginBox input{
+  padding:10px;
+  border-radius:8px;
+  border:0;
+  width:85%;
+  margin-top:6px;
+  font-weight:700;
+  font-family:'Orbitron',sans-serif; /* Adicionado para consistência */
+}
+#loginBox button{
+  margin-top:12px;
+  padding:10px 18px;
+  border-radius:8px;
+  border:0;
+  background:var(--btn);
+  font-weight:800;
+  cursor:pointer;
+  font-family:'Orbitron',sans-serif; /* Adicionado para consistência */
+}
+
+/* ================== RESPONSIVIDADE ================== */
 @media (max-width:520px){
   .grid .number-btn{width:40px;height:40px}
   .chip{width:34px;height:34px}
   .bankroll-grid{ grid-template-columns: 1fr; }
 }
 
+/* Animação do fundo de login */
 @keyframes cosmicFlow {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -238,7 +328,8 @@ body{margin:0;font-family:'Orbitron',sans-serif;background:var(--bg);color:#e8f0
   <div class="card">
     <div class="suggestionTitle">📊 DASHBOARD DE PERFORMANCE</div>
     <div id="performanceDashboard" class="dashboard-grid" style="margin-top: 10px;">
-      </div>
+      <span style="color:var(--muted); grid-column: 1 / -1;">Defina sua banca inicial para começar.</span>
+    </div>
   </div>
 
   <div class="card">
@@ -272,40 +363,40 @@ body{margin:0;font-family:'Orbitron',sans-serif;background:var(--bg);color:#e8f0
 
   <div class="card">
     <div class="suggestionTitle iaGlow">🧠 SUGESTÃO DE APOSTA (IA)</div>
-    <div id="betSuggestion" class="suggestionBox" style="font-size: 16px; line-height: 1.5;"></div>
+    <div id="betSuggestion" class="suggestionBox" style="font-size: 16px; line-height: 1.5;">
+        <span style="color:var(--muted)">Aguardando mais dados para gerar uma sugestão...</span>
+    </div>
   </div>
   
   <div class="card">
     <div style="display:flex;gap:20px;flex-wrap:wrap">
       <div style="flex:2; min-width: 200px;">
         <div class="suggestionTitle">ANÁLISE DO ÚLTIMO NÚMERO</div>
-        <div id="lastNumberAnalysis" class="suggestionBox"></div>
+        <div id="lastNumberAnalysis" class="suggestionBox">Adicione números ao histórico.</div>
       </div>
       <div style="flex:1; min-width: 150px;">
         <div class="suggestionTitle">TOP 4 HOT / COLD</div>
-        <div id="hotCold" class="suggestionBox"></div>
+        <div id="hotCold" class="suggestionBox">🔥 Hot: -<br>❄️ Cold: -</div>
       </div>
     </div>
   </div>
 
   <div class="card">
     <div class="suggestionTitle">📊 ESTATÍSTICAS GERAIS</div>
-    <div id="generalStats" class="suggestionBox"></div>
+    <div id="generalStats" class="suggestionBox">Adicione mais números para ver os padrões.</div>
   </div>
-
 
   <input type="file" id="uploadPhoto" accept="image/*" style="display:none">
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
   /* ================== CONSTANTES DE ELEMENTOS ================== */
   const loginScreen = document.getElementById('loginScreen');
   const mainPanel = document.getElementById('mainPanel');
-  const signInForm = document.getElementById('signInForm');
-  // signUpForm removido
   
   const clockDiv = document.getElementById('clock');
   const gridNumbers = document.getElementById('gridNumbers');
@@ -321,96 +412,50 @@ document.addEventListener('DOMContentLoaded', () => {
   const initialBankrollInput = document.getElementById('initialBankrollInput');
   const betAmountInput = document.getElementById('betAmountInput');
   const bankrollHistoryDiv = document.getElementById('bankrollHistory');
+  const authPwdInput = document.getElementById('authPwd');
   
-  // Constantes de Login e Banca
+  // Constantes de Configuração
   const FIXED_PASSWORD = '1571';
   const BANKROLL_STORAGE_KEY = 'roletaIAPBankroll_main';
+  const HISTORY_STORAGE_KEY = 'roletaIAPHistory'; // Nova chave para salvar o histórico da roleta
   
   const RED_NUMBERS = new Set([1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]);
   
   /* ================== ESTADO DA APLICAÇÃO ================== */
-  let historyArr = [];
+  let historyArr = []; // Histórico dos números da roleta
   let numberStats = {}; 
   
   let bankrollState = {
     initial: 0,
     current: 0,
-    history: []
+    history: [] // Histórico de lucros/perdas da banca
   };
 
   const MAX_HISTORY = 100;
   const HOT_THRESHOLD = 3; 
 
-  /* ================== VERIFICAÇÃO DE SESSÃO ================== */
-  const isLoggedIn = sessionStorage.getItem('isLoggedIn'); // Sessão temporária
-  if (isLoggedIn === 'true') {
-      loginScreen.classList.add('hidden');
-      mainPanel.classList.remove('hidden');
-      loadBankrollData();
-      updateUI();
-  } else {
-      loginScreen.classList.remove('hidden');
-      mainPanel.classList.add('hidden');
+  /* ================== UTILITÁRIOS ================== */
+  const formatBRL = (value) => value.toLocaleString('pt-BR', { 
+    style: 'currency', 
+    currency: 'BRL',
+    minimumFractionDigits: 2, 
+    maximumFractionDigits: 2 
+  });
+  
+  function getColor(num) {
+    if (num === 0) return 'green';
+    if (RED_NUMBERS.has(num)) return 'red';
+    return 'black';
   }
 
-
-  /* ================== CLOCK ================== */
-  function updateClock(){
-    const now = new Date();
-    const h = String(now.getHours()).padStart(2,'0');
-    const m = String(now.getMinutes()).padStart(2,'0');
-    const s = String(now.getSeconds()).padStart(2,'0');
-    clockDiv.textContent = `${h}:${m}:${s}`;
-  }
-  setInterval(updateClock, 1000);
-  updateClock();
-
-  /* ================== LÓGICA DE LOGIN (UI) ================== */
+  /* ================== PERSISTÊNCIA DE DADOS ================== */
   
-  const authPwdInput = document.getElementById('authPwd');
-
-  function handleLoginEnter(event) {
-    if (event.key === 'Enter' || event.keyCode === 13) {
-      event.preventDefault(); 
-      document.getElementById('btnSignIn').click();
-    }
-  }
-
-  authPwdInput.addEventListener('keydown', handleLoginEnter);
-  
-  // Botão ENTRAR
-  document.getElementById('btnSignIn').onclick = () => {
-    const passwordInput = document.getElementById('authPwd').value;
-
-    if (passwordInput === FIXED_PASSWORD) {
-        sessionStorage.setItem('isLoggedIn', 'true');
-        loginScreen.classList.add('hidden');
-        mainPanel.classList.remove('hidden');
-        loadBankrollData();
-        updateUI();
-    } else {
-        alert('Senha incorreta.');
-    }
-  };
-
-  // Botão SAIR
-  document.getElementById('logoutBtn').onclick = () => {
-    sessionStorage.removeItem('isLoggedIn');
-    mainPanel.classList.add('hidden');
-    loginScreen.classList.remove('hidden');
-    
-    document.getElementById('authPwd').value = '';
-  };
-  
-  
-  /* ================== LÓGICA DE GESTÃO DE BANCA ================== */
-  
-  const formatBRL = (value) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  
+  // Salva dados da Banca
   function saveBankrollData() {
     localStorage.setItem(BANKROLL_STORAGE_KEY, JSON.stringify(bankrollState));
   }
   
+  // Carrega dados da Banca
   function loadBankrollData() {
     const savedData = localStorage.getItem(BANKROLL_STORAGE_KEY);
     if (savedData) {
@@ -423,6 +468,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     initialBankrollInput.value = bankrollState.initial > 0 ? bankrollState.initial : '';
   }
+
+  // Salva Histórico da Roleta
+  function saveHistoryData() {
+    localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyArr));
+  }
+  
+  // Carrega Histórico da Roleta
+  function loadHistoryData() {
+    const savedHistory = localStorage.getItem(HISTORY_STORAGE_KEY);
+    if (savedHistory) {
+      historyArr = JSON.parse(savedHistory);
+    } else {
+      historyArr = [];
+    }
+  }
+  
+  /* ================== LÓGICA DE GESTÃO DE BANCA ================== */
   
   document.getElementById('btnSetBankroll').onclick = () => {
     const initial = parseFloat(initialBankrollInput.value);
@@ -431,13 +493,19 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     
+    // Pergunta se quer zerar o histórico de transações
+    if (bankrollState.initial > 0 && 
+        !confirm('Ao redefinir a banca, o histórico de lucro/perda também será zerado. Continuar?')) {
+        return;
+    }
+
     bankrollState.initial = initial;
     bankrollState.current = initial;
     bankrollState.history = [];
     
     saveBankrollData();
     updateUI();
-    alert(`Banca inicial definida em R$ ${initial.toFixed(2)}`);
+    alert(`Banca inicial definida em ${formatBRL(initial)}`);
   };
   
   document.getElementById('btnRegisterWin').onclick = () => {
@@ -447,8 +515,8 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     
-    bankrollState.current += amount;
-    bankrollState.history.push(amount);
+    bankrollState.current = parseFloat((bankrollState.current + amount).toFixed(2));
+    bankrollState.history.push({ amount: amount, timestamp: Date.now() });
     saveBankrollData();
     updateUI();
     betAmountInput.value = '';
@@ -461,8 +529,8 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     
-    bankrollState.current -= amount;
-    bankrollState.history.push(-amount);
+    bankrollState.current = parseFloat((bankrollState.current - amount).toFixed(2));
+    bankrollState.history.push({ amount: -amount, timestamp: Date.now() });
     saveBankrollData();
     updateUI();
     betAmountInput.value = '';
@@ -470,17 +538,19 @@ document.addEventListener('DOMContentLoaded', () => {
   
   function deleteBankrollEntry(indexToDelete) {
     const entry = bankrollState.history[indexToDelete];
-    const entryType = entry > 0 ? 'Lucro' : 'Red';
+    const amount = entry.amount;
+    const entryType = amount > 0 ? 'Lucro' : 'Red';
     
-    if (confirm(`Tem certeza que deseja excluir este lançamento de ${entryType} (${formatBRL(Math.abs(entry))})?`)) {
+    if (confirm(`Tem certeza que deseja excluir este lançamento de ${entryType} (${formatBRL(Math.abs(amount))})?`)) {
       
       bankrollState.history.splice(indexToDelete, 1);
       
+      // Recalcula a banca atual do zero para evitar erros de ponto flutuante
       let newCurrent = bankrollState.initial;
       for (const item of bankrollState.history) {
-        newCurrent += item;
+        newCurrent += item.amount;
       }
-      bankrollState.current = newCurrent;
+      bankrollState.current = parseFloat(newCurrent.toFixed(2));
       
       saveBankrollData();
       updateUI();
@@ -495,18 +565,20 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     
-    const totalProfit = current - initial;
-    const totalProfitPercent = (initial > 0) ? (totalProfit / initial) * 100 : 0;
+    const totalProfit = parseFloat((current - initial).toFixed(2));
+    const totalProfitPercent = (initial > 0) ? ((totalProfit / initial) * 100).toFixed(1) : 0;
     
-    const wins = history.filter(v => v > 0).length;
-    const losses = history.filter(v => v < 0).length;
+    const wins = history.filter(v => v.amount > 0).length;
+    const losses = history.filter(v => v.amount < 0).length;
     const totalBets = history.length;
     const winRate = (totalBets > 0) ? (wins / totalBets) * 100 : 0;
     
     const avgProfitPerBet = (totalBets > 0) ? (totalProfit / totalBets) : 0;
-    const projection30Days = current + (avgProfitPerBet * 30);
+    // Projeção: Banca Atual + (Lucro Médio Diário x 30) - (média diária é difícil, usamos o lucro médio por bet aqui)
+    const projection30Days = parseFloat((current + (avgProfitPerBet * 30)).toFixed(2)); 
     
-    const suggestedBet = current * 0.02;
+    // Sugestão de aposta de 2% (padrão de gestão de risco)
+    const suggestedBet = parseFloat((current * 0.02).toFixed(2));
 
     performanceDashboard.innerHTML = `
       <div class="stat-item">
@@ -516,15 +588,15 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="stat-item">
         <div class="stat-title">Lucro/Prejuízo Total</div>
         <div class="stat-value ${totalProfit > 0 ? 'positive' : totalProfit < 0 ? 'negative' : ''}">
-          ${formatBRL(totalProfit)} (${totalProfitPercent.toFixed(1)}%)
+          ${formatBRL(totalProfit)} (${totalProfitPercent}%)
         </div>
       </div>
       <div class="stat-item">
-        <div class="stat-title">Taxa de Acerto (Win %)</div>
+        <div class="stat-title">Taxa de Acerto (Wins)</div>
         <div class="stat-value">${winRate.toFixed(1)}%</div>
       </div>
       <div class="stat-item">
-        <div class="stat-title">Wins / Losses</div>
+        <div class="stat-title">Registros (W/L)</div>
         <div class="stat-value">
           <span class="positive">${wins}</span> / <span class="negative">${losses}</span>
         </div>
@@ -534,7 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="stat-value">${formatBRL(suggestedBet)}</div>
       </div>
       <div class="stat-item">
-        <div class="stat-title">Projeção 30 Dias</div>
+        <div class="stat-title">Projeção 30 Entradas</div>
         <div class="stat-value ${projection30Days > current ? 'positive' : projection30Days < current ? 'negative' : ''}">
           ${formatBRL(projection30Days)}
         </div>
@@ -552,20 +624,23 @@ document.addEventListener('DOMContentLoaded', () => {
     
     bankrollHistoryDiv.innerHTML = '';
     
+    // Inverte o array para mostrar os mais recentes primeiro
     [...history].reverse().forEach((entry, reverseIndex) => {
       
+      // Mapeia o índice invertido de volta para o original para exclusão
       const originalIndex = history.length - 1 - reverseIndex; 
+      const amount = entry.amount;
       
       const item = document.createElement('div');
       item.className = 'log-item';
       
       const text = document.createElement('span');
-      if (entry > 0) {
+      if (amount > 0) {
         item.classList.add('log-win');
-        text.textContent = `+ ${formatBRL(entry)}`;
+        text.textContent = `+ ${formatBRL(amount)}`;
       } else {
         item.classList.add('log-loss');
-        text.textContent = `- ${formatBRL(Math.abs(entry))}`;
+        text.textContent = `${formatBRL(amount)}`; // O sinal já está no valor
       }
       
       const deleteBtn = document.createElement('button');
@@ -581,13 +656,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   
-  /* ================== LÓGICA PRINCIPAL (APP) ================== */
-
-  function getColor(num) {
-    if (num === 0) return 'green';
-    if (RED_NUMBERS.has(num)) return 'red';
-    return 'black';
-  }
+  /* ================== LÓGICA DE ANÁLISE DA ROLETA ================== */
 
   function calculateStats() {
     const allNumbers = [...Array(37).keys()]; 
@@ -616,9 +685,10 @@ document.addEventListener('DOMContentLoaded', () => {
         num % 2 === 0 ? stats.parityCounts.even++ : stats.parityCounts.odd++;
       }
       
+      // Mapeamento de Próximo Número
       if (i > 0) {
         const currentNum = historyArr[i];
-        const nextNum = historyArr[i - 1];
+        const nextNum = historyArr[i - 1]; // O número que veio DEPOIS do currentNum
         
         if (!stats.nextMap[currentNum]) {
           stats.nextMap[currentNum] = [];
@@ -627,18 +697,66 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    // Listas Hot/Cold
     stats.hotList = allNumbers
-      .filter(n => stats.counts[n].count >= HOT_THRESHOLD)
+      .filter(n => stats.counts[n].count > 0)
       .sort((a, b) => stats.counts[b].count - stats.counts[a].count)
       .slice(0, 4);
 
+    const countsSet = new Set(allNumbers.map(n => stats.counts[n].count));
+    const minCount = countsSet.size > 0 ? Math.min(...countsSet) : 0;
+    
     stats.coldList = allNumbers
-      .filter(n => stats.counts[n].count === 0)
+      .filter(n => stats.counts[n].count === minCount) // Filtra os com menor contagem
       .slice(0, 4);
     
     numberStats = stats;
   }
+  
+  function addNumber(num) {
+    if (historyArr.length >= MAX_HISTORY) {
+      historyArr.pop(); // Remove o mais antigo
+    }
+    historyArr.unshift(num); // Adiciona o novo no começo
+    saveHistoryData();
+    updateUI();
+  }
+  
+  function addMultipleNumbers(numArray) {
+    const numbersToAdd = numArray
+      .map(n => parseInt(n, 10))
+      .filter(n => !isNaN(n) && n >= 0 && n <= 36);
+      
+    if (numbersToAdd.length === 0) {
+        alert('Nenhum número de 0 a 36 identificado.');
+        return;
+    }
+    
+    historyArr = [...numbersToAdd, ...historyArr];
+    if (historyArr.length > MAX_HISTORY) {
+      historyArr = historyArr.slice(0, MAX_HISTORY);
+    }
+    
+    saveHistoryData();
+    updateUI();
+    alert(`${numbersToAdd.length} números adicionados automaticamente!`);
+  }
 
+  function removeNumber(index) {
+    historyArr.splice(index, 1);
+    saveHistoryData();
+    updateUI();
+  }
+  
+  function confirmRemoveNumber(index) {
+    const num = historyArr[index];
+    if (confirm(`Tem certeza que deseja excluir o número ${num} (Recente) do histórico?`)) {
+      removeNumber(index);
+    }
+  }
+
+  /* ================== RENDERIZAÇÃO DA UI ================== */
+  
   function updateUI() {
     if(mainPanel.classList.contains('hidden')) return;
     
@@ -654,45 +772,6 @@ document.addEventListener('DOMContentLoaded', () => {
     historyCount.textContent = `${historyArr.length}/${MAX_HISTORY}`;
   }
 
-  function addNumber(num) {
-    if (historyArr.length >= MAX_HISTORY) {
-      historyArr.pop();
-    }
-    historyArr.unshift(num);
-    updateUI();
-  }
-  
-  function addMultipleNumbers(numArray) {
-    const numbersToAdd = numArray
-      .map(n => parseInt(n, 10))
-      .filter(n => n >= 0 && n <= 36);
-      
-    if (numbersToAdd.length === 0) {
-        alert('Nenhum número de 0 a 36 identificado.');
-        return;
-    }
-    
-    historyArr = [...numbersToAdd, ...historyArr];
-    if (historyArr.length > MAX_HISTORY) {
-      historyArr = historyArr.slice(0, MAX_HISTORY);
-    }
-    
-    updateUI();
-    alert(`${numbersToAdd.length} números adicionados automaticamente!`);
-  }
-
-  function removeNumber(index) {
-    historyArr.splice(index, 1);
-    updateUI();
-  }
-  
-  function confirmRemoveNumber(index) {
-    const num = historyArr[index];
-    if (confirm(`Tem certeza que deseja excluir o número ${num} do histórico?`)) {
-      removeNumber(index);
-    }
-  }
-
   function renderHistory() {
     historyDiv.innerHTML = '';
     historyArr.forEach((n, i) => {
@@ -701,8 +780,10 @@ document.addEventListener('DOMContentLoaded', () => {
       chip.className = 'chip ' + getColor(n);
       
       const count = numberStats.counts[n]?.count || 0;
-      if (count >= HOT_THRESHOLD) chip.classList.add('hot');
-      if (count === 0) chip.classList.add('cold');
+      
+      // Estilo Hot/Cold mais evidente
+      if (numberStats.hotList.includes(n) && count >= HOT_THRESHOLD) chip.classList.add('hot');
+      if (numberStats.coldList.includes(n) && count === 0) chip.classList.add('cold');
       
       chip.onclick = () => confirmRemoveNumber(i);
       
@@ -717,16 +798,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   function renderLastNumberAnalysis() {
-    if (historyArr.length === 0) {
-      lastNumberAnalysisDiv.innerHTML = 'Adicione números ao histórico.';
+    if (historyArr.length < 2) {
+      lastNumberAnalysisDiv.innerHTML = 'Adicione números ao histórico para ver a análise de sucessão.';
       return;
     }
     
     const lastNum = historyArr[0];
     const followers = numberStats.nextMap[lastNum];
     
-    if (!followers || followers.length === 0) {
-      lastNumberAnalysisDiv.innerHTML = `O último número foi <b>${lastNum}</b>. (Sem dados de "próximo número" para ele no histórico).`;
+    if (!followers || followers.length < 3) {
+      lastNumberAnalysisDiv.innerHTML = `O último número foi <b>${lastNum}</b>. (Necessário mais ocorrências para gerar dados de sucessão).`;
       return;
     }
 
@@ -736,9 +817,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     const sortedFollowers = Object.entries(followerCounts)
-      .sort((a, b) => b[1] - a[1]);
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5); // Limita aos top 5
 
-    let tableHTML = `<div style="margin-bottom: 6px;">Após o <b>${lastNum}</b>, saíram ${followers.length} números:</div>
+    let tableHTML = `<div style="margin-bottom: 6px;">Após o <b>${lastNum}</b>, os números mais frequentes foram:</div>
                      <table class="analysis-table">
                        <thead><tr><th>Número</th><th>Vezes</th><th>Chance</th></tr></thead>
                        <tbody>`;
@@ -757,61 +839,59 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   function renderBetSuggestion() {
-      if (historyArr.length < 5) {
-          betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">Aguardando mais dados para gerar uma sugestão...</span>`;
+      if (historyArr.length < 10) {
+          betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">Aguardando mais dados para gerar uma sugestão (mínimo 10 lançamentos)...</span>`;
           return;
       }
 
       let suggestion = "";
 
-      const lastNum = historyArr[0];
-      const followers = numberStats.nextMap[lastNum];
-      if (followers && followers.length >= 3) {
-          const followerCounts = {};
-          for (const num of followers) {
-            followerCounts[num] = (followerCounts[num] || 0) + 1;
-          }
-          const sortedFollowers = Object.entries(followerCounts).sort((a, b) => b[1] - a[1]);
-          const mostFrequent = sortedFollowers[0];
-          const mostFrequentNum = mostFrequent[0];
-          const mostFrequentCount = mostFrequent[1];
-          const probability = (mostFrequentCount / followers.length) * 100;
+      // 1. Padrão de Cor (3+ seguidos)
+      const colorStreak = historyArr.slice(0, 4).map(getColor);
+      if (colorStreak.every(c => c === 'red') && colorStreak.length >= 3) {
+          suggestion = `Saíram **${colorStreak.length} Vermelhos** seguidos. Uma aposta no **Preto** pode ser interessante (Quebra de Padrão).`;
+      } else if (colorStreak.every(c => c === 'black') && colorStreak.length >= 3) {
+          suggestion = `Saíram **${colorStreak.length} Pretos** seguidos. Uma aposta no **Vermelho** pode ser interessante (Quebra de Padrão).`;
+      } 
+      
+      // 2. Mapeamento de Próximo Número (Sucessão)
+      else {
+          const lastNum = historyArr[0];
+          const followers = numberStats.nextMap[lastNum];
+          if (followers && followers.length >= 5) { // Precisa de mais dados para ser confiável
+              const followerCounts = {};
+              for (const num of followers) {
+                followerCounts[num] = (followerCounts[num] || 0) + 1;
+              }
+              const sortedFollowers = Object.entries(followerCounts).sort((a, b) => b[1] - a[1]);
+              const mostFrequent = sortedFollowers[0];
+              const mostFrequentNum = mostFrequent[0];
+              const probability = (mostFrequent[1] / followers.length) * 100;
 
-          if (probability >= 30) { 
-              suggestion = `Após o <b>${lastNum}</b>, o número <b>${mostFrequentNum}</b> saiu <b>${probability.toFixed(0)}%</b> das vezes. Pode ser uma boa aposta.`;
-              betSuggestionDiv.innerHTML = suggestion;
-              return;
+              if (probability >= 35) { // Acima de 35% de chance de repetição
+                  suggestion = `Após o **${lastNum}**, o número **${mostFrequentNum}** saiu **${probability.toFixed(0)}%** das vezes. Alta probabilidade de repetição (Padrão de Sucessão).`;
+              }
+          }
+      }
+      
+      // 3. Hot List (Tendência)
+      if (!suggestion) {
+          const hotList = numberStats.hotList;
+          if (hotList.length > 0) {
+              const hottestNum = hotList[0];
+              const hottestCount = numberStats.counts[hottestNum].count;
+              if (hottestCount >= 5) {
+                  suggestion = `O número **${hottestNum}** está muito "quente" (saiu **${hottestCount}** vezes nos últimos ${historyArr.length}). Pode valer a pena seguir a tendência.`;
+              }
           }
       }
 
-      const lastColor1 = getColor(historyArr[0]);
-      const lastColor2 = getColor(historyArr[1]);
-      const lastColor3 = getColor(historyArr[2]);
-      
-      if (lastColor1 === 'red' && lastColor2 === 'red' && lastColor3 === 'red') {
-          suggestion = `Saíram <b>3 Vermelhos</b> seguidos. Uma aposta no <b>Preto</b> pode ser interessante (Quebra de Padrão).`;
-          betSuggestionDiv.innerHTML = suggestion;
-          return;
+      if (!suggestion) {
+        suggestion = 'Nenhum padrão forte detectado no momento. Verifique as estatísticas gerais abaixo.';
+        betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">${suggestion}</span>`;
+      } else {
+        betSuggestionDiv.innerHTML = `<span class="iaGlow">${suggestion}</span>`;
       }
-      if (lastColor1 === 'black' && lastColor2 === 'black' && lastColor3 === 'black') {
-          suggestion = `Saíram <b>3 Pretos</b> seguidos. Uma aposta no <b>Vermelho</b> pode ser interessante (Quebra de Padrão).`;
-          betSuggestionDiv.innerHTML = suggestion;
-          return;
-      }
-      
-      const hotList = numberStats.hotList;
-      if (hotList.length > 0) {
-          const hottestNum = hotList[0];
-          const hottestCount = numberStats.counts[hottestNum].count;
-          if (hottestCount >= 5) {
-              suggestion = `O número <b>${hottestNum}</b> está muito "quente" (saiu <b>${hottestCount}</b> vezes). Pode valer a pena seguir a tendência.`;
-              betSuggestionDiv.innerHTML = suggestion;
-              return;
-          }
-      }
-      
-      suggestion = 'Nenhum padrão forte detectado. Jogue com base nas estatísticas gerais.';
-      betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">${suggestion}</span>`;
   }
   
   function renderGeneralStats() {
@@ -820,7 +900,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     
-    const { colorCounts, parityCounts, hotList, coldList, counts } = numberStats;
+    const { colorCounts, parityCounts, counts } = numberStats;
     const total = historyArr.length;
     
     const redPercent = (colorCounts.red / total) * 100;
@@ -837,32 +917,35 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let statSuggestion = "";
     
-    if (redPercent > 60) {
+    // Análise de Desequilíbrio
+    if (redPercent > 55) {
       statSuggestion = `<b>Apostar em PRETO</b>. (O Vermelho saiu ${redPercent.toFixed(0)}% das vezes, buscando equilíbrio).`;
-    } else if (blackPercent > 60) {
+    } else if (blackPercent > 55) {
       statSuggestion = `<b>Apostar em VERMELHO</b>. (O Preto saiu ${blackPercent.toFixed(0)}% das vezes, buscando equilíbrio).`;
     }
-    else if (evenPercent > 60) {
+    else if (evenPercent > 55) {
       statSuggestion = `<b>Apostar em ÍMPAR</b>. (O Par saiu ${evenPercent.toFixed(0)}% das vezes, buscando equilíbrio).`;
-    } else if (oddPercent > 60) {
+    } else if (oddPercent > 55) {
       statSuggestion = `<b>Apostar em PAR</b>. (O Ímpar saiu ${oddPercent.toFixed(0)}% das vezes, buscando equilíbrio).`;
     }
-    else if (hotList.length > 0 && counts[hotList[0]].count >= 5) {
-      statSuggestion = `<b>Apostar no ${hotList[0]}</b>. (Número "Super Quente", saiu ${counts[hotList[0]].count}x).`;
+    else if (numberStats.hotList.length > 0 && counts[numberStats.hotList[0]].count >= 5) {
+      statSuggestion = `<b>Apostar no ${numberStats.hotList[0]}</b>. (Número "Super Quente", saiu ${counts[numberStats.hotList[0]].count}x).`;
     }
-    else if (coldList.length > 0) {
-      statSuggestion = `<b>Apostar no ${coldList[0]}</b>. (Número "Frio", está atrasado).`;
+    else if (numberStats.coldList.length > 0 && counts[numberStats.coldList[0]].count === 0) {
+      statSuggestion = `<b>Apostar no ${numberStats.coldList[0]}</b>. (Número "Frio", atrasado).`;
     }
     else {
-      statSuggestion = "Nenhum padrão estatístico óbvio. Jogue com cautela.";
+      statSuggestion = "O histórico está equilibrado. Jogue com cautela ou baseie-se na sugestão da IA.";
     }
     
-    html += `<br><div class="iaGlow" style="color:var(--accent); font-weight:700;">Sugestão de Estatística:</div> ${statSuggestion}`;
+    html += `<br><div class="iaGlow" style="color:var(--accent); font-weight:700;">Dica Estatística:</div> ${statSuggestion}`;
     
     generalStatsDiv.innerHTML = html;
   }
 
-  /* ================== POPULAR GRID INICIAL ================== */
+  /* ================== INICIALIZAÇÃO E EVENTOS ================== */
+
+  // 1. Popular Grid
   for (let i = 0; i <= 36; i++) {
     const btn = document.createElement('button');
     btn.textContent = i;
@@ -871,16 +954,78 @@ document.addEventListener('DOMContentLoaded', () => {
     gridNumbers.appendChild(btn);
   }
 
-  /* ================== CONTROLES ================== */
+  // 2. Clock
+  function updateClock(){
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    clockDiv.textContent = `${h}:${m}:${s}`;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+  
+  // 3. Lógica de Login/Sessão
+  const isLoggedIn = sessionStorage.getItem('isLoggedIn'); 
+  
+  if (isLoggedIn === 'true') {
+      loginScreen.classList.add('hidden');
+      mainPanel.classList.remove('hidden');
+      loadBankrollData();
+      loadHistoryData(); // Carrega histórico da roleta
+      updateUI();
+  } else {
+      loginScreen.classList.remove('hidden');
+      mainPanel.classList.add('hidden');
+  }
+
+  function handleLoginEnter(event) {
+    if (event.key === 'Enter' || event.keyCode === 13) {
+      event.preventDefault(); 
+      document.getElementById('btnSignIn').click();
+    }
+  }
+
+  authPwdInput.addEventListener('keydown', handleLoginEnter);
+  
+  // Botão ENTRAR
+  document.getElementById('btnSignIn').onclick = () => {
+    const passwordInput = authPwdInput.value;
+
+    if (passwordInput === FIXED_PASSWORD) {
+        sessionStorage.setItem('isLoggedIn', 'true');
+        loginScreen.classList.add('hidden');
+        mainPanel.classList.remove('hidden');
+        loadBankrollData();
+        loadHistoryData(); // Carrega histórico da roleta
+        updateUI();
+    } else {
+        alert('Senha incorreta.');
+    }
+  };
+
+  // Botão SAIR
+  document.getElementById('logoutBtn').onclick = () => {
+    sessionStorage.removeItem('isLoggedIn');
+    mainPanel.classList.add('hidden');
+    loginScreen.classList.remove('hidden');
+    
+    authPwdInput.value = '';
+  };
+  
+  // 4. Controles
   document.getElementById('clearBtn').onclick = () => {
-    if (confirm('Tem certeza que deseja limpar todo o histórico?')) {
+    if (confirm('Tem certeza que deseja limpar todo o histórico de lançamentos da roleta?')) {
       historyArr = [];
+      saveHistoryData();
       updateUI();
     }
   };
 
+  // 5. Lógica OCR Tesseract
+  document.getElementById('uploadBtn').onclick = () => uploadInput.click();
 
-  /* ================== FUNÇÃO DE PRÉ-PROCESSAMENTO P&B (RESTAURADA) ================== */
+  // Função de pré-processamento P&B (Restaurada e Otimizada)
   function preprocessImage(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -898,7 +1043,9 @@ document.addEventListener('DOMContentLoaded', () => {
           const threshold = 128; 
 
           for (let i = 0; i < data.length; i += 4) {
+            // Conversão para Luminância (GrayScale)
             const luminance = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+            // Binarização (Preto e Branco)
             const value = luminance > threshold ? 255 : 0;
             data[i] = value;
             data[i + 1] = value;
@@ -906,7 +1053,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           
           ctx.putImageData(imageData, 0, 0);
-          resolve(canvas.toDataURL('image/png'));
+          resolve(canvas.toDataURL('image/jpeg', 0.9)); // Usar JPEG para menor arquivo
         };
         image.onerror = (err) => reject(err);
         image.src = event.target.result;
@@ -915,9 +1062,6 @@ document.addEventListener('DOMContentLoaded', () => {
       reader.readAsDataURL(file);
     });
   }
-  
-  /* ================== UPLOAD AUTOMÁTICO (OCR) ================== */
-  document.getElementById('uploadBtn').onclick = () => uploadInput.click();
 
   uploadInput.addEventListener('change', async (event) => {
     const file = event.target.files[0];
@@ -927,24 +1071,32 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       console.log('Iniciando pré-processamento P&B...');
       const processedImage = await preprocessImage(file);
-      console.log('Imagem processada. Enviando para OCR...');
 
+      // Usando 'psm: 6' para reconhecer um único bloco de texto
       const { data: { text } } = await Tesseract.recognize(
         processedImage,
         'eng', 
         {
-          logger: m => console.log(m.status === 'recognizing text' ? `Processando: ${(m.progress * 100).toFixed(0)}%` : m.status),
-          tessedit_pageseg_mode: '6',
-          tessedit_char_whitelist: '0123456789'
+          logger: m => console.log(m.status === 'recognizing text' ? `OCR: ${(m.progress * 100).toFixed(0)}%` : m.status),
+          tessedit_pageseg_mode: '6', 
+          tessedit_char_whitelist: '0123456789 ' // Somente números e espaço
         }
       );
       
-      console.log('OCR Text:', text);
-      const matches = text.match(/\b([0-9]|[1-2][0-9]|3[0-6])\b/g);
+      console.log('OCR Text Original:', text);
+      // Regex aprimorada para extrair números de 0 a 36
+      const matches = text.match(/\b(0|[1-9]|[12][0-9]|3[0-6])\b/g);
       
       if (matches && matches.length > 0) {
-        const numbersFromOCR = matches.slice(0, 100); 
-        addMultipleNumbers(numbersFromOCR);
+        // Remove duplicatas e inverte a ordem (se a leitura for da esquerda para a direita)
+        // Manter a ordem de leitura, apenas filtramos
+        const numbersFromOCR = matches.map(Number).filter((n, i, arr) => arr.indexOf(n) === i || i > 0); 
+        
+        // Se a roleta exibe o histórico mais antigo à esquerda, o OCR lê da esquerda para a direita,
+        // mas o app precisa dos mais recentes primeiro. Se a imagem é um extrato de histórico,
+        // provavelmente está em ordem de tempo. Vamos inverter para garantir que o mais recente 
+        // lido (o último) vá para o topo do `historyArr`.
+        addMultipleNumbers(numbersFromOCR.reverse()); 
       } else {
         alert('Nenhum número de 0 a 36 foi identificado na imagem.');
       }
@@ -959,13 +1111,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 </script>
-  <script>
+
+<script>
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker
-    .register('./service-worker.js')
-    .then(() => console.log('✅ Service Worker registrado com sucesso!'))
-    .catch(err => console.error('Erro ao registrar o Service Worker:', err));
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(reg => console.log('Service Worker registrado com sucesso:', reg))
+      .catch(err => console.log('Falha ao registrar Service Worker:', err));
+  });
 }
 </script>
+
 </body>
 </html>
