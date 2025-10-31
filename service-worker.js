@@ -6,7 +6,7 @@ const CACHE_NAME = 'roleta-iap-cache-v1.0.3';
 const urlsToCache = [
   './', // Caching do index.html (página principal)
   './index.html',
-  './manifest.json',
+  './manifest.webservice',
   './IMG_4124.jpeg', // Seu ícone 192x192
   './IMG_4123.jpeg', // Seu ícone 512x512
   'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&display=swap',
