@@ -1,22 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-
-<link rel="manifest" href="manifest.json">
-
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#050512">
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-
 <title>ROLETA IAP 📈 🔥</title>
-
-<body>
-  <div style="text-align:center; margin:20px;">
-    <img src="./IMG_4123.jpeg" alt="Logo" width="200" />
-  </div>
-  
-  <!-- resto do conteúdo do app -->
-</body>
-
 <style>
 /* Importa a fonte do Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&display=swap');
@@ -970,18 +959,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 </script>
-
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then((registration) => {
-        console.log('Service Worker registrado com sucesso: ', registration);
-      })
-      .catch((error) => {
-        console.log('Falha ao registrar o Service Worker: ', error);
-      });
-  }
+  <script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker
+    .register('./service-worker.js')
+    .then(() => console.log('✅ Service Worker registrado com sucesso!'))
+    .catch(err => console.error('Erro ao registrar o Service Worker:', err));
+}
 </script>
-
 </body>
 </html>
