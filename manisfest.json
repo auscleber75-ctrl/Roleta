@@ -1,11 +1,11 @@
 {
-  "name": "ROLETA IAP 📈🔥",
+  "name": "ROLETA IAP 📈 🔥",
   "short_name": "Roleta IAP",
+  "description": "Análise de Roleta e Gestão de Banca com OCR.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#050512",
   "theme_color": "#00fff6",
-  "orientation": "portrait",
   "icons": [
     {
       "src": "./IMG_4124.jpeg",
