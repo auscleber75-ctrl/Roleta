@@ -744,6 +744,7 @@ document.addEventListener('DOMContentLoaded', () => {
     historyArr = [...numbersToAdd, ...historyArr];
     
     if (historyArr.length > MAX_HISTORY) {
+      // GARANTIA: Limita o histórico aos 100 números mais recentes (Recente é o início do array)
       historyArr = historyArr.slice(0, MAX_HISTORY);
     }
     
@@ -1038,9 +1039,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 5. Lógica OCR Tesseract
   
-  // CORREÇÃO: Zera o valor do input antes de chamar o click
+  // Zera o valor do input antes de chamar o click
   document.getElementById('uploadBtn').onclick = () => {
-    uploadInput.value = null; // Zera o valor para garantir que o evento 'change' dispare mesmo após cancelamento
+    uploadInput.value = null; 
     uploadInput.click();
   };
 
@@ -1105,13 +1106,12 @@ document.addEventListener('DOMContentLoaded', () => {
       
       if (matches && matches.length > 0) {
         
-        // CORREÇÃO: Mapeia todos os números e aceita duplicatas
         const numbersFromOCR = matches.map(Number); 
         
-        // CORREÇÃO: Inverte a ordem da lista lida pelo OCR.
-        // Isso assume que o OCR lê da esquerda para a direita/cima para baixo (Antigo -> Recente).
-        // Ao inverter, garantimos que o número mais RECENTE lido da imagem vá para o topo do histórico.
-        addMultipleNumbers(numbersFromOCR.reverse()); 
+        // CORREÇÃO: Mantido SEM o .reverse().
+        // Assumimos que o OCR lê a imagem na ordem Recente -> Antigo 
+        // (Top-Left é o mais recente, seguindo a sua descrição).
+        addMultipleNumbers(numbersFromOCR); 
         
       } else {
         alert('Nenhum número de 0 a 36 foi identificado na imagem.');
