@@ -7,14 +7,14 @@
   "theme_color": "#0078D7",
   "icons": [
     {
-      "src": "images/icon.jpg",
+      "src": "Roleta/IMG_4124.jpeg",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/jpeg"
     },
     {
-      "src": "images/icon.jpg",
+      "src": "Roleta/IMG_4123.jpeg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/jpeg"
     }
   ]
 }
