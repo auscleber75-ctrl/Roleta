@@ -740,7 +740,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     
+    // Concatena os novos números na frente do histórico
     historyArr = [...numbersToAdd, ...historyArr];
+    
     if (historyArr.length > MAX_HISTORY) {
       historyArr = historyArr.slice(0, MAX_HISTORY);
     }
@@ -1098,14 +1100,19 @@ document.addEventListener('DOMContentLoaded', () => {
       );
       
       console.log('OCR Text Original:', text);
+      // Mantém apenas números válidos de 0 a 36
       const matches = text.match(/\b(0|[1-9]|[12][0-9]|3[0-6])\b/g);
       
       if (matches && matches.length > 0) {
-        // Filtrar e garantir que o mais recente (último lido no extrato da imagem) vá para o topo do histórico
-        const numbersFromOCR = matches.map(Number).filter((n, i, arr) => arr.indexOf(n) === i || i > 0); 
         
-        // Inverte a ordem: o último número lido no extrato é o MAIS RECENTE
+        // CORREÇÃO: Mapeia todos os números e aceita duplicatas
+        const numbersFromOCR = matches.map(Number); 
+        
+        // CORREÇÃO: Inverte a ordem da lista lida pelo OCR.
+        // Isso assume que o OCR lê da esquerda para a direita/cima para baixo (Antigo -> Recente).
+        // Ao inverter, garantimos que o número mais RECENTE lido da imagem vá para o topo do histórico.
         addMultipleNumbers(numbersFromOCR.reverse()); 
+        
       } else {
         alert('Nenhum número de 0 a 36 foi identificado na imagem.');
       }
