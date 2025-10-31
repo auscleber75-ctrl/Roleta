@@ -347,7 +347,7 @@ body{
         <div class="grid" id="gridNumbers" style="margin-top:10px"></div>
       </div>
       <div style="min-width:170px;text-align:right">
-        <button id="uploadBtn" class="control-btn">📷 Enviar Foto</button>
+        <button id="uploadBtn" class="control-btn">📷 Enviar Foto</button> 
         <button id="clearBtn" class="control-btn" title="Limpar histórico">Limpar histórico</button>
         <button id="logoutBtn" class="control-btn" title="Sair" style="margin-left:8px">Sair</button>
       </div>
@@ -1024,7 +1024,12 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // 5. Lógica OCR Tesseract
-  document.getElementById('uploadBtn').onclick = () => uploadInput.click();
+  
+  // CORREÇÃO APLICADA AQUI: Zera o valor do input antes de chamar o click
+  document.getElementById('uploadBtn').onclick = () => {
+    uploadInput.value = null; // Zera o valor para garantir que o evento 'change' dispare mesmo após cancelamento
+    uploadInput.click();
+  };
 
   // Função de pré-processamento P&B (Restaurada e Otimizada)
   function preprocessImage(file) {
@@ -1106,7 +1111,7 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Erro ao processar a imagem. Veja o console para detalhes.');
     } finally {
       document.getElementById('uploadBtn').textContent = '📷 Enviar Foto';
-      uploadInput.value = '';
+      // uploadInput.value = ''; <--- Removido daqui
     }
   });
 
@@ -1114,6 +1119,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script>
+// Service Worker Registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('service-worker.js')
