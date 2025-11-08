@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>ROLETA IAP VANGUARDA ⚡ 2.1</title>
+<title>ROLETA IAP VANGUARDA ⚡ 3.0</title>
 
 <link rel="manifest" href="manifest.webmanifest">
 
@@ -13,48 +13,97 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&family=Roboto+Mono:wght@400;700&family=Share+Tech+Mono&display=swap');
 
 :root{
-  --bg:#080111; /* Roxo Ultra Escuro */
-  --panel:#1c0733; /* Fundo do Card */
-  --accent:#00ffae; /* Verde Neon */
+  --bg:#020210; /* Fundo Ultra Escuro */
+  --panel:#080820; /* Fundo do Card (quase preto com azul sutil) */
+  --accent:#00fff2; /* Ciano Neon/Aqua */
   --accent-secondary:#00aeff; /* Azul Neon */
-  --muted:#a0a4b8;
+  --muted:#99aacc; /* Cinza/Azul Claro */
   --zero:#ffc400; /* Amarelo Dourado */
   --red:#ff3b57; /* Vermelho Agressivo */
   --black:#020202; 
   --btn-main:linear-gradient(90deg, var(--accent), var(--accent-secondary)); 
   --alert-red:#ff3b57;
   --alert-green:#00ffae;
-  --lock-bg:rgba(12, 1, 26, 0.98);
+  --lock-bg:rgba(2, 2, 32, 0.98);
 }
 *{box-sizing:border-box}
 body{
   margin:0;
-  font-family:'Share Tech Mono',monospace; /* Fonte de console moderna */
+  font-family:'Roboto Mono',monospace; 
   background:var(--bg);
   color:#e8f0ff;
   padding:14px;
 }
 .hidden { display: none !important; }
 
+/* ================== TELA DE LOGIN ================== */
+#loginScreen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+#loginBox {
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 0 40px rgba(0, 255, 242, 0.15);
+    border: 1px solid rgba(0, 255, 242, 0.3);
+    text-align: center;
+}
+.login-title{
+    font-family:'Orbitron',sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    color: var(--accent);
+    margin-bottom: 5px;
+    text-shadow: 0 0 10px rgba(0, 255, 242, 0.6);
+}
+.login-subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+#authPwd{
+    width: 100%;
+    padding: 12px;
+    background: var(--black);
+    border: 1px solid rgba(0,255,242,0.3);
+    border-radius: 6px;
+    color: var(--accent);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    margin-top: 15px;
+}
+#authPwd:focus {
+    outline: none;
+    border-color: var(--zero);
+    box-shadow: 0 0 10px rgba(255,196,0,0.5);
+}
+
 /* ================== LAYOUT E COMPONENTES MODERNOS ================== */
 
 /* Header / clock */
 .header{
-  background: linear-gradient(90deg, rgba(0,255,174,0.15), rgba(0,174,255,0.05)); 
+  background: linear-gradient(90deg, rgba(0,255,242,0.15), rgba(0,174,255,0.05)); 
   border-radius:8px; 
   padding:12px; 
   display:flex; 
   justify-content:space-between; 
   align-items:center; 
-  box-shadow:0 0 25px rgba(0,255,174,0.1);
-  border: 1px solid rgba(0,255,174,0.3);
+  box-shadow:0 0 25px rgba(0,255,242,0.1);
+  border: 1px solid rgba(0,255,242,0.3);
 }
 .title{
   font-family:'Orbitron',sans-serif;
   font-weight:700;
   font-size:20px;
   color: var(--accent);
-  text-shadow: 0 0 5px rgba(0,255,174,0.5);
+  text-shadow: 0 0 5px rgba(0,255,242,0.5);
 }
 #clock{
   color:var(--zero);
@@ -69,12 +118,9 @@ body{
   border-radius:12px;
   padding:15px;
   margin-top:14px;
-  box-shadow:0 8px 30px rgba(0,0,0,0.8);
-  border:1px solid rgba(0,255,174,0.1);
+  box-shadow:inset 0 0 10px rgba(0,0,0,0.5), 0 8px 30px rgba(0,0,0,0.8); /* Sombra interna para profundidade */
+  border:1px solid rgba(0,255,242,0.15);
   transition: all 0.3s ease;
-}
-.card:hover {
-    border-color: rgba(0,255,174,0.4);
 }
 
 /* Títulos / Sugestões */
@@ -132,7 +178,7 @@ body{
 }
 .number-btn:hover{
     transform:scale(1.05); 
-    box-shadow:0 0 15px rgba(0,255,174,0.5);
+    box-shadow:0 0 15px rgba(0,255,242,0.5);
     border-color: var(--accent);
 }
 .red{background:var(--red);color:#fff}
@@ -152,10 +198,11 @@ body{
   transition: all .2s;
   margin: 4px 0;
   box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  text-transform: uppercase;
 }
 .control-btn:hover{
     opacity:0.95; 
-    box-shadow: 0 0 20px rgba(0,255,174,0.8);
+    box-shadow: 0 0 20px rgba(0,255,242,0.8);
     transform: translateY(-2px);
 }
 .control-btn:active{transform: translateY(1px);}
@@ -170,14 +217,22 @@ body{
 .btn-loss { background: var(--alert-red); color: #fff; }
 
 /* Estilos de Entrada (Input) */
+.bankroll-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 400;
+    margin-bottom: 4px;
+    margin-top: 8px;
+}
 .bankroll-input {
     width: 100%;
     padding: 10px;
     background: var(--black);
-    border: 1px solid rgba(0,255,174,0.3);
+    border: 1px solid rgba(0,255,242,0.3);
     border-radius: 6px;
     color: var(--accent);
-    font-family: 'Share Tech Mono', monospace;
+    font-family: 'Roboto Mono', monospace;
     font-size: 16px;
     transition: border-color 0.2s;
 }
@@ -193,12 +248,14 @@ body{
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 15px;
     margin-top: 10px;
+    padding-top: 10px;
 }
 .stat-item {
     background: rgba(0,174,255,0.05);
     padding: 12px;
     border-radius: 8px;
     border-left: 4px solid var(--accent-secondary);
+    box-shadow: inset 0 0 5px rgba(0,174,255,0.1);
 }
 .stat-title {
     font-size: 11px;
@@ -210,6 +267,7 @@ body{
 .stat-value {
     font-size: 18px;
     font-weight: 700;
+    font-family: 'Orbitron', sans-serif;
     color: #fff;
 }
 .positive { color: var(--alert-green) !important; }
@@ -224,6 +282,8 @@ body{
     max-height: 180px;
     overflow-y: auto;
     padding: 5px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
 }
 .chip{
     width: 32px;
@@ -237,6 +297,7 @@ body{
     cursor: pointer;
     box-shadow: 0 2px 5px rgba(0,0,0,0.4);
     transition: transform 0.1s;
+    font-family: 'Orbitron', sans-serif;
 }
 .chip:hover { transform: scale(1.15); }
 .chip.zero { background: var(--zero); color: var(--bg); }
@@ -249,6 +310,7 @@ body{
     border: 1px solid var(--accent-secondary);
     border-radius: 6px;
     padding: 12px;
+    box-shadow: inset 0 0 8px rgba(0,174,255,0.1);
 }
 .pattern-line {
     font-size: 14px;
@@ -268,6 +330,35 @@ body{
     color: var(--muted);
     font-size: 12px;
 }
+
+/* Extrato */
+#bankrollHistory {
+    max-height: 150px;
+    overflow-y: auto;
+    padding: 5px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+}
+.log-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    margin-bottom: 4px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+.log-win { background: rgba(0,255,174,0.1); border-left: 3px solid var(--alert-green); color: var(--alert-green);}
+.log-loss { background: rgba(255,59,87,0.1); border-left: 3px solid var(--alert-red); color: var(--alert-red);}
+.log-delete-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.log-delete-btn:hover { color: #fff; }
 
 /* ================== TELA DE BLOQUEIO (CADEADO) ================== */
 
@@ -307,7 +398,7 @@ body{
   color:var(--accent);
   margin-top:20px;
   margin-bottom: 25px;
-  text-shadow: 0 0 30px rgba(0,255,174,0.8);
+  text-shadow: 0 0 30px rgba(0,255,242,0.8);
 }
 </style>
 </head>
@@ -320,14 +411,13 @@ body{
   <h2 id="lockTitle">ZONA SEGURA ATINGIDA (STOP LOSS)</h2>
   <p>Análise bloqueada. Retorne após o período de resfriamento:</p>
   <div class="countdown" id="countdownTimer">02:00:00</div>
-  <button id="closeLockBtn" class="control-btn btn-loss" style="background: var(--red);">FECHAR ZONA SEGURA (TESTE)</button>
-</div>
+  </div>
 
 
 <div id="loginScreen"> 
   <div id="loginBox">
-    <div class="login-title">ROLETA IAP VANGUARDA ⚡</div>
-    <div class="login-subtitle">Análise de Sucessão de Zonas</div>
+    <div class="login-title">IAP VANGUARDA ⚡</div>
+    <div class="login-subtitle">Interface de Análise de Padrões</div>
 
     <div id="signInForm">
       <input id="authPwd" type="password" placeholder="Senha de Acesso" autocomplete="current-password" required><br>
@@ -358,6 +448,33 @@ body{
         <button id="logoutBtn" class="control-btn control-logout" title="Sair" style="flex:1 1 100px;">SAIR</button>
     </div>
   </div>
+
+  <div class="card">
+    <div class="suggestionTitle">💸 GESTÃO DE BANCA E RISCO</div>
+    
+    <div class="bankroll-grid" style="display:flex; gap: 15px;">
+        <div style="flex:1;">
+            <div class="bankroll-label">BANCA INICIAL (R$)</div>
+            <input id="initialBankrollInput" type="number" class="bankroll-input" placeholder="1000" min="0" step="0.01">
+            <button id="btnSetBankroll" class="control-btn" style="width: 100%; margin-top: 8px;">DEFINIR BANCA</button>
+        </div>
+        <div class="bankroll-actions" style="flex:1;">
+            <div class="bankroll-label">REGISTRAR ENTRADA (R$)</div>
+            <input id="betAmountInput" type="number" class="bankroll-input" placeholder="Valor ganho/perdido" min="0" step="0.01">
+            <div style="display:flex; gap: 8px;">
+                <button id="btnRegisterWin" class="control-btn btn-win" style="flex:1; margin-top: 8px;">GREEN (+)</button>
+                <button id="btnRegisterLoss" class="control-btn btn-loss" style="flex:1; margin-top: 8px;">RED (-)</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="data-separator"></div>
+    <div class="suggestionTitle">📊 ESTATÍSTICAS DE DESEMPENHO</div>
+    <div id="performanceDashboard" class="dashboard-grid">
+      <span class="stat-title" style="grid-column: 1 / -1;">Defina sua banca inicial para começar.</span>
+    </div>
+
+  </div>
   
   <div class="card" id="boosterCard">
     <div class="suggestionTitle iaGlow">✨ BOOSTER DE APOSTA I.A.</div>
@@ -376,29 +493,6 @@ body{
         <div class="suggestionTitle">🌡️ TENDÊNCIAS GERAIS</div>
         <div id="hotCold" class="suggestionBox">🔥 Hot: -<br>❄️ Cold: -</div>
       </div>
-    </div>
-  </div>
-  
-  <div class="card">
-    <div class="suggestionTitle">💸 GESTÃO DE BANCA E RISCO</div>
-    <div id="performanceDashboard" class="dashboard-grid">
-      <span class="stat-title" style="grid-column: 1 / -1;">Defina sua banca inicial para começar.</span>
-    </div>
-    
-    <div class="data-separator"></div>
-    
-    <div class="bankroll-grid">
-        <div>
-            <div class="bankroll-label">BANCA INICIAL (R$)</div>
-            <input id="initialBankrollInput" type="number" class="bankroll-input" placeholder="1000" min="0" step="0.01">
-            <button id="btnSetBankroll" class="control-btn" style="width: 100%; margin-top: 8px;">DEFINIR</button>
-        </div>
-        <div class="bankroll-actions">
-            <div class="bankroll-label">REGISTRAR ENTRADA (R$)</div>
-            <input id="betAmountInput" type="number" class="bankroll-input" placeholder="Valor ganho/perdido" min="0" step="0.01">
-            <button id="btnRegisterWin" class="control-btn btn-win" style="margin-top: 8px;">LUCRAR (+)</button>
-            <button id="btnRegisterLoss" class="control-btn btn-loss">RED (-)</button>
-        </div>
     </div>
   </div>
   
@@ -452,7 +546,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const lockScreen = document.getElementById('lockScreen');
   const lockTitle = document.getElementById('lockTitle');
   const countdownTimer = document.getElementById('countdownTimer');
-  const closeLockBtn = document.getElementById('closeLockBtn'); // Novo Botão
   const boosterCard = document.getElementById('boosterCard');
   
   const historyDiv = document.getElementById('history');
@@ -641,18 +734,6 @@ document.addEventListener('DOMContentLoaded', () => {
       
       checkLockStatus();
   }
-  
-  // Botão de Forçar Fechamento (Teste)
-  closeLockBtn.onclick = () => {
-    if (confirm('ATENÇÃO: Este botão é APENAS para testes. Forçar o fechamento anula a Zona Segura. Continuar?')) {
-        config.isLocked = false;
-        config.lockUntil = 0;
-        config.lockReason = '';
-        saveConfig();
-        checkLockStatus();
-        updateUI();
-    }
-  };
 
   function checkStopCondition() {
       if (config.mode !== 'REAL') return;
@@ -998,7 +1079,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const history = bankrollState.history;
     const historyDiv = document.getElementById('bankrollHistory');
     if (history.length === 0) {
-      historyDiv.innerHTML = `<div class="log-item log-placeholder">Nenhum registro ainda.</div>`;
+      historyDiv.innerHTML = `<div class="log-item log-placeholder" style="border: none;">Nenhum registro ainda.</div>`;
       return;
     }
     historyDiv.innerHTML = '';
@@ -1129,8 +1210,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnSignInReal').onclick = () => {
       if (authPwdInput.value === getPasswordHash()) {
           setLoginStatus(true, 'REAL');
-          loadConfig(); // Força o carregamento do novo modo
-          updateUI();   // Atualiza a interface (fecha login, abre painel)
+          loadConfig(); 
+          updateUI();   
       } else {
           alert('Senha incorreta.');
       }
@@ -1138,8 +1219,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnSignInDemo').onclick = () => {
       if (authPwdInput.value === getPasswordHash()) {
           setLoginStatus(true, 'DEMO');
-          loadConfig(); // Força o carregamento do novo modo
-          updateUI();   // Atualiza a interface (fecha login, abre painel)
+          loadConfig(); 
+          updateUI();   
       } else {
           alert('Senha incorreta.');
       }
@@ -1150,7 +1231,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setLoginStatus(false);
         config.isLocked = false;
         saveConfig();
-        updateUI(); // Atualiza a interface (fecha painel, abre login)
+        updateUI();
     }
   };
   
