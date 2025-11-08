@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>ROLETA IAP VANGUARDA ⚡ 6.0</title>
+<title>ROLETA IAP VANGUARDA ⚡ 8.0</title>
 
 <link rel="manifest" href="manifest.webmanifest">
 
@@ -156,6 +156,28 @@ body{
   margin: 12px 0;
   opacity: 0.5;
 }
+
+/* ================== LIVE STREAM ================== */
+.live-stream-card {
+    padding: 0;
+    overflow: hidden;
+}
+.video-responsive {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+    overflow: hidden;
+    border-radius: 12px;
+}
+.video-responsive iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
 
 /* ================== BOTÕES E INPUTS ================== */
 
@@ -420,7 +442,7 @@ body{
     <div class="login-subtitle">Interface de Análise de Padrões</div>
 
     <div id="signInForm">
-      <input id="authPwd" type="password" placeholder="Senha de Acesso" autocomplete="current-password" required><br>
+      <input id="authPwd" type="password" placeholder="Senha de Acesso (Modo Real)" autocomplete="current-password" required><br>
       
       <div style="display:flex; gap:10px; margin-top:15px;">
           <button id="btnSignInReal" class="control-btn" style="flex:1; background: linear-gradient(90deg, #ffc400, #ff8c00); color: var(--bg);">MODO REAL</button>
@@ -436,6 +458,12 @@ body{
   <div class="header">
     <div class="title">IAP <span id="modeDisplay">REAL</span></div>
     <div id="clock">--:--:--</div>
+  </div>
+
+  <div class="card live-stream-card" id="liveStreamCard">
+    <div class="video-responsive">
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0&autoplay=1&mute=1" title="Placeholder Video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
   </div>
 
   <div class="card">
@@ -1211,14 +1239,12 @@ document.addEventListener('DOMContentLoaded', () => {
           alert('Senha incorreta.');
       }
   };
+  
+  // MODO DEMO: Não exige senha
   document.getElementById('btnSignInDemo').onclick = () => {
-      if (authPwdInput.value === getPasswordHash()) {
-          setLoginStatus(true, 'DEMO');
-          loadConfig(); 
-          updateUI();   
-      } else {
-          alert('Senha incorreta.');
-      }
+      setLoginStatus(true, 'DEMO');
+      loadConfig(); 
+      updateUI();   
   };
 
   document.getElementById('logoutBtn').onclick = () => {
