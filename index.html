@@ -462,7 +462,15 @@ body{
 
   <div class="card live-stream-card" id="liveStreamCard">
     <div class="video-responsive">
-      <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0&autoplay=1&mute=1" title="Placeholder Video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      <iframe 
+        width="100%" 
+        height="100%" 
+        src="https://tradicional.bet.br/cassino-ao-vivo/roleta-brasileira/play" 
+        title="Roleta Brasileira Live" 
+        frameborder="0"
+        allow="autoplay; fullscreen; picture-in-picture; web-share" 
+        allowfullscreen
+      ></iframe>
     </div>
   </div>
 
@@ -936,10 +944,10 @@ document.addEventListener('DOMContentLoaded', () => {
       // Aqui, mostramos o número que veio depois (num) e a contagem
       html += `<div class="pattern-line">
                   <span style="font-size: 16px;">
-                      &rarr; **${num}** (<span class="pattern-succession">${getColor(num).toUpperCase()}</span>) 
+                      → **${num}** (<span class="pattern-succession">${getColor(num).toUpperCase()}</span>) 
                   </span>
                   <span class="pattern-count">
-                      &mdash; ${count}x (Prob: ${(count / followers.length * 100).toFixed(1)}%)
+                      — ${count}x (Prob: ${(count / followers.length * 100).toFixed(1)}%)
                   </span>
               </div>`;
     });
@@ -1300,6 +1308,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // Service Worker Registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
+    // Você precisará de um arquivo service-worker.js no mesmo diretório.
+    // Como a funcionalidade PWA (Service Worker) não é essencial para o IAP, 
+    // você pode remover este bloco se não quiser criar o arquivo PWA.
     navigator.serviceWorker.register('service-worker.js')
       .then(reg => console.log('Service Worker registrado com sucesso:', reg))
       .catch(err => console.log('Falha ao registrar Service Worker:', err));
