@@ -157,19 +157,20 @@ body{
   opacity: 0.5;
 }
 
-/* ================== LIVE STREAM ================== */
-.live-stream-card {
+/* ================== SITE EMBUTIDO (tradicional.bet.br) ================== */
+.site-embed-card {
     padding: 0;
     overflow: hidden;
 }
-.video-responsive {
+.site-responsive {
     position: relative;
-    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    /* Ajustado para uma altura maior, o usuário pode ajustar com 'padding-bottom' */
+    padding-bottom: 100vh; 
     height: 0;
     overflow: hidden;
     border-radius: 12px;
 }
-.video-responsive iframe {
+.site-responsive iframe {
     position: absolute;
     top: 0;
     left: 0;
@@ -460,33 +461,6 @@ body{
     <div id="clock">--:--:--</div>
   </div>
 
-  <div class="card live-stream-card" id="liveStreamCard">
-    <div class="video-responsive">
-      <iframe 
-        width="100%" 
-        height="100%" 
-        src="https://tradicional.bet.br/cassino-ao-vivo/roleta-brasileira/play" 
-        title="Roleta Brasileira Live" 
-        frameborder="0"
-        allow="autoplay; fullscreen; picture-in-picture; web-share" 
-        allowfullscreen
-      ></iframe>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="suggestionTitle">🔍 PESQUISA RÁPIDA (GOOGLE)</div>
-    <div class="video-responsive" style="padding-bottom: 80%;">
-      <iframe 
-        width="100%" 
-        height="100%" 
-        src="https://www.google.com" 
-        title="Google Search" 
-        frameborder="0"
-        allowfullscreen
-      ></iframe>
-    </div>
-  </div>
   <div class="card">
     <div class="suggestionTitle">💸 GESTÃO DE BANCA E RISCO</div>
     
@@ -513,15 +487,25 @@ body{
     </div>
 
   </div>
-  
+
   <div class="card">
-    <div class="suggestionTitle">🔢 ENTRADAS RÁPIDAS</div>
-    <div class="grid" id="gridNumbers"></div>
-    <div class="data-separator"></div>
-    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px;">
-        <button id="btnUpload" class="control-btn" style="flex:1 1 150px;">📷 UPLOAD (OCR)</button> 
-        <button id="clearBtn" class="control-btn btn-loss" title="Limpar histórico" style="flex:1 1 100px;">LIMPAR</button>
-        <button id="logoutBtn" class="control-btn control-logout" title="Sair" style="flex:1 1 100px;">SAIR</button>
+    <div class="suggestionTitle">🧾 EXTRATO DE TRANSAÇÕES</div>
+    <div id="bankrollHistory" class="bankroll-history-list">
+      <div class="log-item log-placeholder">Nenhum registro ainda.</div>
+    </div>
+  </div>
+  
+  <div class="card site-embed-card" id="traditionalBetCard">
+    <div class="suggestionTitle">🎰 TRADICIONAL.BET.BR (SITE DE APOSTAS)</div>
+    <div class="site-responsive">
+      <iframe 
+        width="100%" 
+        height="100%" 
+        src="https://www.tradicional.bet.br/" 
+        title="Site de Apostas" 
+        frameborder="0"
+        allowfullscreen
+      ></iframe>
     </div>
   </div>
 
@@ -531,19 +515,16 @@ body{
       <div class="history-subtitle" style="font-size:11px;color:var(--muted)">Recentes → Antigos</div> 
     </div>
     <div id="history" class="history"></div>
-    
-    <div class="data-separator"></div>
-    
-    <div class="suggestionTitle">🧾 EXTRATO DE TRANSAÇÕES</div>
-    <div id="bankrollHistory" class="bankroll-history-list">
-      <div class="log-item log-placeholder">Nenhum registro ainda.</div>
-    </div>
   </div>
-
-  <div class="card" id="boosterCard">
-    <div class="suggestionTitle iaGlow">✨ BOOSTER DE APOSTA I.A.</div>
-    <div id="betSuggestion" class="suggestionBox" style="font-size: 16px; font-weight: 700;">
-        <span style="color:var(--muted)">Aguardando dados ou aguardando desbloqueio...</span>
+  
+  <div class="card">
+    <div class="suggestionTitle">🔢 ENTRADAS RÁPIDAS</div>
+    <div class="grid" id="gridNumbers"></div>
+    <div class="data-separator"></div>
+    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px;">
+        <button id="btnUpload" class="control-btn" style="flex:1 1 150px;">📷 UPLOAD (OCR)</button> 
+        <button id="clearBtn" class="control-btn btn-loss" title="Limpar histórico" style="flex:1 1 100px;">LIMPAR</button>
+        <button id="logoutBtn" class="control-btn control-logout" title="Sair" style="flex:1 1 100px;">SAIR</button>
     </div>
   </div>
   
@@ -560,6 +541,13 @@ body{
     </div>
   </div>
 
+  <div class="card" id="boosterCard">
+    <div class="suggestionTitle iaGlow">✨ BOOSTER DE APOSTA I.A.</div>
+    <div id="betSuggestion" class="suggestionBox" style="font-size: 16px; font-weight: 700;">
+        <span style="color:var(--muted)">Aguardando dados ou aguardando desbloqueio...</span>
+    </div>
+  </div>
+  
   <input type="file" id="uploadPhoto" accept="image/*" class="hidden">
 </div>
 
@@ -569,6 +557,7 @@ body{
 document.addEventListener('DOMContentLoaded', () => {
 
   /* ================== CONSTANTES DE CONFIGURAÇÃO ================== */
+  // Senha: '2025'
   const getPasswordHash = () => '2025'; 
   const BANKROLL_STORAGE_KEY = 'roletaIAPBankroll_main';
   const HISTORY_STORAGE_KEY = 'roletaIAPHistory'; 
@@ -662,7 +651,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedConfig = localStorage.getItem(CONFIG_STORAGE_KEY);
     if (savedConfig) {
       const loaded = JSON.parse(savedConfig);
-      config = { ...config, ...loaded }; 
+      // Correção: Garante que as propriedades de lock sejam carregadas corretamente
+      config.mode = loaded.mode || 'DEMO';
+      config.isLocked = loaded.isLocked || false;
+      config.lockUntil = loaded.lockUntil || 0;
+      config.lockReason = loaded.lockReason || '';
     }
     modeDisplay.textContent = config.mode;
   }
@@ -753,7 +746,7 @@ document.addEventListener('DOMContentLoaded', () => {
       countdownInterval = setInterval(() => {
           const remainingTime = config.lockUntil - Date.now();
           if (remainingTime <= 0) {
-              checkLockStatus();
+              checkLockStatus(); // Chama para desbloquear e parar
               return;
           }
 
@@ -787,6 +780,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function checkStopCondition() {
       if (config.mode !== 'REAL') return;
       if (config.isLocked) return;
+      if (bankrollState.initial === 0) return; // Não verifica se não há banca inicial
 
       const { current, initial, history } = bankrollState;
       const totalProfit = parseFloat((current - initial).toFixed(2));
@@ -858,15 +852,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 2. Hot/Cold (Métricas gerais de frequência)
     const allCounts = allNumbers.map(n => stats.counts[n].count);
+    const maxCount = allCounts.length > 0 ? Math.max(...allCounts) : 0;
     const minCount = allCounts.length > 0 ? Math.min(...allCounts) : 0;
     
+    // Corrigido o cálculo de hotList e coldList para ser mais robusto
     stats.hotList = allNumbers
-      .filter(n => stats.counts[n].count > 0)
-      .sort((a, b) => stats.counts[b].count - stats.counts[a].count)
+      .filter(n => stats.counts[n].count >= maxCount && maxCount > 0)
+      .sort((a, b) => a - b)
       .slice(0, 4);
     
+    // ColdList: Números que não saíram ou saíram menos
     stats.coldList = allNumbers
-      .filter(n => stats.counts[n].count === minCount) 
+      .filter(n => stats.counts[n].count <= minCount) 
       .sort((a, b) => a - b) 
       .slice(0, 4);
 
@@ -877,7 +874,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (historyArr.length >= MAX_HISTORY) {
       historyArr.pop(); 
     }
-    historyArr.unshift(num); 
+    // Bug fix: Garante que 'num' é um número (já mapeado anteriormente, mas reforça a segurança)
+    historyArr.unshift(Number(num)); 
     saveHistoryData();
     updateUI();
   }
@@ -885,6 +883,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ================== RENDERIZAÇÃO DA UI E BOOSTER ================== */
   
   function updateUI() {
+    // 1. Lógica de Login/Lock (Mantida)
     if(getLoginStatus() && !checkLockStatus()) {
         mainPanel.classList.remove('hidden');
         loginScreen.classList.add('hidden');
@@ -894,25 +893,30 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     
+    // 2. Análise e Renderização
     calculateStats();
     renderControls(); 
-    renderHistory();
-    renderHotCold();
-    renderZoneAnalysis();
-    renderBetSuggestion();
     renderBankrollDashboard();
-    renderBankrollHistory();
+    renderBankrollHistory(); // Ordem 2
+    // Site Tradicional (Não requer renderização dinâmica) - Ordem 3
+    renderHistory(); // Ordem 4
+    // Entradas Rápidas (Não requer renderização dinâmica) - Ordem 5
+    renderZoneAnalysis(); // Ordem 6
+    renderHotCold(); // Dentro da Ordem 6
+    renderBetSuggestion(); // Ordem 7
 
     historyCount.textContent = `${historyArr.length}/${MAX_HISTORY}`;
   }
 
   function renderControls() {
+      // O modo DEMO desabilita o registro de GREEN/RED e o Booster.
       const isDisabled = config.mode === 'DEMO';
       
       btnRegisterWin.disabled = isDisabled;
       btnRegisterLoss.disabled = isDisabled;
       boosterCard.style.opacity = isDisabled ? '0.5' : '1';
       
+      // Os botões de número do grid continuam habilitados em ambos os modos
       document.querySelectorAll('.number-btn').forEach(btn => {
           btn.disabled = false; 
       });
@@ -925,14 +929,11 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     
-    // O triggerNum é o último número lançado (o mais recente)
     const triggerNum = historyArr[0];
-    const followers = numberStats.zoneSuccessionMap[triggerNum]; // O que veio historicamente APÓS o triggerNum
+    const followers = numberStats.zoneSuccessionMap[triggerNum];
     
-    // Condição de Filtro Estrito: Apenas se houver EXATAMENTE 3 sucessores
-    if (!followers || followers.length !== 3) { 
-      const count = followers ? followers.length : 0;
-      zoneAnalysisDiv.innerHTML = `<span style="color:var(--muted)">O último número foi **${triggerNum}**. O histórico de sucessão APÓS **${triggerNum}** possui **${count}** ocorrência(s). Exibindo Top 3 apenas quando houver **EXATAMENTE 3**.</span>`;
+    if (!followers || followers.length === 0) { 
+      zoneAnalysisDiv.innerHTML = `<span style="color:var(--muted)">O último número foi **${triggerNum}**. Nenhuma ocorrência de sucessão registrada após ele.</span>`;
       return;
     }
     
@@ -942,19 +943,17 @@ document.addEventListener('DOMContentLoaded', () => {
       followerCounts[num] = (followerCounts[num] || 0) + 1;
     }
     
-    // Ordenar por mais frequente
+    // Ordenar por mais frequente (Top 3)
     const sortedFollowers = Object.entries(followerCounts)
       .sort((a, b) => b[1] - a[1]);
 
     let html = `<div class="analysis-output">
                   <div class="pattern-line">Último lançamento (GATILHO): <span class="pattern-trigger">${triggerNum}</span></div>
                   <div class="data-separator" style="margin: 8px 0;"></div>
-                  <div style="font-size: 14px; margin-bottom: 10px;">**PRÓXIMOS MAIS PROVÁVEIS** (Histórico após **${triggerNum}**):</div>`;
+                  <div style="font-size: 14px; margin-bottom: 10px;">**PRÓXIMOS MAIS PROVÁVEIS** (Top 3 após **${triggerNum}**):</div>`;
     
-    // Se passarmos pelo filtro, sabemos que followers.length é 3
-    sortedFollowers.slice(0, 3).forEach(([numStr, count]) => { // Aqui usamos slice(0, 3) apenas para garantir o TOP 3, mas o filtro já assegurou que o total é 3
+    sortedFollowers.slice(0, 3).forEach(([numStr, count]) => {
       const num = Number(numStr);
-      // Aqui, mostramos o número que veio depois (num) e a contagem
       html += `<div class="pattern-line">
                   <span style="font-size: 16px;">
                       → **${num}** (<span class="pattern-succession">${getColor(num).toUpperCase()}</span>) 
@@ -1060,6 +1059,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderHotCold() {
+    // Renderiza tendências gerais dentro do card de análise de zonas
     const hotNumbers = numberStats.hotList || [];
     const coldNumbers = numberStats.coldList || [];
     hotColdDiv.innerHTML = `🔥 **Hot** (Mais Frequentes): ${hotNumbers.join(', ') || '-'}<br>❄️ **Cold** (Mais Atrasados): ${coldNumbers.join(', ') || '-'}`;
@@ -1141,6 +1141,8 @@ document.addEventListener('DOMContentLoaded', () => {
       item.appendChild(text); item.appendChild(deleteBtn);
       historyDiv.appendChild(item);
     });
+    // Scrolla para o topo após a renderização (para ver o mais recente)
+    historyDiv.scrollTop = 0;
   }
   
   function deleteBankrollEntry(indexToDelete) {
@@ -1149,9 +1151,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const entryType = amount > 0 ? 'Lucro' : 'Red';
     if (confirm(`Tem certeza que deseja excluir este lançamento de ${entryType} (${formatCurrency(Math.abs(amount))})?`)) {
       bankrollState.history.splice(indexToDelete, 1);
+      
+      // Recalcular a banca do zero para evitar erros de ponto flutuante (uso de centavos)
       let newCurrent = bankrollState.initial * 100; 
       for (const item of bankrollState.history) { newCurrent += item.amount * 100; }
       bankrollState.current = newCurrent / 100; 
+      
       saveBankrollData();
       checkStopCondition();
       updateUI();
@@ -1185,27 +1190,33 @@ document.addEventListener('DOMContentLoaded', () => {
       loadingMessage.textContent = "OCR em andamento... aguarde.";
       loadingMessage.style.color = 'var(--zero)';
       loadingMessage.style.textAlign = 'center';
+      loadingMessage.id = 'ocr-loading-msg'; // ID para fácil remoção
       gridNumbers.insertAdjacentElement('afterend', loadingMessage); 
+      btnUpload.disabled = true;
 
       Tesseract.recognize(
           file,
           'eng',
           { logger: m => console.log(m) } 
       ).then(({ data: { text } }) => {
-          loadingMessage.remove(); 
+          document.getElementById('ocr-loading-msg')?.remove(); 
+          btnUpload.disabled = false;
           
-          const numbers = text.match(/\b(0|[1-9]|[1-2][0-9]|3[0-6])\b/g);
+          // Regex mais estrito para encontrar números isolados de 0 a 36
+          const numbers = text.match(/\b(0|[1-9]|1[0-9]|2[0-9]|3[0-6])\b/g);
           
           if (numbers && numbers.length > 0) {
               const uniqueNumbers = [...new Set(numbers.map(Number))];
               if (confirm(`OCR encontrou os números: ${uniqueNumbers.join(', ')}. Adicionar todos ao histórico?`)) {
-                  uniqueNumbers.forEach(num => addNumber(num));
+                  // Adiciona do mais antigo (último na lista do OCR) para o mais recente
+                  uniqueNumbers.reverse().forEach(num => addNumber(num));
               }
           } else {
-              alert('OCR não conseguiu identificar números válidos (0-36) na imagem.');
+              alert('OCR não conseguiu identificar números válidos (0-36) na imagem. Tente uma captura mais clara.');
           }
       }).catch(err => {
-          loadingMessage.remove();
+          document.getElementById('ocr-loading-msg')?.remove();
+          btnUpload.disabled = false;
           alert('Erro no processamento OCR. Verifique o console.');
           console.error(err);
       });
@@ -1217,13 +1228,21 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     
-    const finalAmount = parseFloat(parseFloat(amount).toFixed(2));
-    if (isNaN(finalAmount) || finalAmount <= 0) {
+    // Converte para centavos para garantir precisão antes da divisão
+    const rawAmount = parseFloat(amount);
+    if (isNaN(rawAmount) || rawAmount <= 0) {
         alert('Por favor, insira um valor válido.');
         return;
     }
     
-    bankrollState.current = (bankrollState.current * 100 + (isWin ? finalAmount : -finalAmount) * 100) / 100;
+    const amountInCents = Math.round(rawAmount * 100);
+    const finalAmount = amountInCents / 100;
+
+    // Conversão para centavos para cálculos precisos
+    const currentCents = Math.round(bankrollState.current * 100);
+    const initialCents = Math.round(bankrollState.initial * 100);
+
+    bankrollState.current = (currentCents + (isWin ? amountInCents : -amountInCents)) / 100;
     bankrollState.history.push({ amount: isWin ? finalAmount : -finalAmount, timestamp: Date.now() });
     
     saveBankrollData();
@@ -1243,13 +1262,8 @@ document.addEventListener('DOMContentLoaded', () => {
     gridNumbers.appendChild(btn);
   }
 
-  // 2. Lógica de Login/Sessão e UI
-  loadConfig();
-  loadBankrollData();
-  loadHistoryData(); 
-  checkLockStatus(); 
-  updateUI();
-
+  // 2. Lógica de Login/Sessão e UI (Chamado ao final de DOMContentLoaded)
+  
   // 3. Event Listeners de Banca e Controles
   document.getElementById('btnSignInReal').onclick = () => {
       if (authPwdInput.value === getPasswordHash()) {
@@ -1271,7 +1285,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('logoutBtn').onclick = () => {
     if (confirm('Tem certeza que deseja sair?')) {
         setLoginStatus(false);
+        // Garante que o estado de bloqueio seja resetado ao sair
         config.isLocked = false;
+        config.lockUntil = 0;
         saveConfig();
         updateUI();
     }
@@ -1279,6 +1295,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   document.getElementById('btnSetBankroll').onclick = () => {
     const initialRaw = parseFloat(initialBankrollInput.value);
+    // Bug fix: Garante a precisão de duas casas decimais
     const initial = parseFloat(initialRaw.toFixed(2)); 
 
     if (isNaN(initial) || initial <= 0) {
@@ -1296,6 +1313,7 @@ document.addEventListener('DOMContentLoaded', () => {
     bankrollState.history = [];
     
     saveBankrollData();
+    checkStopCondition(); // Verifica se a nova banca ativa algum stop
     updateUI();
     alert(`Banca inicial definida em ${formatCurrency(initial)}`);
   };
@@ -1314,6 +1332,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. Inicializar Relógio
   setInterval(updateClock, 1000);
   updateClock();
+  
+  // 5. Carregar e Iniciar UI
+  loadConfig();
+  loadBankrollData();
+  loadHistoryData(); 
+  checkLockStatus(); 
+  updateUI();
 });
 </script>
 
@@ -1322,8 +1347,6 @@ document.addEventListener('DOMContentLoaded', () => {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     // Você precisará de um arquivo service-worker.js no mesmo diretório.
-    // Como a funcionalidade PWA (Service Worker) não é essencial para o IAP, 
-    // você pode remover este bloco se não quiser criar o arquivo PWA.
     navigator.serviceWorker.register('service-worker.js')
       .then(reg => console.log('Service Worker registrado com sucesso:', reg))
       .catch(err => console.log('Falha ao registrar Service Worker:', err));
