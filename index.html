@@ -3,449 +3,308 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>ROLETA IAP VANGUARDA ⚡ 8.0</title>
+<title>ROLETA IAP 📈 🔥</title>
 
 <link rel="manifest" href="manifest.webmanifest">
 
 
 <style>
-/* ================== CONFIGURAÇÃO DE CORES E FONTES ================== */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&family=Roboto+Mono:wght@400;700&family=Share+Tech+Mono&display=swap');
+/* ================== CONFIGURAÇÕES GLOBAIS / FONT ================== */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&display=swap');
 
 :root{
-  --bg:#020210; /* Fundo Ultra Escuro */
-  --panel:#080820; /* Fundo do Card (quase preto com azul sutil) */
-  --accent:#00fff2; /* Ciano Neon/Aqua */
-  --accent-secondary:#00aeff; /* Azul Neon */
-  --muted:#99aacc; /* Cinza/Azul Claro */
-  --zero:#ffc400; /* Amarelo Dourado */
-  --red:#ff3b57; /* Vermelho Agressivo */
-  --black:#020202; 
-  --btn-main:linear-gradient(90deg, var(--accent), var(--accent-secondary)); 
-  --alert-red:#ff3b57;
-  --alert-green:#00ffae;
-  --lock-bg:rgba(2, 2, 32, 0.98);
+  --bg:#050512; 
+  --panel:#0f1220; 
+  --accent:#00fff6; 
+  --muted:#9aa0b8;
+  --zero:#00ff6a; 
+  --btn:linear-gradient(90deg,#2f3bff,#00fff6); 
+  --hot:#ff3b57; 
+  --cold:#4fa3ff;
+  --win: #00ff6a; 
+  --loss: #ff3b57;
 }
 *{box-sizing:border-box}
 body{
   margin:0;
-  font-family:'Roboto Mono',monospace; 
+  font-family:'Orbitron',sans-serif;
   background:var(--bg);
   color:#e8f0ff;
   padding:14px;
 }
 .hidden { display: none !important; }
 
-/* Correção da Tela de Login: impede rolagem */
-body.login-active {
-    height: 100vh;
-    overflow: hidden;
-}
-
-/* ================== TELA DE LOGIN ================== */
-#loginScreen {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-    /* Ajuste para que a tela de login fique sobre todo o conteúdo */
-    position: fixed; 
-    top: 0;
-    left: 0;
-    width: 100%;
-    background: var(--bg);
-    z-index: 8000; 
-}
-#loginBox {
-    background: var(--panel);
-    border-radius: 12px;
-    padding: 30px;
-    max-width: 400px;
-    width: 100%;
-    box-shadow: 0 0 40px rgba(0, 255, 242, 0.15);
-    border: 1px solid rgba(0, 255, 242, 0.3);
-    text-align: center;
-}
-.login-title{
-    font-family:'Orbitron',sans-serif;
-    font-weight: 800;
-    font-size: 28px;
-    color: var(--accent);
-    margin-bottom: 5px;
-    text-shadow: 0 0 10px rgba(0, 255, 242, 0.6);
-}
-.login-subtitle {
-    color: var(--muted);
-    font-size: 14px;
-    margin-bottom: 25px;
-}
-#authPwd{
-    width: 100%;
-    padding: 12px;
-    background: var(--black);
-    border: 1px solid rgba(0,255,242,0.3);
-    border-radius: 6px;
-    color: var(--accent);
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 16px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    margin-top: 15px;
-}
-#authPwd:focus {
-    outline: none;
-    border-color: var(--zero);
-    box-shadow: 0 0 10px rgba(255,196,0,0.5);
-}
-
-/* ================== LAYOUT E COMPONENTES MODERNOS ================== */
+/* ================== LAYOUT E COMPONENTES BÁSICOS ================== */
 
 /* Header / clock */
 .header{
-  background: linear-gradient(90deg, rgba(0,255,242,0.15), rgba(0,174,255,0.05)); 
-  border-radius:8px; 
+  background: linear-gradient(90deg, rgba(0,255,246,0.06), rgba(255,0,255,0.03)); 
+  border-radius:12px; 
   padding:12px; 
   display:flex; 
   justify-content:space-between; 
   align-items:center; 
-  box-shadow:0 0 25px rgba(0,255,242,0.1);
-  border: 1px solid rgba(0,255,242,0.3);
+  box-shadow:0 6px 30px rgba(0,255,246,0.04);
 }
-.title{
-  font-family:'Orbitron',sans-serif;
-  font-weight:700;
-  font-size:20px;
-  color: var(--accent);
-  text-shadow: 0 0 5px rgba(0,255,242,0.5);
-}
+.title{font-weight:700;font-size:18px}
 #clock{
-  color:var(--zero);
-  font-family:'Orbitron',sans-serif;
+  color:var(--accent);
   font-weight:700;
-  text-shadow:0 0 10px rgba(255,196,0,0.8);
+  animation:pulse 2s infinite alternate;
 }
-#sessionTimer{
-    font-size: 10px;
-    color: var(--muted);
-    font-family: 'Roboto Mono', monospace;
-    margin-left: 10px;
+@keyframes pulse{
+  0%{text-shadow:0 0 6px rgba(0,255,246,0.4)}
+  100%{text-shadow:0 0 18px rgba(0,255,246,1)}
 }
 
 /* card */
 .card{
   background:var(--panel);
   border-radius:12px;
-  padding:15px;
-  margin-top:14px;
-  box-shadow:inset 0 0 10px rgba(0,0,0,0.5), 0 8px 30px rgba(0,0,0,0.8); /* Sombra interna para profundidade */
-  border:1px solid rgba(0,255,242,0.15);
-  transition: all 0.3s ease;
-}
-
-/* Títulos / Sugestões */
-.suggestionTitle{
-  font-family:'Orbitron',sans-serif;
-  font-weight:700;
-  color:var(--accent);
-  margin-bottom:8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border-bottom: 1px dashed rgba(255,255,255,0.1);
-  padding-bottom: 5px;
-}
-.suggestionBox{
-  font-size:15px;
-  color:#dff;
-  line-height:1.7;
-}
-.iaGlow{
-  color:var(--zero);
-  text-shadow:0 0 20px rgba(255,196,0,0.6);
-  animation:glowPulse 2s infinite alternate;
-}
-@keyframes glowPulse{
-  0%{text-shadow:0 0 6px rgba(255,196,0,0.2)}
-  100%{text-shadow:0 0 20px rgba(255,196,0,0.8)}
-}
-
-.data-separator {
-  height: 1px;
-  background: linear-gradient(90deg, var(--accent), var(--accent-secondary), rgba(0,0,0,0));
-  margin: 12px 0;
-  opacity: 0.5;
+  padding:12px;
+  margin-top:12px;
+  box-shadow:0 8px 40px rgba(0,0,0,0.4);
 }
 
 /* ================== BOTÕES E INPUTS ================== */
 
 /* grid numbers */
-.grid{
-  display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
-  gap:8px;
-  justify-content:center;
-  margin-top: 10px;
-}
+.grid{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
 .number-btn{
-  width:100%; height:45px;
-  border-radius:8px;
-  border:1px solid rgba(255,255,255,0.1);
-  font-family:'Orbitron',sans-serif;
+  width:46px;height:46px;
+  border-radius:50%;
+  border:0;
   font-weight:700;
   cursor:pointer;
-  transition:transform .14s,box-shadow .14s, border-color 0.14s;
+  transition:transform .14s,box-shadow .14s;
 }
-.number-btn:hover{
-    transform:scale(1.05); 
-    box-shadow:0 0 15px rgba(0,255,242,0.5);
-    border-color: var(--accent);
-}
-.red{background:var(--red);color:#fff}
-.black{background:var(--black);color:#fff}
-.zero, .green {background:var(--zero);color:var(--bg)} 
+.number-btn:hover{transform:scale(1.05)}
+.red{background:#ff2746;color:#fff}
+.black{background:#0c0c0e;color:#fff}
+.zero{background:var(--zero);color:#021}
 
 /* Botões de controle */
 .control-btn{
-  background:var(--btn-main);
+  background:var(--btn);
   border:0;
-  border-radius:6px;
-  padding:12px 14px;
-  color:var(--bg); 
+  border-radius:8px;
+  padding:10px 14px;
+  color:#021;
   font-weight:800;
   font-family:'Orbitron',sans-serif;
   cursor:pointer;
   transition: all .2s;
   margin: 4px 0;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-  text-transform: uppercase;
 }
-.control-btn:hover{
-    opacity:0.95; 
-    box-shadow: 0 0 20px rgba(0,255,242,0.8);
-    transform: translateY(-2px);
-}
-.control-btn:active{transform: translateY(1px);}
-.control-btn:disabled { 
-    opacity: 0.3; 
-    cursor: not-allowed; 
-    box-shadow: none; 
-}
+.control-btn:hover{opacity:0.85; box-shadow: 0 0 12px rgba(0,255,246,0.4);}
 
+.btn-win { background: var(--win); color: #021; }
+.btn-loss { background: var(--loss); color: #fff; }
 
-.btn-win { background: var(--alert-green); color: var(--bg); }
-.btn-loss { background: var(--alert-red); color: #fff; }
-
-/* Estilos de Entrada (Input) */
-.bankroll-label {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 400;
-    margin-bottom: 4px;
-    margin-top: 8px;
-}
-.bankroll-input {
-    width: 100%;
-    padding: 10px;
-    background: var(--black);
-    border: 1px solid rgba(0,255,242,0.3);
-    border-radius: 6px;
-    color: var(--accent);
-    font-family: 'Roboto Mono', monospace;
-    font-size: 16px;
-    transition: border-color 0.2s;
-}
-.bankroll-input:focus {
-    outline: none;
-    border-color: var(--zero);
-    box-shadow: 0 0 8px rgba(255,196,0,0.5);
-}
-
-/* ================== ANÁLISE E DASHBOARD DE BANCA ================== */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 15px;
-    margin-top: 10px;
-    padding-top: 10px;
-}
-.stat-item {
-    background: rgba(0,174,255,0.05);
-    padding: 12px;
-    border-radius: 8px;
-    border-left: 4px solid var(--accent-secondary);
-    box-shadow: inset 0 0 5px rgba(0,174,255,0.1);
-}
-.stat-title {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 400;
-    margin-bottom: 5px;
-}
-.stat-value {
-    font-size: 18px;
-    font-weight: 700;
-    font-family: 'Orbitron', sans-serif;
-    color: #fff;
-}
-.positive { color: var(--alert-green) !important; }
-.negative { color: var(--alert-red) !important; }
-
-/* História de Padrões (Chips) */
+/* suggestion / history chips */
 .history{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 10px;
-    max-height: 180px;
-    overflow-y: auto;
-    padding: 5px;
-    background: rgba(0,0,0,0.3);
-    border-radius: 6px;
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  white-space:nowrap;
+  padding:10px 6px;
+  /* ORDEM RECENTE->ANTIGO: Padrão LTR e appendChild garantem Recente na Esquerda */
 }
 .chip{
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-    transition: transform 0.1s;
-    font-family: 'Orbitron', sans-serif;
-}
-.chip:hover { transform: scale(1.15); }
-.chip.zero { background: var(--zero); color: var(--bg); }
-.chip.red { background: var(--red); color: #fff; }
-.chip.black { background: var(--black); color: #fff; }
-
-/* Análise de Padrões/Tabela */
-.analysis-output {
-    background: rgba(0,174,255,0.08);
-    border: 1px solid var(--accent-secondary);
-    border-radius: 6px;
-    padding: 12px;
-    box-shadow: inset 0 0 8px rgba(0,174,255,0.1);
-}
-.pattern-line {
-    font-size: 14px;
-    margin-bottom: 6px;
-    line-height: 1.4;
-}
-.pattern-trigger {
-    color: var(--zero);
-    font-weight: bold;
-    font-family: 'Orbitron', sans-serif;
-}
-.pattern-succession {
-    color: var(--accent);
-    font-weight: bold;
-}
-.pattern-count {
-    color: var(--muted);
-    font-size: 12px;
-}
-
-/* Extrato */
-#bankrollHistory {
-    max-height: 150px;
-    overflow-y: auto;
-    padding: 5px;
-    background: rgba(0,0,0,0.3);
-    border-radius: 6px;
-}
-.log-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 10px;
-    margin-bottom: 4px;
-    border-radius: 4px;
-    font-size: 14px;
-}
-.log-win { background: rgba(0,255,174,0.1); border-left: 3px solid var(--alert-green); color: var(--alert-green);}
-.log-loss { background: rgba(255,59,87,0.1); border-left: 3px solid var(--alert-red); color: var(--alert-red);}
-.log-delete-btn {
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-weight: bold;
-    cursor: pointer;
-    transition: color 0.2s;
-}
-.log-delete-btn:hover { color: #fff; }
-
-/* ================== TELA DE BLOQUEIO (CADEADO) ================== */
-
-#lockScreen{
-  position:fixed;
-  inset:0;
-  background:var(--lock-bg);
-  backdrop-filter: blur(6px);
-  display:flex;
-  flex-direction:column;
+  width:40px;height:40px;
+  border-radius:50%;
+  display:inline-flex;
   align-items:center;
   justify-content:center;
-  z-index:9000;
-  text-align:center;
+  font-weight:800;
+  cursor:pointer;
+  flex:0 0 auto; 
+  transition: transform 0.15s;
 }
-#lockScreen svg {
-    color: var(--alert-red);
-    margin-bottom: 10px;
+.chip:hover{transform: scale(1.1);}
+.chip.red{background:#ff2746;color:#fff}
+.chip.black{background:#0c0c0e;color:#fff}
+.chip.green{background:var(--zero);color:#021}
+.chip.hot{box-shadow:0 0 16px var(--hot); border: 2px solid var(--hot);}
+.chip.cold{box-shadow:0 0 16px var(--cold); border: 2px solid var(--cold);}
+
+/* Texto de sugestão */
+.suggestionBox{font-size:14px;color:#dff;line-height:1.45}
+.suggestionTitle{font-weight:800;color:var(--accent);margin-bottom:6px}
+.iaGlow{color:var(--accent);text-shadow:0 0 14px rgba(0,255,246,0.12);animation:pulse 2s infinite alternate}
+
+/* ================== TABELAS E DASHBOARD ================== */
+
+/* Estilo para a tabela de análise */
+.analysis-table{width:100%; border-collapse: collapse; margin-top: 8px;}
+.analysis-table th, .analysis-table td{
+  text-align:left; padding: 4px; border-bottom: 1px solid rgba(0,255,246,0.1);
+  font-size: 13px;
 }
-#lockScreen h2{
-  font-family:'Orbitron',sans-serif;
-  color:var(--alert-red);
-  font-size:28px;
+.analysis-table th{font-weight:700; color: var(--muted);}
+.analysis-table td:nth-child(2){font-weight:700; color: #fff;}
+.analysis-table td:nth-child(3){font-weight:700; color: var(--accent);}
+
+/* Dashboard de Performance */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
 }
-#lockScreen h2.win {
-  color:var(--alert-green);
+.stat-item {
+  background: rgba(0,0,0,0.2);
+  padding: 10px;
+  border-radius: 8px;
+  border-left: 4px solid var(--accent);
 }
-#lockScreen p{
-  font-size:18px;
-  color:var(--muted);
+.stat-title {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 400;
+}
+.stat-value {
+  font-size: 20px;
+  font-weight: 800;
+  margin-top: 4px;
+}
+.stat-value.positive { color: var(--win); }
+.stat-value.negative { color: var(--loss); }
+
+
+/* ================== GESTÃO DE BANCA ================== */
+.bankroll-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: flex-start;
+}
+.bankroll-input{
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+  background: rgba(0,0,0,0.2);
+  color: #fff;
+  font-weight: 700;
+  font-family: 'Orbitron', sans-serif;
+  width: 100%;
+  text-align: center;
+  font-size: 16px;
+}
+.bankroll-actions .control-btn {
+  width: 100%;
+  margin: 4px 0;
+}
+
+/* Extrato da Banca */
+.bankroll-history-list {
+  max-height: 110px; 
+  overflow-y: auto;
+  background: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  padding: 8px;
   margin-top: 10px;
 }
-#lockScreen .countdown{
-  font-family:'Orbitron',sans-serif;
-  font-size:48px;
+.log-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 6px 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.log-item:last-child { border-bottom: none; }
+.log-item.log-win { color: var(--win); }
+.log-item.log-loss { color: var(--loss); }
+
+.log-delete-btn {
+  background: var(--loss);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  font-weight: 700;
+  cursor: pointer;
+  opacity: 0.7;
+}
+.log-delete-btn:hover {
+  opacity: 1;
+}
+
+/* ================== TELA DE LOGIN ================== */
+
+#loginScreen{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  /* Fundo animado */
+  background: linear-gradient(120deg, #050512 10%, #1a0830 30%, #2f3bff 50%, #00fff6 70%, #1a0830 90%, #050512 100%);
+  background-size: 400% 400%;
+  animation: cosmicFlow 20s ease infinite;
+}
+
+#loginBox{
+  position:relative;
+  z-index:2;
+  background:rgba(6,8,16,0.95);
+  padding:26px;
+  border-radius:14px;
+  box-shadow:0 12px 50px rgba(0,0,0,0.6);
+  text-align:center;
+  width:92%;
+  max-width:420px;
+}
+#loginBox input{
+  padding:10px;
+  border-radius:8px;
+  border:0;
+  width:85%;
+  margin-top:6px;
+  font-weight:700;
+  font-family:'Orbitron',sans-serif; /* Adicionado para consistência */
+}
+#loginBox button{
+  margin-top:12px;
+  padding:10px 18px;
+  border-radius:8px;
+  border:0;
+  background:var(--btn);
   font-weight:800;
-  color:var(--accent);
-  margin-top:20px;
-  margin-bottom: 25px;
-  text-shadow: 0 0 30px rgba(0,255,242,0.8);
+  cursor:pointer;
+  font-family:'Orbitron',sans-serif; /* Adicionado para consistência */
+}
+
+/* ================== RESPONSIVIDADE ================== */
+@media (max-width:520px){
+  .grid .number-btn{width:40px;height:40px}
+  .chip{width:34px;height:34px}
+  .bankroll-grid{ grid-template-columns: 1fr; }
+}
+
+/* Animação do fundo de login */
+@keyframes cosmicFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 </style>
 </head>
-<body id="bodyTag">
-
-<div id="lockScreen" class="hidden">
-  <svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" fill="currentColor" viewBox="0 0 16 16" id="lockIcon">
-    <path d="M8 1a2 2 0 0 0-2 2v4h4V3a2 2 0 0 0-2-2m3 6V3a3 3 0 1 0-6 0v4a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1zM4 8a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h6a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5z"/>
-  </svg>
-  <h2 id="lockTitle">ZONA SEGURA ATINGIDA (STOP LOSS)</h2>
-  <p>Análise bloqueada. Retorne após o período de resfriamento:</p>
-  <div class="countdown" id="countdownTimer">02:00:00</div>
-</div>
-
+<body>
 
 <div id="loginScreen"> 
   <div id="loginBox">
-    <div class="login-title">IAP VANGUARDA ⚡</div>
-    <div class="login-subtitle">Interface de Análise de Padrões</div>
+    <div style="font-size:20px;font-weight:800;color:var(--accent);margin-bottom:8px">ROLETA IAP 📈 🔥</div>
+    <div style="color:var(--muted);margin-bottom:10px">Por favor, insira a senha de acesso</div>
 
     <div id="signInForm">
-      <input id="authPwd" type="password" placeholder="Senha de Acesso (Modo Real)" autocomplete="current-password" required><br>
-      
-      <div style="display:flex; gap:10px; margin-top:15px;">
-          <button id="btnSignInReal" class="control-btn" style="flex:1; background: linear-gradient(90deg, #ffc400, #ff8c00); color: var(--bg);">MODO REAL</button>
-          <button id="btnSignInDemo" class="control-btn" style="flex:1; background: var(--btn-main); color: var(--bg);">MODO DEMO</button>
-      </div>
-      
+      <input id="authPwd" type="password" placeholder="Senha de Acesso" autocomplete="current-password"><br>
+      <button id="btnSignIn">Entrar</button>
     </div>
     
   </div>
@@ -453,87 +312,89 @@ body.login-active {
 
 <div id="mainPanel" class="hidden">
   <div class="header">
-    <div style="display: flex; align-items: center;">
-        <div class="title">IAP <span id="modeDisplay">REAL</span></div>
-        <div id="sessionTimer">Sessão: 40:00</div>
-    </div>
+    <div class="title">ROLETA IAP 📈 🔥</div>
     <div id="clock">--:--:--</div>
   </div>
 
   <div class="card">
-    <div class="suggestionTitle">💸 GESTÃO DE BANCA E RISCO</div>
-    
-    <div class="bankroll-grid" style="display:flex; gap: 15px;">
-        <div style="flex:1;">
-            <div class="bankroll-label">BANCA INICIAL (R$)</div>
-            <input id="initialBankrollInput" type="number" class="bankroll-input" placeholder="1000" min="0" step="0.01">
-            <button id="btnSetBankroll" class="control-btn" style="width: 100%; margin-top: 8px;">DEFINIR BANCA</button>
+    <div class="suggestionTitle">💸 GESTÃO DE BANCA</div>
+    <div class="bankroll-grid" style="margin-top: 10px;">
+        <div>
+            <div style="color: var(--muted); font-size: 13px; margin-bottom: 4px;">Definir Banca Inicial (R$)</div>
+            <input id="initialBankrollInput" type="number" class="bankroll-input" placeholder="1000">
+            <button id="btnSetBankroll" class="control-btn" style="width: 100%; margin-top: 8px;">Definir</button>
         </div>
-        <div class="bankroll-actions" style="flex:1;">
-            <div class="bankroll-label">REGISTRAR ENTRADA (R$)</div>
-            <input id="betAmountInput" type="number" class="bankroll-input" placeholder="Valor ganho/perdido" min="0" step="0.01">
-            <div style="display:flex; gap: 8px;">
-                <button id="btnRegisterWin" class="control-btn btn-win" style="flex:1; margin-top: 8px;">GREEN (+)</button>
-                <button id="btnRegisterLoss" class="control-btn btn-loss" style="flex:1; margin-top: 8px;">RED (-)</button>
-            </div>
+        <div class="bankroll-actions">
+            <div style="color: var(--muted); font-size: 13px; margin-bottom: 4px;">Registrar Aposta (R$)</div>
+            <input id="betAmountInput" type="number" class="bankroll-input" placeholder="Valor ganho/perdido">
+            <button id="btnRegisterWin" class="control-btn btn-win" style="margin-top: 8px;">Registrar Lucro (+)</button>
+            <button id="btnRegisterLoss" class="control-btn btn-loss">Registrar Red (-)</button>
         </div>
     </div>
-    
-    <div class="data-separator"></div>
-    <div class="suggestionTitle">📊 ESTATÍSTICAS DE DESEMPENHO</div>
-    <div id="performanceDashboard" class="dashboard-grid">
-      <span class="stat-title" style="grid-column: 1 / -1;">Defina sua banca inicial para começar.</span>
+  </div>
+  
+  <div class="card">
+    <div class="suggestionTitle">📊 DASHBOARD DE PERFORMANCE</div>
+    <div id="performanceDashboard" class="dashboard-grid" style="margin-top: 10px;">
+      <span style="color:var(--muted); grid-column: 1 / -1;">Defina sua banca inicial para começar.</span>
     </div>
-
   </div>
 
   <div class="card">
-    <div class="suggestionTitle">🧾 EXTRATO DE TRANSAÇÕES</div>
+    <div class="suggestionTitle">🧾 EXTRATO DA BANCA (Últimos Registros)</div>
     <div id="bankrollHistory" class="bankroll-history-list">
-      <div class="log-item log-placeholder">Nenhum registro ainda.</div>
+      <div class="log-item" style="color:var(--muted); text-align: center;">Nenhum registro ainda.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="flex:1">
+        <div style="font-weight:800;color:var(--muted);font-size:13px">Inserção Rápida</div>
+        <div class="grid" id="gridNumbers" style="margin-top:10px"></div>
+      </div>
+      <div style="min-width:170px;text-align:right">
+        <button id="uploadBtn" class="control-btn">📷 Enviar Foto</button> 
+        <button id="clearBtn" class="control-btn" title="Limpar histórico">Limpar histórico</button>
+        <button id="logoutBtn" class="control-btn" title="Sair" style="margin-left:8px">Sair</button>
+      </div>
     </div>
   </div>
   
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center">
-      <div class="suggestionTitle history-title">HISTÓRICO DA ROLETA <span id="historyCount" class="history-subtitle">0/100</span></div>
-      <div class="history-subtitle" style="font-size:11px;color:var(--muted)">Recentes → Antigos</div> 
+      <div style="font-weight:800">HISTÓRICO <span id="historyCount" style="font-size:13px;color:var(--muted);margin-left:6px">0/100</span></div>
+      <div style="font-size:13px;color:var(--muted)">Recentes → Antigos</div> 
     </div>
     <div id="history" class="history"></div>
   </div>
-  
+
   <div class="card">
-    <div class="suggestionTitle">🔢 ENTRADAS RÁPIDAS</div>
-    <div class="grid" id="gridNumbers"></div>
-    <div class="data-separator"></div>
-    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px;">
-        <button id="btnUpload" class="control-btn" style="flex:1 1 150px;">📷 UPLOAD (OCR)</button> 
-        <button id="clearBtn" class="control-btn btn-loss" title="Limpar histórico" style="flex:1 1 100px;">LIMPAR</button>
-        <button id="logoutBtn" class="control-btn control-logout" title="Sair" style="flex:1 1 100px;">SAIR</button>
+    <div class="suggestionTitle iaGlow">🧠 SUGESTÃO DE APOSTA (IA)</div>
+    <div id="betSuggestion" class="suggestionBox" style="font-size: 16px; line-height: 1.5;">
+        <span style="color:var(--muted)">Aguardando mais dados para gerar uma sugestão...</span>
     </div>
   </div>
   
   <div class="card">
-    <div class="analysis-wrapper">
-      <div class="analysis-main">
-        <div class="suggestionTitle">🔄 SUCESSÃO DE ZONAS (TOP 3)</div>
-        <div id="zoneAnalysis" class="suggestionBox">Adicione números ao histórico para análise de Zonas.</div>
+    <div style="display:flex;gap:20px;flex-wrap:wrap">
+      <div style="flex:2; min-width: 200px;">
+        <div class="suggestionTitle">ANÁLISE DO ÚLTIMO NÚMERO</div>
+        <div id="lastNumberAnalysis" class="suggestionBox">Adicione números ao histórico.</div>
       </div>
-      <div class="analysis-hot-cold" style="margin-top:15px;">
-        <div class="suggestionTitle">🌡️ TENDÊNCIAS GERAIS</div>
+      <div style="flex:1; min-width: 150px;">
+        <div class="suggestionTitle">TOP 4 HOT / COLD</div>
         <div id="hotCold" class="suggestionBox">🔥 Hot: -<br>❄️ Cold: -</div>
       </div>
     </div>
   </div>
 
-  <div class="card" id="boosterCard">
-    <div class="suggestionTitle iaGlow">✨ BOOSTER DE APOSTA I.A.</div>
-    <div id="betSuggestion" class="suggestionBox" style="font-size: 16px; font-weight: 700;">
-        <span style="color:var(--muted)">Aguardando dados ou aguardando desbloqueio...</span>
-    </div>
+  <div class="card">
+    <div class="suggestionTitle">📊 ESTATÍSTICAS GERAIS</div>
+    <div id="generalStats" class="suggestionBox">Adicione mais números para ver os padrões.</div>
   </div>
-  
-  <input type="file" id="uploadPhoto" accept="image/*" class="hidden">
+
+  <input type="file" id="uploadPhoto" accept="image/*" style="display:none">
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
@@ -541,316 +402,68 @@ body.login-active {
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
-  /* ================== CONSTANTES DE CONFIGURAÇÃO ================== */
-  const getPasswordHash = () => '2025'; 
-  const BANKROLL_STORAGE_KEY = 'roletaIAPBankroll_main';
-  const HISTORY_STORAGE_KEY = 'roletaIAPHistory'; 
-  const CONFIG_STORAGE_KEY = 'roletaIAPConfig'; 
-  
-  const WHEEL_ORDER = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
-  const WHEEL_INDEX_MAP = {};
-  WHEEL_ORDER.forEach((num, index) => { WHEEL_INDEX_MAP[num] = index; });
-
-  const RED_NUMBERS = new Set([1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]);
-  
-  // Constantes de Stop Loss/Win/Sessão
-  const STOP_LOSS_COUNT = 2; // 2 REDs consecutivos
-  const STOP_LOSS_AMOUNT = 35.00; // R$35,00 de prejuízo total
-  const STOP_WIN_COUNT = 3; // 3 WINs consecutivos
-  const STOP_WIN_AMOUNT = 35.00; // R$35,00 de lucro total
-  const LOCK_DURATION = 2 * 60 * 60 * 1000; // 2 horas em milissegundos
-  const SESSION_TIMEOUT = 40 * 60 * 1000; // 40 minutos em milissegundos
-  const INITIAL_LOCK = false; 
-
-  
-  /* ================== ELEMENTOS DOM ================== */
-  const bodyTag = document.getElementById('bodyTag');
+  /* ================== CONSTANTES DE ELEMENTOS ================== */
   const loginScreen = document.getElementById('loginScreen');
   const mainPanel = document.getElementById('mainPanel');
-  const modeDisplay = document.getElementById('modeDisplay');
-  const lockScreen = document.getElementById('lockScreen');
-  const lockTitle = document.getElementById('lockTitle');
-  const countdownTimer = document.getElementById('countdownTimer');
-  const sessionTimerDiv = document.getElementById('sessionTimer'); 
-  const boosterCard = document.getElementById('boosterCard');
   
+  const clockDiv = document.getElementById('clock');
+  const gridNumbers = document.getElementById('gridNumbers');
   const historyDiv = document.getElementById('history');
   const historyCount = document.getElementById('historyCount');
-  const zoneAnalysisDiv = document.getElementById('zoneAnalysis');
+  const lastNumberAnalysisDiv = document.getElementById('lastNumberAnalysis');
   const hotColdDiv = document.getElementById('hotCold');
+  const generalStatsDiv = document.getElementById('generalStats');
   const betSuggestionDiv = document.getElementById('betSuggestion');
-  const gridNumbers = document.getElementById('gridNumbers');
-
-  const btnRegisterWin = document.getElementById('btnRegisterWin');
-  const btnRegisterLoss = document.getElementById('btnRegisterLoss');
-  const betAmountInput = document.getElementById('betAmountInput');
+  const uploadInput = document.getElementById('uploadPhoto');
+  
+  const performanceDashboard = document.getElementById('performanceDashboard');
   const initialBankrollInput = document.getElementById('initialBankrollInput');
+  const betAmountInput = document.getElementById('betAmountInput');
   const bankrollHistoryDiv = document.getElementById('bankrollHistory');
   const authPwdInput = document.getElementById('authPwd');
-  const btnUpload = document.getElementById('btnUpload'); 
-  const uploadPhotoInput = document.getElementById('uploadPhoto');
-  const clearBtn = document.getElementById('clearBtn');
+  
+  // Constantes de Configuração
+  const FIXED_PASSWORD = '1571';
+  const BANKROLL_STORAGE_KEY = 'roletaIAPBankroll_main';
+  const HISTORY_STORAGE_KEY = 'roletaIAPHistory'; 
+  
+  const RED_NUMBERS = new Set([1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]);
   
   /* ================== ESTADO DA APLICAÇÃO ================== */
-  let historyArr = []; 
+  let historyArr = []; // Histórico dos números da roleta: [Recente, Antigo, Antigo...]
   let numberStats = {}; 
-  let config = {
-      mode: 'DEMO', 
-      isLoggedIn: false, 
-      isLocked: false,
-      lockUntil: 0,
-      lockReason: '', 
-      sessionStart: 0, 
-  };
   
   let bankrollState = {
     initial: 0,
     current: 0,
-    history: [] 
+    history: [] // Histórico de lucros/perdas da banca
   };
+
   const MAX_HISTORY = 100;
-  const ADHERENCE_LOOKBACK = 50; 
-  
+  const HOT_THRESHOLD = 3; 
+
   /* ================== UTILITÁRIOS ================== */
-  const formatCurrency = (value) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const formatBRL = (value) => value.toLocaleString('pt-BR', { 
+    style: 'currency', 
+    currency: 'BRL',
+    minimumFractionDigits: 2, 
+    maximumFractionDigits: 2 
+  });
+  
   function getColor(num) {
-    if (num === 0) return 'zero';
+    if (num === 0) return 'green';
     if (RED_NUMBERS.has(num)) return 'red';
     return 'black';
   }
+
+  /* ================== PERSISTÊNCIA DE DADOS ================== */
   
-  function getNeighbors(centerNum, radius) {
-    const centerIndex = WHEEL_INDEX_MAP[centerNum];
-    const neighbors = [];
-    const len = WHEEL_ORDER.length;
-
-    for (let i = -radius; i <= radius; i++) {
-        const index = (centerIndex + i + len) % len;
-        neighbors.push(WHEEL_ORDER[index]);
-    }
-    return neighbors.sort((a, b) => a - b);
-  }
-  
-  /* ================== PERSISTÊNCIA E SESSÃO ================== */
-  
-  function saveConfig() {
-    localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
-  }
-  function loadConfig() {
-    const savedConfig = localStorage.getItem(CONFIG_STORAGE_KEY);
-    if (savedConfig) {
-      const loaded = JSON.parse(savedConfig);
-      config.mode = loaded.mode || 'DEMO';
-      config.isLoggedIn = loaded.isLoggedIn || false; 
-      config.isLocked = loaded.isLocked || false;
-      config.lockUntil = loaded.lockUntil || 0;
-      config.lockReason = loaded.lockReason || '';
-      config.sessionStart = loaded.sessionStart || 0; 
-    }
-    modeDisplay.textContent = config.mode;
-  }
-  
-  function setLoginStatus(isLoggedIn, mode = 'DEMO') {
-      config.isLoggedIn = isLoggedIn;
-      if (isLoggedIn) {
-          config.mode = mode;
-          
-          if (config.sessionStart === 0 || (Date.now() - config.sessionStart) >= SESSION_TIMEOUT) {
-              config.sessionStart = Date.now();
-          }
-      } else {
-          // Resetar o estado de login
-          config.sessionStart = 0; 
-          config.isLocked = false; 
-          config.lockUntil = 0;
-      }
-      saveConfig();
-  }
-
-  function getLoginStatus() {
-      return config.isLoggedIn; 
-  }
-  
-  /* ================== LÓGICA DE BLOQUEIO / STOP / SESSÃO ================== */
-
-  let countdownInterval;
-  let sessionInterval;
-
-  function checkLockStatus() {
-      const now = Date.now();
-      
-      // 1. Verifica se o bloqueio existente terminou
-      if (config.isLocked && config.lockUntil > now) {
-          lockScreen.classList.remove('hidden');
-          mainPanel.classList.add('hidden');
-          bodyTag.classList.remove('login-active'); 
-          
-          let titleText = '';
-          if (config.lockReason === 'STOP_LOSS') { titleText = 'ZONA SEGURA ATINGIDA (STOP LOSS)'; }
-          else if (config.lockReason === 'STOP_WIN') { titleText = 'ZONA SEGURA ATINGIDA (STOP WIN)'; }
-          else if (config.lockReason === 'TIMEOUT') { titleText = 'TEMPO DE SESSÃO ESGOTADO'; }
-
-          lockTitle.textContent = titleText;
-          lockTitle.classList.toggle('win', config.lockReason === 'STOP_WIN');
-          document.getElementById('lockIcon').style.color = (config.lockReason === 'STOP_WIN') ? 'var(--alert-green)' : 'var(--alert-red)';
-
-          startLockCountdown();
-          stopSessionCounter();
-          return true; // Bloqueado por Lock Ativo
-      }
-
-      // 2. Se o bloqueio terminou (ou não existia), desbloqueia/mantém desbloqueado
-      if (config.isLocked && config.lockUntil <= now) {
-          // Bloqueio terminou! Resetamos o estado.
-          config.isLocked = false;
-          config.lockUntil = 0;
-          config.lockReason = '';
-          saveConfig();
-      }
-      
-      // 3. Verifica o Status da Sessão de 40 Minutos
-      if (config.isLoggedIn) {
-          
-          // CORREÇÃO APLICADA: Se o sessionStart for 0 ou se estiver expirado, ele é resetado para o tempo atual.
-          if (config.sessionStart === 0 || (now - config.sessionStart) >= SESSION_TIMEOUT) {
-              config.sessionStart = Date.now();
-              saveConfig();
-          }
-      }
-      
-      // 4. Estado Desbloqueado e Logado
-      lockScreen.classList.add('hidden');
-      if(getLoginStatus()) {
-          mainPanel.classList.remove('hidden');
-          loginScreen.classList.add('hidden');
-          bodyTag.classList.remove('login-active');
-          startSessionCounter();
-      } else {
-          // Não logado
-          loginScreen.classList.remove('hidden');
-          mainPanel.classList.add('hidden');
-          bodyTag.classList.add('login-active'); 
-      }
-      stopLockCountdown();
-      return false; 
-  }
-  
-  function startLockCountdown() {
-      stopLockCountdown(); 
-      
-      countdownInterval = setInterval(() => {
-          const remainingTime = config.lockUntil - Date.now();
-          if (remainingTime <= 0) {
-              checkLockStatus(); // Chama para desbloquear e resetar
-              return;
-          }
-
-          const totalSeconds = Math.floor(remainingTime / 1000);
-          const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-          const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-          const seconds = String(totalSeconds % 60).padStart(2, '0');
-          
-          countdownTimer.textContent = `${hours}:${minutes}:${seconds}`;
-
-      }, 1000);
-  }
-
-  function stopLockCountdown() {
-      if (countdownInterval) {
-          clearInterval(countdownInterval);
-      }
-  }
-
-  function startSessionCounter() { 
-      stopSessionCounter(); 
-      
-      sessionInterval = setInterval(() => {
-          if (config.sessionStart === 0) {
-              config.sessionStart = Date.now();
-              saveConfig();
-          }
-
-          const elapsed = Date.now() - config.sessionStart;
-          const remaining = SESSION_TIMEOUT - elapsed;
-
-          if (remaining <= 0) {
-              triggerLock('TIMEOUT');
-              return;
-          }
-
-          const totalSeconds = Math.floor(remaining / 1000);
-          const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
-          const seconds = String(totalSeconds % 60).padStart(2, '0');
-          
-          sessionTimerDiv.textContent = `Sessão: ${minutes}:${seconds}`;
-
-      }, 1000);
-  }
-
-  function stopSessionCounter() { 
-      if (sessionInterval) {
-          clearInterval(sessionInterval);
-      }
-      sessionTimerDiv.textContent = `Sessão: --:--`;
-  }
-  
-  function triggerLock(reason) {
-      if (config.mode !== 'REAL') return;
-
-      config.isLocked = true;
-      config.lockUntil = Date.now() + LOCK_DURATION;
-      config.lockReason = reason;
-      saveConfig();
-      
-      checkLockStatus();
-  }
-
-  function checkStopCondition() {
-      if (config.mode !== 'REAL' || config.isLocked || bankrollState.initial === 0) return;
-
-      const { current, initial, history } = bankrollState;
-      const totalProfit = parseFloat((current - initial).toFixed(2));
-      
-      // 1. Verificação de Saldo
-      if (totalProfit <= -STOP_LOSS_AMOUNT) {
-          triggerLock('STOP_LOSS');
-          return;
-      }
-      if (totalProfit >= STOP_WIN_AMOUNT) {
-          triggerLock('STOP_WIN');
-          return;
-      }
-      
-      // 2. Verificação de Sequência
-      let consecutiveLoss = 0;
-      let consecutiveWin = 0;
-      
-      for (let i = history.length - 1; i >= 0; i--) {
-          const amount = history[i].amount;
-          if (amount < 0) {
-              consecutiveLoss++;
-              consecutiveWin = 0; 
-          } else if (amount > 0) {
-              consecutiveWin++;
-              consecutiveLoss = 0; 
-          } else {
-              continue; 
-          }
-          
-          if (consecutiveLoss >= STOP_LOSS_COUNT) {
-              triggerLock('STOP_LOSS');
-              return;
-          }
-          if (consecutiveWin >= STOP_WIN_COUNT) {
-              triggerLock('STOP_WIN');
-              return;
-          }
-      }
-  }
-
+  // Salva dados da Banca
   function saveBankrollData() {
     localStorage.setItem(BANKROLL_STORAGE_KEY, JSON.stringify(bankrollState));
   }
+  
+  // Carrega dados da Banca
   function loadBankrollData() {
     const savedData = localStorage.getItem(BANKROLL_STORAGE_KEY);
     if (savedData) {
@@ -864,231 +477,146 @@ document.addEventListener('DOMContentLoaded', () => {
     initialBankrollInput.value = bankrollState.initial > 0 ? bankrollState.initial : '';
   }
 
+  // Salva Histórico da Roleta
   function saveHistoryData() {
     localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyArr));
   }
+  
+  // Carrega Histórico da Roleta
   function loadHistoryData() {
     const savedHistory = localStorage.getItem(HISTORY_STORAGE_KEY);
     if (savedHistory) {
-      historyArr = JSON.parse(savedHistory).map(Number);
+      historyArr = JSON.parse(savedHistory);
     } else {
       historyArr = [];
     }
   }
-
-  function calculateStats() {
-    const allNumbers = [...Array(37).keys()]; 
-    const stats = {
-      counts: {},
-      zoneSuccessionMap: {}, 
-      hotList: [],
-      coldList: [],
-    };
-    allNumbers.forEach(n => { stats.counts[n] = { count: 0 }; });
-
-    for (let i = 0; i < historyArr.length; i++) {
-      const currentNum = historyArr[i];
-      stats.counts[currentNum].count++;
-      
-      if (i < historyArr.length - 1) {
-        const nextNum = historyArr[i + 1]; 
-        if (!stats.zoneSuccessionMap[currentNum]) { stats.zoneSuccessionMap[currentNum] = []; }
-        stats.zoneSuccessionMap[currentNum].push(nextNum);
-      }
+  
+  /* ================== LÓGICA DE GESTÃO DE BANCA ================== */
+  
+  document.getElementById('btnSetBankroll').onclick = () => {
+    const initial = parseFloat(initialBankrollInput.value);
+    if (isNaN(initial) || initial <= 0) {
+      alert('Por favor, insira um valor de banca inicial válido.');
+      return;
     }
     
-    const allCounts = allNumbers.map(n => stats.counts[n].count);
-    const maxCount = allCounts.length > 0 ? Math.max(...allCounts) : 0;
-    const minCount = allCounts.length > 0 ? Math.min(...allCounts) : 0;
-    
-    stats.hotList = allNumbers
-      .filter(n => stats.counts[n].count >= maxCount && maxCount > 0)
-      .sort((a, b) => a - b)
-      .slice(0, 4);
-    
-    stats.coldList = allNumbers
-      .filter(n => stats.counts[n].count <= minCount) 
-      .sort((a, b) => a - b) 
-      .slice(0, 4);
+    // Pergunta se quer zerar o histórico de transações
+    if (bankrollState.initial > 0 && 
+        !confirm('Ao redefinir a banca, o histórico de lucro/perda também será zerado. Continuar?')) {
+        return;
+    }
 
-    numberStats = stats;
-  }
-  
-  function addNumber(num) {
-    if (historyArr.length >= MAX_HISTORY) { historyArr.pop(); }
-    historyArr.unshift(Number(num)); 
-    saveHistoryData();
+    bankrollState.initial = initial;
+    bankrollState.current = initial;
+    bankrollState.history = [];
+    
+    saveBankrollData();
     updateUI();
-  }
+    alert(`Banca inicial definida em ${formatBRL(initial)}`);
+  };
   
-  function renderZoneAnalysis() {
-    if (historyArr.length < 1) { 
-      zoneAnalysisDiv.innerHTML = '<span style="color:var(--muted)">Adicione números ao histórico para análise de Sucessão de Zonas.</span>';
+  document.getElementById('btnRegisterWin').onclick = () => {
+    const amount = parseFloat(betAmountInput.value);
+    if (isNaN(amount) || amount <= 0) {
+      alert('Por favor, insira um valor de lucro válido.');
       return;
     }
-    const triggerNum = historyArr[0];
-    const followers = numberStats.zoneSuccessionMap[triggerNum];
     
-    if (!followers || followers.length === 0) { 
-      zoneAnalysisDiv.innerHTML = `<span style="color:var(--muted)">O último número foi **${triggerNum}**. Nenhuma ocorrência de sucessão registrada após ele.</span>`;
+    bankrollState.current = parseFloat((bankrollState.current + amount).toFixed(2));
+    bankrollState.history.push({ amount: amount, timestamp: Date.now() });
+    saveBankrollData();
+    updateUI();
+    betAmountInput.value = '';
+  };
+  
+  document.getElementById('btnRegisterLoss').onclick = () => {
+    const amount = parseFloat(betAmountInput.value);
+    if (isNaN(amount) || amount <= 0) {
+      alert('Por favor, insira um valor de perda válido.');
       return;
     }
-    const followerCounts = {};
-    for (const num of followers) { followerCounts[num] = (followerCounts[num] || 0) + 1; }
-    const sortedFollowers = Object.entries(followerCounts).sort((a, b) => b[1] - a[1]);
-
-    let html = `<div class="analysis-output">
-                  <div class="pattern-line">Último lançamento (GATILHO): <span class="pattern-trigger">${triggerNum}</span></div>
-                  <div class="data-separator" style="margin: 8px 0;"></div>
-                  <div style="font-size: 14px; margin-bottom: 10px;">**PRÓXIMOS MAIS PROVÁVEIS** (Top 3 após **${triggerNum}**):</div>`;
-    sortedFollowers.slice(0, 3).forEach(([numStr, count]) => {
-      const num = Number(numStr);
-      html += `<div class="pattern-line">
-                  <span style="font-size: 16px;">
-                      → **${num}** (<span class="pattern-succession">${getColor(num).toUpperCase()}</span>) 
-                  </span>
-                  <span class="pattern-count">
-                      — ${count}x (Prob: ${(count / followers.length * 100).toFixed(1)}%)
-                  </span>
-              </div>`;
-    });
-    html += `</div>`;
-    zoneAnalysisDiv.innerHTML = html;
-  }
-  
-  function renderBetSuggestion() {
-      if (config.mode === 'DEMO' || historyArr.length < ADHERENCE_LOOKBACK) {
-          betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">Booster requer Modo REAL e histórico mínimo de ${ADHERENCE_LOOKBACK} lançamentos para análise de Aderência.</span>`;
-          return;
-      }
-      if (config.isLocked) {
-          betSuggestionDiv.innerHTML = `<span style="color:var(--alert-red); font-weight: bold;">ANÁLISE BLOQUEADA. Retorne após o período de resfriamento.</span>`;
-          return;
-      }
-      
-      const triggerNum = historyArr[0]; 
-      const followers = numberStats.zoneSuccessionMap[triggerNum];
-      if (!followers || followers.length < 5) {
-          betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">Aguardando mais recorrências após **${triggerNum}** para sugerir com segurança. (Mínimo 5).</span>`;
-          return;
-      }
-
-      const followerCounts = {};
-      for (const num of followers) { followerCounts[num] = (followerCounts[num] || 0) + 1; }
-      const sortedFollowers = Object.entries(followerCounts).sort((a, b) => b[1] - a[1]);
-      
-      const bestNum = Number(sortedFollowers[0][0]);
-      const bestNumProbability = (sortedFollowers[0][1] / followers.length) * 100;
-      const bestZone = getNeighbors(bestNum, 2);
-
-      let adherenceCount = 0;
-      const recentHistoryToCheck = historyArr.slice(0, ADHERENCE_LOOKBACK); 
-      
-      for (let i = 0; i < recentHistoryToCheck.length - 1; i++) {
-          const currentTrigger = recentHistoryToCheck[i];
-          const nextNum = recentHistoryToCheck[i+1];
-          if (numberStats.zoneSuccessionMap[currentTrigger]) {
-              const historicalFollowers = numberStats.zoneSuccessionMap[currentTrigger];
-              const historicalCounts = {};
-              for (const num of historicalFollowers) { historicalCounts[num] = (historicalCounts[num] || 0) + 1; }
-              const sortedHistorical = Object.entries(historicalCounts).sort((a, b) => b[1] - a[1]);
-              
-              if (sortedHistorical.length > 0) {
-                  const historicalBestNum = Number(sortedHistorical[0][0]);
-                  const historicalBestZone = getNeighbors(historicalBestNum, 2);
-                  if (historicalBestZone.includes(nextNum)) { adherenceCount++; }
-              }
-          }
-      }
-      
-      const checkableEntries = recentHistoryToCheck.length - 1;
-      const adherenceRate = checkableEntries > 0 ? (adherenceCount / checkableEntries) * 100 : 0;
-      
-      let suggestionHTML = `
-          <div style="font-size: 14px; margin-bottom: 8px; color: var(--muted);">
-              O GATILHO atual é o último número lançado: <span style="color: var(--zero); font-weight: 700;">${triggerNum}</span>.
-          </div>
-          <div style="margin-bottom: 12px;">
-              🎯 **SUGESTÃO BOOSTER**: O sucessor mais provável é **${bestNum}**. 
-              Aposte na **ZONA ${bestNum}** (Vizinhos 2: ${bestZone.join(', ')}).
-          </div>
-          <div style="font-family: 'Orbitron', sans-serif; font-size: 16px;">
-              ✨ **Probabilidade de Sucesso Direto**: <span class="positive">${bestNumProbability.toFixed(1)}%</span><br>
-              📈 **Aderência do Padrão (Últimos ${checkableEntries} Lançamentos)**: <span style="color: var(--accent);">${adherenceRate.toFixed(1)}%</span>
-          </div>
-      `;
-      betSuggestionDiv.innerHTML = suggestionHTML;
-  }
-  
-  function renderHistory() {
-    historyDiv.innerHTML = '';
-    historyArr.forEach((n, i) => { 
-      const chip = document.createElement('div');
-      chip.textContent = n;
-      chip.className = 'chip ' + getColor(n);
-      chip.onclick = () => confirmRemoveNumber(i);
-      historyDiv.appendChild(chip); 
-    });
     
-    // CORREÇÃO APLICADA: Atualiza o contador de histórico (Ex: 5/100)
-    historyCount.textContent = `${historyArr.length}/${MAX_HISTORY}`; 
-  }
-
-  function renderHotCold() {
-    const hotNumbers = numberStats.hotList || [];
-    const coldNumbers = numberStats.coldList || [];
-    hotColdDiv.innerHTML = `🔥 **Hot** (Mais Frequentes): ${hotNumbers.join(', ') || '-'}<br>❄️ **Cold** (Mais Atrasados): ${coldNumbers.join(', ') || '-'}`;
+    bankrollState.current = parseFloat((bankrollState.current - amount).toFixed(2));
+    bankrollState.history.push({ amount: -amount, timestamp: Date.now() });
+    saveBankrollData();
+    updateUI();
+    betAmountInput.value = '';
+  };
+  
+  function deleteBankrollEntry(indexToDelete) {
+    const entry = bankrollState.history[indexToDelete];
+    const amount = entry.amount;
+    const entryType = amount > 0 ? 'Lucro' : 'Red';
+    
+    if (confirm(`Tem certeza que deseja excluir este lançamento de ${entryType} (${formatBRL(Math.abs(amount))})?`)) {
+      
+      bankrollState.history.splice(indexToDelete, 1);
+      
+      // Recalcula a banca atual do zero para evitar erros de ponto flutuante
+      let newCurrent = bankrollState.initial;
+      for (const item of bankrollState.history) {
+        newCurrent += item.amount;
+      }
+      bankrollState.current = parseFloat(newCurrent.toFixed(2));
+      
+      saveBankrollData();
+      updateUI();
+    }
   }
   
   function renderBankrollDashboard() {
     const { initial, current, history } = bankrollState;
-    const dashboardElement = document.getElementById('performanceDashboard');
-
+    
     if (initial === 0) {
-      dashboardElement.innerHTML = `<span class="stat-title" style="grid-column: 1 / -1;">Defina sua banca inicial para começar.</span>`;
+      performanceDashboard.innerHTML = `<span style="color:var(--muted); grid-column: 1 / -1;">Defina sua banca inicial para começar.</span>`;
       return;
     }
+    
     const totalProfit = parseFloat((current - initial).toFixed(2));
     const totalProfitPercent = (initial > 0) ? ((totalProfit / initial) * 100).toFixed(1) : 0;
+    
     const wins = history.filter(v => v.amount > 0).length;
     const losses = history.filter(v => v.amount < 0).length;
     const totalBets = history.length;
     const winRate = (totalBets > 0) ? (wins / totalBets) * 100 : 0;
+    
     const avgProfitPerBet = (totalBets > 0) ? (totalProfit / totalBets) : 0;
-    const projection30Entries = (current + (avgProfitPerBet * 30));
+    // Projeção: Banca Atual + (Lucro Médio Diário x 30) - (média diária é difícil, usamos o lucro médio por bet aqui)
+    const projection30Days = parseFloat((current + (avgProfitPerBet * 30)).toFixed(2)); 
+    
+    // Sugestão de aposta de 2% (padrão de gestão de risco)
     const suggestedBet = parseFloat((current * 0.02).toFixed(2));
-    const profitClass = totalProfit > 0 ? 'positive' : totalProfit < 0 ? 'negative' : '';
-    const projectionClass = projection30Entries > current ? 'positive' : projection30Entries < current ? 'negative' : '';
 
-    dashboardElement.innerHTML = `
+    performanceDashboard.innerHTML = `
       <div class="stat-item">
-        <div class="stat-title">BANCA ATUAL</div>
-        <div class="stat-value">${formatCurrency(current)}</div>
+        <div class="stat-title">Banca Atual</div>
+        <div class="stat-value">${formatBRL(current)}</div>
       </div>
-      <div class="stat-item ${profitClass}">
-        <div class="stat-title">LUCRO/RED TOTAL</div>
-        <div class="stat-value ${profitClass}">
-          ${formatCurrency(totalProfit)} (${totalProfitPercent}%)
+      <div class="stat-item">
+        <div class="stat-title">Lucro/Prejuízo Total</div>
+        <div class="stat-value ${totalProfit > 0 ? 'positive' : totalProfit < 0 ? 'negative' : ''}">
+          ${formatBRL(totalProfit)} (${totalProfitPercent}%)
         </div>
       </div>
       <div class="stat-item">
-        <div class="stat-title">TAXA DE ACERTO</div>
+        <div class="stat-title">Taxa de Acerto (Wins)</div>
         <div class="stat-value">${winRate.toFixed(1)}%</div>
       </div>
       <div class="stat-item">
-        <div class="stat-title">ENTRADAS (W/L)</div>
+        <div class="stat-title">Registros (W/L)</div>
         <div class="stat-value">
-          <span class="stat-value positive">${wins}</span> / <span class="stat-value negative">${losses}</span>
+          <span class="positive">${wins}</span> / <span class="negative">${losses}</span>
         </div>
       </div>
       <div class="stat-item">
-        <div class="stat-title">APOSTA SUGERIDA (2%)</div>
-        <div class="stat-value">${formatCurrency(suggestedBet)}</div>
+        <div class="stat-title">Aposta Sugerida (2%)</div>
+        <div class="stat-value">${formatBRL(suggestedBet)}</div>
       </div>
-      <div class="stat-item ${projectionClass}">
-        <div class="stat-title">PROJEÇÃO (30 ENTRADAS)</div>
-        <div class="stat-value ${projectionClass}">
-          ${formatCurrency(projection30Entries)}
+      <div class="stat-item">
+        <div class="stat-title">Projeção 30 Entradas</div>
+        <div class="stat-value ${projection30Days > current ? 'positive' : projection30Days < current ? 'negative' : ''}">
+          ${formatBRL(projection30Days)}
         </div>
       </div>
     `;
@@ -1096,168 +624,341 @@ document.addEventListener('DOMContentLoaded', () => {
   
   function renderBankrollHistory() {
     const history = bankrollState.history;
-    const historyDiv = document.getElementById('bankrollHistory');
+    
     if (history.length === 0) {
-      historyDiv.innerHTML = `<div class="log-item log-placeholder" style="border: none;">Nenhum registro ainda.</div>`;
+      bankrollHistoryDiv.innerHTML = `<div class="log-item" style="color:var(--muted); text-align: center;">Nenhum registro ainda.</div>`;
       return;
     }
-    historyDiv.innerHTML = '';
+    
+    bankrollHistoryDiv.innerHTML = '';
+    
+    // Inverte o array para mostrar os mais recentes primeiro
     [...history].reverse().forEach((entry, reverseIndex) => {
+      
+      // Mapeia o índice invertido de volta para o original para exclusão
       const originalIndex = history.length - 1 - reverseIndex; 
       const amount = entry.amount;
+      
       const item = document.createElement('div');
       item.className = 'log-item';
+      
       const text = document.createElement('span');
-      if (amount > 0) { text.textContent = `+ ${formatCurrency(amount)}`; item.classList.add('log-win'); } 
-      else { text.textContent = `${formatCurrency(amount)}`; item.classList.add('log-loss'); }
+      if (amount > 0) {
+        item.classList.add('log-win');
+        text.textContent = `+ ${formatBRL(amount)}`;
+      } else {
+        item.classList.add('log-loss');
+        text.textContent = `${formatBRL(amount)}`; // O sinal já está no valor
+      }
+      
       const deleteBtn = document.createElement('button');
-      deleteBtn.className = 'log-delete-btn'; deleteBtn.textContent = 'X'; deleteBtn.title = 'Excluir este lançamento';
+      deleteBtn.className = 'log-delete-btn';
+      deleteBtn.textContent = 'X';
+      deleteBtn.title = 'Excluir este lançamento';
       deleteBtn.onclick = () => deleteBankrollEntry(originalIndex);
-      item.appendChild(text); item.appendChild(deleteBtn);
-      historyDiv.appendChild(item);
+      
+      item.appendChild(text);
+      item.appendChild(deleteBtn);
+      bankrollHistoryDiv.appendChild(item);
     });
-    historyDiv.scrollTop = 0;
   }
   
-  function deleteBankrollEntry(indexToDelete) {
-    const entry = bankrollState.history[indexToDelete];
-    const amount = entry.amount;
-    const entryType = amount > 0 ? 'Lucro' : 'Red';
-    if (confirm(`Tem certeza que deseja excluir este lançamento de ${entryType} (${formatCurrency(Math.abs(amount))})?`)) {
-      bankrollState.history.splice(indexToDelete, 1);
-      let newCurrent = bankrollState.initial * 100; 
-      for (const item of bankrollState.history) { newCurrent += item.amount * 100; }
-      bankrollState.current = newCurrent / 100; 
-      saveBankrollData();
-      checkStopCondition();
-      updateUI();
+  
+  /* ================== LÓGICA DE ANÁLISE DA ROLETA ================== */
+
+  function calculateStats() {
+    const allNumbers = [...Array(37).keys()]; 
+    
+    const stats = {
+      counts: {},
+      nextMap: {},
+      hotList: [],
+      coldList: [],
+      colorCounts: { red: 0, black: 0, green: 0 },
+      parityCounts: { even: 0, odd: 0 }
+    };
+    allNumbers.forEach(n => {
+      stats.counts[n] = { count: 0 };
+    });
+
+    for (let i = historyArr.length - 1; i >= 0; i--) {
+      const num = historyArr[i];
+      
+      stats.counts[num].count++;
+      
+      const color = getColor(num);
+      stats.colorCounts[color]++;
+      
+      if (num !== 0) {
+        num % 2 === 0 ? stats.parityCounts.even++ : stats.parityCounts.odd++;
+      }
+      
+      // Mapeamento de Próximo Número
+      if (i > 0) {
+        const currentNum = historyArr[i];
+        const nextNum = historyArr[i - 1]; // O número que veio DEPOIS do currentNum
+        
+        if (!stats.nextMap[currentNum]) {
+          stats.nextMap[currentNum] = [];
+        }
+        stats.nextMap[currentNum].push(nextNum);
+      }
     }
+
+    // Listas Hot/Cold
+    stats.hotList = allNumbers
+      .filter(n => stats.counts[n].count > 0)
+      .sort((a, b) => stats.counts[b].count - stats.counts[a].count)
+      .slice(0, 4);
+
+    const countsSet = new Set(allNumbers.map(n => stats.counts[n].count));
+    const minCount = countsSet.size > 0 ? Math.min(...countsSet) : 0;
+    
+    stats.coldList = allNumbers
+      .filter(n => stats.counts[n].count === minCount) // Filtra os com menor contagem
+      .slice(0, 4);
+    
+    numberStats = stats;
+  }
+  
+  function addNumber(num) {
+    if (historyArr.length >= MAX_HISTORY) {
+      historyArr.pop(); // Remove o mais antigo
+    }
+    historyArr.unshift(num); // Adiciona o novo no começo
+    saveHistoryData();
+    updateUI();
+  }
+  
+  function addMultipleNumbers(numArray) {
+    const numbersToAdd = numArray
+      .map(n => parseInt(n, 10))
+      .filter(n => !isNaN(n) && n >= 0 && n <= 36);
+      
+    if (numbersToAdd.length === 0) {
+        alert('Nenhum número de 0 a 36 identificado.');
+        return;
+    }
+    
+    // Concatena os novos números na frente do histórico
+    historyArr = [...numbersToAdd, ...historyArr];
+    
+    if (historyArr.length > MAX_HISTORY) {
+      // GARANTIA: Limita o histórico aos 100 números mais recentes (Recente é o início do array)
+      historyArr = historyArr.slice(0, MAX_HISTORY);
+    }
+    
+    saveHistoryData();
+    updateUI();
+    alert(`${numbersToAdd.length} números adicionados automaticamente!`);
   }
 
+  function removeNumber(index) {
+    historyArr.splice(index, 1);
+    saveHistoryData();
+    updateUI();
+  }
+  
   function confirmRemoveNumber(index) {
     const num = historyArr[index];
-    if (confirm(`Excluir o número ${num} (Recente) do histórico?`)) {
-      historyArr.splice(index, 1);
-      saveHistoryData();
-      updateUI();
+    if (confirm(`Tem certeza que deseja excluir o número ${num} (Recente) do histórico?`)) {
+      removeNumber(index);
     }
   }
 
-  function updateClock(){
-    const now = new Date();
-    const h = String(now.getHours()).padStart(2,'0');
-    const m = String(now.getMinutes()).padStart(2,'0');
-    const s = String(now.getSeconds()).padStart(2,'0');
-    document.getElementById('clock').textContent = `${h}:${m}:${s}`;
-  }
+  /* ================== RENDERIZAÇÃO DA UI ================== */
   
   function updateUI() {
-    if (getLoginStatus() && !checkLockStatus()) {
-        loginScreen.classList.add('hidden');
-        mainPanel.classList.remove('hidden');
-        bodyTag.classList.remove('login-active'); 
-        modeDisplay.textContent = config.mode;
-        
-        calculateStats();
-        renderHistory();
-        renderZoneAnalysis();
-        renderHotCold();
-        renderBankrollDashboard();
-        renderBankrollHistory();
-        renderBetSuggestion(); 
-        
-        // Bloqueia inputs/botões se estiver no modo DEMO para reforçar
-        const isDemo = config.mode === 'DEMO';
-        btnRegisterWin.disabled = isDemo;
-        btnRegisterLoss.disabled = isDemo;
-        document.getElementById('btnSetBankroll').disabled = isDemo;
-        initialBankrollInput.disabled = isDemo;
-
-    } else if (getLoginStatus() && config.isLocked) {
-        loginScreen.classList.add('hidden');
-        mainPanel.classList.add('hidden');
-        bodyTag.classList.remove('login-active');
-    } else {
-        // Não logado: Garante que o loginScreen está visível e impede rolagem
-        loginScreen.classList.remove('hidden');
-        mainPanel.classList.add('hidden');
-        bodyTag.classList.add('login-active'); 
-    }
+    if(mainPanel.classList.contains('hidden')) return;
+    
+    calculateStats();
+    renderHistory();
+    renderHotCold();
+    renderLastNumberAnalysis();
+    renderGeneralStats();
+    renderBetSuggestion();
+    renderBankrollDashboard();
+    renderBankrollHistory();
+    
+    historyCount.textContent = `${historyArr.length}/${MAX_HISTORY}`;
   }
 
-  btnUpload.onclick = () => uploadPhotoInput.click();
-  uploadPhotoInput.onchange = (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
+  // FUNÇÃO REVISADA PARA GARANTIR RECENTE NA ESQUERDA
+  function renderHistory() {
+    historyDiv.innerHTML = '';
+    // historyArr é [Recente, Antigo, Antigo...]
+    // Usando appendChild em um flex container padrão (row) resulta em:
+    // [Chip 0: Recente] [Chip 1: Antigo] [Chip 2: Mais Antigo] (Esquerda para Direita)
+    historyArr.forEach((n, i) => { 
+      const chip = document.createElement('div');
+      chip.textContent = n;
+      chip.className = 'chip ' + getColor(n);
+      
+      const count = numberStats.counts[n]?.count || 0;
+      
+      // Estilo Hot/Cold mais evidente
+      if (numberStats.hotList.includes(n) && count >= HOT_THRESHOLD) chip.classList.add('hot');
+      if (numberStats.coldList.includes(n) && count === 0) chip.classList.add('cold');
+      
+      chip.onclick = () => confirmRemoveNumber(i);
+      
+      historyDiv.appendChild(chip); // Anexa na ordem, garantindo Recente na Esquerda
+    });
+  }
 
-      const loadingMessage = document.createElement('p');
-      loadingMessage.textContent = "OCR em andamento... aguarde.";
-      loadingMessage.style.color = 'var(--zero)';
-      loadingMessage.style.textAlign = 'center';
-      loadingMessage.id = 'ocr-loading-msg'; 
-      gridNumbers.insertAdjacentElement('afterend', loadingMessage); 
-      btnUpload.disabled = true;
+  function renderHotCold() {
+    const hotNumbers = numberStats.hotList || [];
+    const coldNumbers = numberStats.coldList || [];
+    hotColdDiv.innerHTML = `🔥 Hot: ${hotNumbers.join(', ') || '-'}<br>❄️ Cold: ${coldNumbers.join(', ') || '-'}`;
+  }
+  
+  function renderLastNumberAnalysis() {
+    if (historyArr.length < 2) {
+      lastNumberAnalysisDiv.innerHTML = 'Adicione números ao histórico para ver a análise de sucessão.';
+      return;
+    }
+    
+    const lastNum = historyArr[0];
+    const followers = numberStats.nextMap[lastNum];
+    
+    if (!followers || followers.length < 3) {
+      lastNumberAnalysisDiv.innerHTML = `O último número foi <b>${lastNum}</b>. (Necessário mais ocorrências para gerar dados de sucessão).`;
+      return;
+    }
 
-      Tesseract.recognize(
-          file,
-          'eng',
-          { 
-              logger: m => console.log(m),
-              // CORREÇÃO ANTERIOR: Whitelist para buscar APENAS dígitos 0-9
-              tessedit_char_whitelist: '0123456789',
-              // NOVA CORREÇÃO: PSM 6 para tratar a imagem como um bloco uniforme (ideal para grade)
-              tessedit_pageseg_mode: '6' 
-          } 
-      ).then(({ data: { text } }) => {
-          document.getElementById('ocr-loading-msg')?.remove(); 
-          btnUpload.disabled = false;
-          
-          // Regex para capturar números válidos de roleta (0-36)
-          const numbers = text.match(/\b(0|[1-9]|1[0-9]|2[0-9]|3[0-6])\b/g);
-          
-          if (numbers && numbers.length > 0) {
-              // Garante que não haja duplicatas antes de perguntar ao usuário
-              const uniqueNumbers = [...new Set(numbers.map(Number))];
-              if (confirm(`OCR encontrou ${uniqueNumbers.length} números: ${uniqueNumbers.join(', ')}. Adicionar todos ao histórico?`)) {
-                  // Adiciona os mais recentes primeiro
-                  uniqueNumbers.reverse().forEach(num => addNumber(num));
+    const followerCounts = {};
+    for (const num of followers) {
+      followerCounts[num] = (followerCounts[num] || 0) + 1;
+    }
+    
+    const sortedFollowers = Object.entries(followerCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5); // Limita aos top 5
+
+    let tableHTML = `<div style="margin-bottom: 6px;">Após o <b>${lastNum}</b>, os números mais frequentes foram:</div>
+                     <table class="analysis-table">
+                       <thead><tr><th>Número</th><th>Vezes</th><th>Chance</th></tr></thead>
+                       <tbody>`;
+    
+    for (const [num, count] of sortedFollowers) {
+      const percentage = ((count / followers.length) * 100).toFixed(1);
+      tableHTML += `<tr>
+                      <td><b>${num}</b></td>
+                      <td>${count}x</td>
+                      <td>${percentage}%</td>
+                    </tr>`;
+    }
+    
+    tableHTML += `</tbody></table>`;
+    lastNumberAnalysisDiv.innerHTML = tableHTML;
+  }
+  
+  function renderBetSuggestion() {
+      if (historyArr.length < 10) {
+          betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">Aguardando mais dados para gerar uma sugestão (mínimo 10 lançamentos)...</span>`;
+          return;
+      }
+
+      let suggestion = "";
+
+      // 1. Padrão de Cor (3+ seguidos)
+      const colorStreak = historyArr.slice(0, 4).map(getColor);
+      if (colorStreak.every(c => c === 'red') && colorStreak.length >= 3) {
+          suggestion = `Saíram **${colorStreak.length} Vermelhos** seguidos. Uma aposta no **Preto** pode ser interessante (Quebra de Padrão).`;
+      } else if (colorStreak.every(c => c === 'black') && colorStreak.length >= 3) {
+          suggestion = `Saíram **${colorStreak.length} Pretos** seguidos. Uma aposta no **Vermelho** pode ser interessante (Quebra de Padrão).`;
+      } 
+      
+      // 2. Mapeamento de Próximo Número (Sucessão)
+      else {
+          const lastNum = historyArr[0];
+          const followers = numberStats.nextMap[lastNum];
+          if (followers && followers.length >= 5) { // Precisa de mais dados para ser confiável
+              const followerCounts = {};
+              for (const num of followers) {
+                followerCounts[num] = (followerCounts[num] || 0) + 1;
               }
-          } else {
-              alert('OCR não conseguiu identificar números válidos (0-36) na imagem. Tente usar uma imagem mais limpa (sem caixas coloridas) ou o modo PSM 10.');
+              const sortedFollowers = Object.entries(followerCounts).sort((a, b) => b[1] - a[1]);
+              const mostFrequent = sortedFollowers[0];
+              const mostFrequentNum = mostFrequent[0];
+              const probability = (mostFrequent[1] / followers.length) * 100;
+
+              if (probability >= 35) { // Acima de 35% de chance de repetição
+                  suggestion = `Após o **${lastNum}**, o número **${mostFrequentNum}** saiu **${probability.toFixed(0)}%** das vezes. Alta probabilidade de repetição (Padrão de Sucessão).`;
+              }
           }
-      }).catch(err => {
-          document.getElementById('ocr-loading-msg')?.remove();
-          btnUpload.disabled = false;
-          alert('Erro no processamento OCR. Verifique o console.');
-          console.error(err);
-      });
-  };
+      }
+      
+      // 3. Hot List (Tendência)
+      if (!suggestion) {
+          const hotList = numberStats.hotList;
+          if (hotList.length > 0) {
+              const hottestNum = hotList[0];
+              const hottestCount = numberStats.counts[hottestNum].count;
+              if (hottestCount >= 5) {
+                  suggestion = `O número **${hottestNum}** está muito "quente" (saiu **${hottestCount}** vezes nos últimos ${historyArr.length}). Pode valer a pena seguir a tendência.`;
+              }
+          }
+      }
 
-  function registerTransaction(amount, isWin) {
-    if (bankrollState.initial === 0) {
-        alert('Defina sua Banca Inicial na seção "Gestão de Banca e Risco" antes de registrar entradas.');
-        return;
-    }
-    
-    const rawAmount = parseFloat(amount);
-    if (isNaN(rawAmount) || rawAmount <= 0) {
-        alert('Por favor, insira um valor válido.');
-        return;
-    }
-    
-    const amountInCents = Math.round(rawAmount * 100);
-    const finalAmount = amountInCents / 100;
-    
-    const currentCents = Math.round(bankrollState.current * 100);
-
-    bankrollState.current = (currentCents + (isWin ? amountInCents : -amountInCents)) / 100;
-    bankrollState.history.push({ amount: isWin ? finalAmount : -finalAmount, timestamp: Date.now() });
-    
-    saveBankrollData();
-    checkStopCondition();
-    updateUI();
-    betAmountInput.value = '';
+      if (!suggestion) {
+        suggestion = 'Nenhum padrão forte detectado no momento. Verifique as estatísticas gerais abaixo.';
+        betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">${suggestion}</span>`;
+      } else {
+        betSuggestionDiv.innerHTML = `<span class="iaGlow">${suggestion}</span>`;
+      }
   }
+  
+  function renderGeneralStats() {
+    if (historyArr.length < 10) {
+      generalStatsDiv.innerHTML = 'Adicione mais números para ver os padrões.';
+      return;
+    }
+    
+    const { colorCounts, parityCounts, counts } = numberStats;
+    const total = historyArr.length;
+    
+    const redPercent = (colorCounts.red / total) * 100;
+    const blackPercent = (colorCounts.black / total) * 100;
+    const greenPercent = (colorCounts.green / total) * 100;
+    
+    const totalParity = parityCounts.even + parityCounts.odd;
+    const evenPercent = totalParity > 0 ? (parityCounts.even / totalParity) * 100 : 0;
+    const oddPercent = totalParity > 0 ? (parityCounts.odd / totalParity) * 100 : 0;
+    
+    let html = `<div style="font-weight:700; margin-bottom: 8px;">Análise dos últimos ${total} números:</div>`;
+    html += `<b>Cores:</b> ${redPercent.toFixed(1)}% <span style="color:var(--hot)">Vermelho</span>, ${blackPercent.toFixed(1)}% Preto, ${greenPercent.toFixed(1)}% <span style="color:var(--zero)">Verde</span>.<br>`;
+    html += `<b>Par/Ímpar:</b> ${evenPercent.toFixed(1)}% Par, ${oddPercent.toFixed(1)}% Ímpar (desconsiderando o Zero).<br>`;
+    
+    let statSuggestion = "";
+    
+    // Análise de Desequilíbrio
+    if (redPercent > 55) {
+      statSuggestion = `<b>Apostar em PRETO</b>. (O Vermelho saiu ${redPercent.toFixed(0)}% das vezes, buscando equilíbrio).`;
+    } else if (blackPercent > 55) {
+      statSuggestion = `<b>Apostar em VERMELHO</b>. (O Preto saiu ${blackPercent.toFixed(0)}% das vezes, buscando equilíbrio).`;
+    }
+    else if (evenPercent > 55) {
+      statSuggestion = `<b>Apostar em ÍMPAR</b>. (O Par saiu ${evenPercent.toFixed(0)}% das vezes, buscando equilíbrio).`;
+    } else if (oddPercent > 55) {
+      statSuggestion = `<b>Apostar em PAR</b>. (O Ímpar saiu ${oddPercent.toFixed(0)}% das vezes, buscando equilíbrio).`;
+    }
+    else if (numberStats.hotList.length > 0 && counts[numberStats.hotList[0]].count >= 5) {
+      statSuggestion = `<b>Apostar no ${numberStats.hotList[0]}</b>. (Número "Super Quente", saiu ${counts[numberStats.hotList[0]].count}x).`;
+    }
+    else if (numberStats.coldList.length > 0 && counts[numberStats.coldList[0]].count === 0) {
+      statSuggestion = `<b>Apostar no ${numberStats.coldList[0]}</b>. (Número "Frio", atrasado).`;
+    }
+    else {
+      statSuggestion = "O histórico está equilibrado. Jogue com cautela ou baseie-se na sugestão da IA.";
+    }
+    
+    html += `<br><div class="iaGlow" style="color:var(--accent); font-weight:700;">Dica Estatística:</div> ${statSuggestion}`;
+    
+    generalStatsDiv.innerHTML = html;
+  }
+
+  /* ================== INICIALIZAÇÃO E EVENTOS ================== */
 
   // 1. Popular Grid
   for (let i = 0; i <= 36; i++) {
@@ -1268,75 +969,161 @@ document.addEventListener('DOMContentLoaded', () => {
     gridNumbers.appendChild(btn);
   }
 
-  // 2. Event Listeners
-  document.getElementById('btnSignInReal').onclick = () => {
-      if (authPwdInput.value === getPasswordHash()) {
-          setLoginStatus(true, 'REAL');
-          checkLockStatus(); 
-          updateUI();   
-      } else {
-          alert('Senha incorreta.');
-      }
-  };
+  // 2. Clock
+  function updateClock(){
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    clockDiv.textContent = `${h}:${m}:${s}`;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
   
-  document.getElementById('btnSignInDemo').onclick = () => {
-      setLoginStatus(true, 'DEMO');
-      checkLockStatus(); 
-      updateUI();   
-  };
+  // 3. Lógica de Login/Sessão
+  const isLoggedIn = sessionStorage.getItem('isLoggedIn'); 
+  
+  if (isLoggedIn === 'true') {
+      loginScreen.classList.add('hidden');
+      mainPanel.classList.remove('hidden');
+      loadBankrollData();
+      loadHistoryData(); // Carrega histórico da roleta
+      updateUI();
+  } else {
+      loginScreen.classList.remove('hidden');
+      mainPanel.classList.add('hidden');
+  }
 
-  document.getElementById('logoutBtn').onclick = () => {
-    if (confirm('Tem certeza que deseja sair?')) {
-        setLoginStatus(false); 
+  function handleLoginEnter(event) {
+    if (event.key === 'Enter' || event.keyCode === 13) {
+      event.preventDefault(); 
+      document.getElementById('btnSignIn').click();
+    }
+  }
+
+  authPwdInput.addEventListener('keydown', handleLoginEnter);
+  
+  // Botão ENTRAR
+  document.getElementById('btnSignIn').onclick = () => {
+    const passwordInput = authPwdInput.value;
+
+    if (passwordInput === FIXED_PASSWORD) {
+        sessionStorage.setItem('isLoggedIn', 'true');
+        loginScreen.classList.add('hidden');
+        mainPanel.classList.remove('hidden');
+        loadBankrollData();
+        loadHistoryData(); // Carrega histórico da roleta
         updateUI();
-        stopSessionCounter();
+    } else {
+        alert('Senha incorreta.');
     }
+  };
+
+  // Botão SAIR
+  document.getElementById('logoutBtn').onclick = () => {
+    sessionStorage.removeItem('isLoggedIn');
+    mainPanel.classList.add('hidden');
+    loginScreen.classList.remove('hidden');
+    
+    authPwdInput.value = '';
   };
   
-  document.getElementById('btnSetBankroll').onclick = () => {
-    const initialRaw = parseFloat(initialBankrollInput.value);
-    const initial = parseFloat(initialRaw.toFixed(2)); 
-
-    if (isNaN(initial) || initial <= 0) {
-      alert('Por favor, insira um valor de banca inicial válido.');
-      return;
-    }
-    
-    if (bankrollState.initial > 0 && 
-        !confirm('Ao redefinir a banca, o histórico de lucro/perda será zerado. Continuar?')) {
-        return;
-    }
-
-    bankrollState.initial = initial;
-    bankrollState.current = initial;
-    bankrollState.history = [];
-    
-    saveBankrollData();
-    checkStopCondition();
-    updateUI();
-    alert(`Banca inicial definida em ${formatCurrency(initial)}`);
-  };
-
-  btnRegisterWin.onclick = () => registerTransaction(betAmountInput.value, true);
-  btnRegisterLoss.onclick = () => registerTransaction(betAmountInput.value, false);
-
-  clearBtn.onclick = () => {
-    if (confirm('Tem certeza que deseja limpar TODO o histórico de lançamentos da roleta?')) {
+  // 4. Controles
+  document.getElementById('clearBtn').onclick = () => {
+    if (confirm('Tem certeza que deseja limpar todo o histórico de lançamentos da roleta?')) {
       historyArr = [];
       saveHistoryData();
       updateUI();
     }
   };
+
+  // 5. Lógica OCR Tesseract
   
-  // 3. Inicializar
-  setInterval(updateClock, 1000);
-  updateClock();
-  
-  loadConfig();
-  loadBankrollData();
-  loadHistoryData(); 
-  
-  checkLockStatus(); 
+  // Zera o valor do input antes de chamar o click
+  document.getElementById('uploadBtn').onclick = () => {
+    uploadInput.value = null; 
+    uploadInput.click();
+  };
+
+  // Função de pré-processamento P&B
+  function preprocessImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const image = new Image();
+        image.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = image.width;
+          canvas.height = image.height;
+          const ctx = canvas.getContext('2d');
+          
+          ctx.drawImage(image, 0, 0);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+          const threshold = 128; 
+
+          for (let i = 0; i < data.length; i += 4) {
+            const luminance = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+            const value = luminance > threshold ? 255 : 0;
+            data[i] = value;
+            data[i + 1] = value;
+            data[i + 2] = value;
+          }
+          
+          ctx.putImageData(imageData, 0, 0);
+          resolve(canvas.toDataURL('image/jpeg', 0.9));
+        };
+        image.onerror = (err) => reject(err);
+        image.src = event.target.result;
+      };
+      reader.onerror = (err) => reject(err);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  uploadInput.addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    document.getElementById('uploadBtn').textContent = 'Processando...';
+    try {
+      console.log('Iniciando pré-processamento P&B...');
+      const processedImage = await preprocessImage(file);
+
+      const { data: { text } } = await Tesseract.recognize(
+        processedImage,
+        'eng', 
+        {
+          logger: m => console.log(m.status === 'recognizing text' ? `OCR: ${(m.progress * 100).toFixed(0)}%` : m.status),
+          tessedit_pageseg_mode: '6', 
+          tessedit_char_whitelist: '0123456789 ' 
+        }
+      );
+      
+      console.log('OCR Text Original:', text);
+      // Mantém apenas números válidos de 0 a 36
+      const matches = text.match(/\b(0|[1-9]|[12][0-9]|3[0-6])\b/g);
+      
+      if (matches && matches.length > 0) {
+        
+        const numbersFromOCR = matches.map(Number); 
+        
+        // CORREÇÃO: Mantido SEM o .reverse().
+        // Assumimos que o OCR lê a imagem na ordem Recente -> Antigo 
+        // (Top-Left é o mais recente, seguindo a sua descrição).
+        addMultipleNumbers(numbersFromOCR); 
+        
+      } else {
+        alert('Nenhum número de 0 a 36 foi identificado na imagem.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao processar a imagem. Veja o console para detalhes.');
+    } finally {
+      document.getElementById('uploadBtn').textContent = '📷 Enviar Foto';
+    }
+  });
+
 });
 </script>
 
