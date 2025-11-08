@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>ROLETA IAP VANGUARDA ⚡ 5.0</title>
+<title>ROLETA IAP VANGUARDA ⚡ 6.0</title>
 
 <link rel="manifest" href="manifest.webmanifest">
 
@@ -880,8 +880,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const triggerNum = historyArr[0];
     const followers = numberStats.zoneSuccessionMap[triggerNum]; // O que veio historicamente APÓS o triggerNum
     
-    if (!followers || followers.length < 2) {
-      zoneAnalysisDiv.innerHTML = `<span style="color:var(--muted)">O último número foi **${triggerNum}**. Necessário mais ocorrências (mínimo 2) de sucessão APÓS **${triggerNum}** no histórico para gerar dados confiáveis.</span>`;
+    // Condição de Filtro Estrito: Apenas se houver EXATAMENTE 3 sucessores
+    if (!followers || followers.length !== 3) { 
+      const count = followers ? followers.length : 0;
+      zoneAnalysisDiv.innerHTML = `<span style="color:var(--muted)">O último número foi **${triggerNum}**. O histórico de sucessão APÓS **${triggerNum}** possui **${count}** ocorrência(s). Exibindo Top 3 apenas quando houver **EXATAMENTE 3**.</span>`;
       return;
     }
     
@@ -900,8 +902,8 @@ document.addEventListener('DOMContentLoaded', () => {
                   <div class="data-separator" style="margin: 8px 0;"></div>
                   <div style="font-size: 14px; margin-bottom: 10px;">**PRÓXIMOS MAIS PROVÁVEIS** (Histórico após **${triggerNum}**):</div>`;
     
-    
-    sortedFollowers.slice(0, 5).forEach(([numStr, count]) => {
+    // Se passarmos pelo filtro, sabemos que followers.length é 3
+    sortedFollowers.slice(0, 3).forEach(([numStr, count]) => { // Aqui usamos slice(0, 3) apenas para garantir o TOP 3, mas o filtro já assegurou que o total é 3
       const num = Number(numStr);
       // Aqui, mostramos o número que veio depois (num) e a contagem
       html += `<div class="pattern-line">
