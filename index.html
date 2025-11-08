@@ -1029,6 +1029,7 @@ document.addEventListener('DOMContentLoaded', () => {
       chip.onclick = () => confirmRemoveNumber(i);
       historyDiv.appendChild(chip); 
     });
+    
     // CORREÇÃO APLICADA: Atualiza o contador de histórico (Ex: 5/100)
     historyCount.textContent = `${historyArr.length}/${MAX_HISTORY}`; 
   }
@@ -1202,23 +1203,27 @@ document.addEventListener('DOMContentLoaded', () => {
           'eng',
           { 
               logger: m => console.log(m),
-              // CORREÇÃO APLICADA: Whitelist para buscar APENAS dígitos 0-9 para maior precisão
-              tessedit_char_whitelist: '0123456789'
+              // CORREÇÃO ANTERIOR: Whitelist para buscar APENAS dígitos 0-9
+              tessedit_char_whitelist: '0123456789',
+              // NOVA CORREÇÃO: PSM 6 para tratar a imagem como um bloco uniforme (ideal para grade)
+              tessedit_pageseg_mode: '6' 
           } 
       ).then(({ data: { text } }) => {
           document.getElementById('ocr-loading-msg')?.remove(); 
           btnUpload.disabled = false;
           
-          // Melhoria na Regex para capturar números únicos
+          // Regex para capturar números válidos de roleta (0-36)
           const numbers = text.match(/\b(0|[1-9]|1[0-9]|2[0-9]|3[0-6])\b/g);
           
           if (numbers && numbers.length > 0) {
+              // Garante que não haja duplicatas antes de perguntar ao usuário
               const uniqueNumbers = [...new Set(numbers.map(Number))];
-              if (confirm(`OCR encontrou os números: ${uniqueNumbers.join(', ')}. Adicionar todos ao histórico?`)) {
+              if (confirm(`OCR encontrou ${uniqueNumbers.length} números: ${uniqueNumbers.join(', ')}. Adicionar todos ao histórico?`)) {
+                  // Adiciona os mais recentes primeiro
                   uniqueNumbers.reverse().forEach(num => addNumber(num));
               }
           } else {
-              alert('OCR não conseguiu identificar números válidos (0-36) na imagem. Tente uma captura mais clara.');
+              alert('OCR não conseguiu identificar números válidos (0-36) na imagem. Tente usar uma imagem mais limpa (sem caixas coloridas) ou o modo PSM 10.');
           }
       }).catch(err => {
           document.getElementById('ocr-loading-msg')?.remove();
