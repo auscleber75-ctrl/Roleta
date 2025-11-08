@@ -36,6 +36,12 @@ body{
 }
 .hidden { display: none !important; }
 
+/* Correção da Tela de Login: impede rolagem */
+body.login-active {
+    height: 100vh;
+    overflow: hidden;
+}
+
 /* ================== TELA DE LOGIN ================== */
 #loginScreen {
     display: flex;
@@ -43,6 +49,13 @@ body{
     align-items: center;
     min-height: 100vh;
     padding: 20px;
+    /* Ajuste para que a tela de login fique sobre todo o conteúdo */
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: var(--bg);
+    z-index: 8000; 
 }
 #loginBox {
     background: var(--panel);
@@ -162,29 +175,6 @@ body{
   margin: 12px 0;
   opacity: 0.5;
 }
-
-/* ================== SITE EMBUTIDO (Google) ================== */
-.site-embed-card {
-    padding: 0;
-    overflow: hidden;
-}
-.site-responsive {
-    position: relative;
-    /* Reduzido para ser menos intrusivo, mas ainda útil */
-    padding-bottom: 70vh; 
-    height: 0;
-    overflow: hidden;
-    border-radius: 12px;
-}
-.site-responsive iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: 0;
-}
-
 
 /* ================== BOTÕES E INPUTS ================== */
 
@@ -431,7 +421,7 @@ body{
 }
 </style>
 </head>
-<body>
+<body id="bodyTag">
 
 <div id="lockScreen" class="hidden">
   <svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" fill="currentColor" viewBox="0 0 16 16" id="lockIcon">
@@ -504,20 +494,6 @@ body{
     </div>
   </div>
   
-  <div class="card site-embed-card" id="googleCard">
-    <div class="suggestionTitle">🔍 GOOGLE.COM (PESQUISA RÁPIDA)</div>
-    <div class="site-responsive">
-      <iframe 
-        width="100%" 
-        height="100%" 
-        src="https://www.google.com/webhp?igu=1" 
-        title="Google Search" 
-        frameborder="0"
-        allowfullscreen
-      ></iframe>
-    </div>
-  </div>
-
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center">
       <div class="suggestionTitle history-title">HISTÓRICO DA ROLETA <span id="historyCount" class="history-subtitle">0/100</span></div>
@@ -584,10 +560,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const STOP_WIN_AMOUNT = 35.00; // R$35,00 de lucro total
   const LOCK_DURATION = 2 * 60 * 60 * 1000; // 2 horas em milissegundos
   const SESSION_TIMEOUT = 40 * 60 * 1000; // 40 minutos em milissegundos
-  const INITIAL_LOCK = false; // <<< ALTERADO: Sessão só bloqueia por Stop/Timeout/Lock Existente
+  const INITIAL_LOCK = false; // Sessão só bloqueia por Stop/Timeout/Lock Existente
 
   
   /* ================== ELEMENTOS DOM ================== */
+  const bodyTag = document.getElementById('bodyTag');
   const loginScreen = document.getElementById('loginScreen');
   const mainPanel = document.getElementById('mainPanel');
   const modeDisplay = document.getElementById('modeDisplay');
@@ -619,10 +596,11 @@ document.addEventListener('DOMContentLoaded', () => {
   let numberStats = {}; 
   let config = {
       mode: 'DEMO', 
+      isLoggedIn: false, // Adicionado para melhor controle de estado
       isLocked: false,
       lockUntil: 0,
       lockReason: '', 
-      sessionStart: 0, 
+      sessionStart: 0, // Quando o timer de 40min começou/foi resetado
   };
   
   let bankrollState = {
@@ -631,7 +609,6 @@ document.addEventListener('DOMContentLoaded', () => {
     history: [] 
   };
   const MAX_HISTORY = 100;
-  const HOT_THRESHOLD = 3; 
   const ADHERENCE_LOOKBACK = 50; 
   
   /* ================== UTILITÁRIOS ================== */
@@ -664,32 +641,36 @@ document.addEventListener('DOMContentLoaded', () => {
     if (savedConfig) {
       const loaded = JSON.parse(savedConfig);
       config.mode = loaded.mode || 'DEMO';
+      config.isLoggedIn = loaded.isLoggedIn || false; // Carrega estado de login
       config.isLocked = loaded.isLocked || false;
       config.lockUntil = loaded.lockUntil || 0;
       config.lockReason = loaded.lockReason || '';
+      // AQUI: sessionStart só é carregado, mas a lógica de redefinição é em checkLockStatus
       config.sessionStart = loaded.sessionStart || 0; 
     }
     modeDisplay.textContent = config.mode;
   }
   
   function setLoginStatus(isLoggedIn, mode = 'DEMO') {
+      config.isLoggedIn = isLoggedIn;
       if (isLoggedIn) {
-          localStorage.setItem('isLoggedIn_roletaIAP', 'true');
           config.mode = mode;
           
-          // Se não houver bloqueio pendente, ou se foi um login novo, inicia o contador
-          if (!config.isLocked || config.lockUntil <= Date.now()) {
-            config.sessionStart = Date.now(); 
+          // Se não há um tempo de sessão salvo (ex: primeiro login), define agora
+          if (config.sessionStart === 0) {
+              config.sessionStart = Date.now();
           }
-
-          saveConfig();
       } else {
-          localStorage.removeItem('isLoggedIn_roletaIAP');
+          // Resetar o estado de login
+          config.sessionStart = 0; 
+          config.isLocked = false; 
+          config.lockUntil = 0;
       }
+      saveConfig();
   }
 
   function getLoginStatus() {
-      return localStorage.getItem('isLoggedIn_roletaIAP') === 'true'; 
+      return config.isLoggedIn; 
   }
   
   /* ================== LÓGICA DE BLOQUEIO / STOP / SESSÃO ================== */
@@ -704,36 +685,44 @@ document.addEventListener('DOMContentLoaded', () => {
       if (config.isLocked && config.lockUntil > now) {
           lockScreen.classList.remove('hidden');
           mainPanel.classList.add('hidden');
+          bodyTag.classList.remove('login-active'); // Remove para o lock screen
           
           let titleText = '';
           if (config.lockReason === 'STOP_LOSS') { titleText = 'ZONA SEGURA ATINGIDA (STOP LOSS)'; }
           else if (config.lockReason === 'STOP_WIN') { titleText = 'ZONA SEGURA ATINGIDA (STOP WIN)'; }
           else if (config.lockReason === 'TIMEOUT') { titleText = 'TEMPO DE SESSÃO ESGOTADO'; }
-          else if (config.lockReason === 'INITIAL_LOCK') { titleText = 'PRIMEIRA SESSÃO BLOQUEADA'; }
 
           lockTitle.textContent = titleText;
           lockTitle.classList.toggle('win', config.lockReason === 'STOP_WIN');
-          document.getElementById('lockIcon').style.color = (config.lockReason === 'STOP_WIN' || config.lockReason === 'INITIAL_LOCK') ? 'var(--alert-green)' : 'var(--alert-red)';
+          document.getElementById('lockIcon').style.color = (config.lockReason === 'STOP_WIN') ? 'var(--alert-green)' : 'var(--alert-red)';
 
           startLockCountdown();
           stopSessionCounter();
           return true;
       }
 
-      // 2. Se o bloqueio terminou, desbloqueia e **reinicia a sessão**
+      // 2. Se o bloqueio terminou (ou não existia), desbloqueia/mantém desbloqueado
       if (config.isLocked && config.lockUntil <= now) {
+          // Bloqueio terminou! Resetamos o estado.
           config.isLocked = false;
           config.lockUntil = 0;
           config.lockReason = '';
-          config.sessionStart = Date.now(); // Reinicia o timer da sessão
+          config.sessionStart = Date.now(); // **Reinicia o timer de 40min**
           saveConfig();
       }
       
-      // 3. Estado Desbloqueado
+      // 3. Estado Desbloqueado e Logado
       lockScreen.classList.add('hidden');
       if(getLoginStatus()) {
           mainPanel.classList.remove('hidden');
+          loginScreen.classList.add('hidden');
+          bodyTag.classList.remove('login-active');
           startSessionCounter();
+      } else {
+          // Se não está logado, garante que a tela de login domine e impeça rolagem
+          loginScreen.classList.remove('hidden');
+          mainPanel.classList.add('hidden');
+          bodyTag.classList.add('login-active'); 
       }
       stopLockCountdown();
       return false;
@@ -769,6 +758,12 @@ document.addEventListener('DOMContentLoaded', () => {
       stopSessionCounter(); 
       
       sessionInterval = setInterval(() => {
+          if (config.sessionStart === 0) {
+              // Isso deve ocorrer apenas se o estado foi corrompido, forçamos o início
+              config.sessionStart = Date.now();
+              saveConfig();
+          }
+
           const elapsed = Date.now() - config.sessionStart;
           const remaining = SESSION_TIMEOUT - elapsed;
 
@@ -794,7 +789,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   function triggerLock(reason) {
-      if (config.mode !== 'REAL' && reason !== 'INITIAL_LOCK') return;
+      if (config.mode !== 'REAL') return;
 
       config.isLocked = true;
       config.lockUntil = Date.now() + LOCK_DURATION;
@@ -1151,6 +1146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (getLoginStatus() && !checkLockStatus()) {
         loginScreen.classList.add('hidden');
         mainPanel.classList.remove('hidden');
+        bodyTag.classList.remove('login-active'); // Permite rolagem quando logado
         modeDisplay.textContent = config.mode;
         
         calculateStats();
@@ -1171,10 +1167,13 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (getLoginStatus() && config.isLocked) {
         loginScreen.classList.add('hidden');
         mainPanel.classList.add('hidden');
+        bodyTag.classList.remove('login-active');
         // checkLockStatus() já exibe a lockScreen
     } else {
+        // Não logado: Garante que o loginScreen está visível e impede rolagem
         loginScreen.classList.remove('hidden');
         mainPanel.classList.add('hidden');
+        bodyTag.classList.add('login-active'); 
     }
   }
 
@@ -1256,7 +1255,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnSignInReal').onclick = () => {
       if (authPwdInput.value === getPasswordHash()) {
           setLoginStatus(true, 'REAL');
-          loadConfig(); 
+          checkLockStatus(); // Inicia o contador ou exibe bloqueio
           updateUI();   
       } else {
           alert('Senha incorreta.');
@@ -1265,17 +1264,13 @@ document.addEventListener('DOMContentLoaded', () => {
   
   document.getElementById('btnSignInDemo').onclick = () => {
       setLoginStatus(true, 'DEMO');
-      loadConfig(); 
+      checkLockStatus(); // Inicia o contador ou exibe bloqueio
       updateUI();   
   };
 
   document.getElementById('logoutBtn').onclick = () => {
     if (confirm('Tem certeza que deseja sair?')) {
-        setLoginStatus(false);
-        config.isLocked = false;
-        config.lockUntil = 0;
-        config.sessionStart = 0;
-        saveConfig();
+        setLoginStatus(false); // Reseta o estado de login e bloqueio/sessão
         updateUI();
         stopSessionCounter();
     }
@@ -1324,12 +1319,11 @@ document.addEventListener('DOMContentLoaded', () => {
   loadBankrollData();
   loadHistoryData(); 
   
-  // Tenta carregar o status de login para saber se deve mostrar a tela principal
-  if (getLoginStatus()) {
-    checkLockStatus(); // Verifica se o usuário está bloqueado ao entrar/recarregar
-  } else {
-    updateUI();
-  }
+  // No carregamento da página, a função checkLockStatus() gerencia tudo:
+  // - Verifica se o tempo de bloqueio terminou.
+  // - Continua o timer de 40min se a sessão não estiver bloqueada.
+  // - Redireciona para a tela de login se não estiver logado.
+  checkLockStatus(); 
 });
 </script>
 
