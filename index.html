@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>ROLETA IAP VANGUARDA ⚡ 3.0</title>
+<title>ROLETA IAP VANGUARDA ⚡ 5.0</title>
 
 <link rel="manifest" href="manifest.webmanifest">
 
@@ -411,7 +411,7 @@ body{
   <h2 id="lockTitle">ZONA SEGURA ATINGIDA (STOP LOSS)</h2>
   <p>Análise bloqueada. Retorne após o período de resfriamento:</p>
   <div class="countdown" id="countdownTimer">02:00:00</div>
-  </div>
+</div>
 
 
 <div id="loginScreen"> 
@@ -436,17 +436,6 @@ body{
   <div class="header">
     <div class="title">IAP <span id="modeDisplay">REAL</span></div>
     <div id="clock">--:--:--</div>
-  </div>
-
-  <div class="card">
-    <div class="suggestionTitle">🔢 ENTRADAS RÁPIDAS</div>
-    <div class="grid" id="gridNumbers"></div>
-    <div class="data-separator"></div>
-    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px;">
-        <button id="btnUpload" class="control-btn" style="flex:1 1 150px;">📷 UPLOAD (OCR)</button> 
-        <button id="clearBtn" class="control-btn btn-loss" title="Limpar histórico" style="flex:1 1 100px;">LIMPAR</button>
-        <button id="logoutBtn" class="control-btn control-logout" title="Sair" style="flex:1 1 100px;">SAIR</button>
-    </div>
   </div>
 
   <div class="card">
@@ -476,6 +465,32 @@ body{
 
   </div>
   
+  <div class="card">
+    <div class="suggestionTitle">🔢 ENTRADAS RÁPIDAS</div>
+    <div class="grid" id="gridNumbers"></div>
+    <div class="data-separator"></div>
+    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px;">
+        <button id="btnUpload" class="control-btn" style="flex:1 1 150px;">📷 UPLOAD (OCR)</button> 
+        <button id="clearBtn" class="control-btn btn-loss" title="Limpar histórico" style="flex:1 1 100px;">LIMPAR</button>
+        <button id="logoutBtn" class="control-btn control-logout" title="Sair" style="flex:1 1 100px;">SAIR</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="suggestionTitle history-title">HISTÓRICO DA ROLETA <span id="historyCount" class="history-subtitle">0/100</span></div>
+      <div class="history-subtitle" style="font-size:11px;color:var(--muted)">Recentes → Antigos</div> 
+    </div>
+    <div id="history" class="history"></div>
+    
+    <div class="data-separator"></div>
+    
+    <div class="suggestionTitle">🧾 EXTRATO DE TRANSAÇÕES</div>
+    <div id="bankrollHistory" class="bankroll-history-list">
+      <div class="log-item log-placeholder">Nenhum registro ainda.</div>
+    </div>
+  </div>
+
   <div class="card" id="boosterCard">
     <div class="suggestionTitle iaGlow">✨ BOOSTER DE APOSTA I.A.</div>
     <div id="betSuggestion" class="suggestionBox" style="font-size: 16px; font-weight: 700;">
@@ -493,21 +508,6 @@ body{
         <div class="suggestionTitle">🌡️ TENDÊNCIAS GERAIS</div>
         <div id="hotCold" class="suggestionBox">🔥 Hot: -<br>❄️ Cold: -</div>
       </div>
-    </div>
-  </div>
-  
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div class="suggestionTitle history-title">HISTÓRICO DA ROLETA <span id="historyCount" class="history-subtitle">0/100</span></div>
-      <div class="history-subtitle" style="font-size:11px;color:var(--muted)">Recentes → Antigos</div> 
-    </div>
-    <div id="history" class="history"></div>
-    
-    <div class="data-separator"></div>
-    
-    <div class="suggestionTitle">🧾 EXTRATO DE TRANSAÇÕES</div>
-    <div id="bankrollHistory" class="bankroll-history-list">
-      <div class="log-item log-placeholder">Nenhum registro ainda.</div>
     </div>
   </div>
 
@@ -792,18 +792,18 @@ document.addEventListener('DOMContentLoaded', () => {
     allNumbers.forEach(n => { stats.counts[n] = { count: 0 }; });
 
     // 1. Mapeamento de Frequência e Sucessão
-    for (let i = historyArr.length - 1; i >= 0; i--) {
-      const num = historyArr[i];
-      stats.counts[num].count++;
+    for (let i = 0; i < historyArr.length; i++) {
+      const currentNum = historyArr[i];
+      stats.counts[currentNum].count++;
       
-      if (i > 0) {
-        const lastNum = historyArr[i]; 
-        const currentNum = historyArr[i - 1]; 
+      if (i < historyArr.length - 1) {
+        // currentNum (historyArr[i]) é o GATILHO que levou ao nextNum (historyArr[i+1])
+        const nextNum = historyArr[i + 1]; 
         
-        if (!stats.zoneSuccessionMap[lastNum]) {
-          stats.zoneSuccessionMap[lastNum] = [];
+        if (!stats.zoneSuccessionMap[currentNum]) {
+          stats.zoneSuccessionMap[currentNum] = [];
         }
-        stats.zoneSuccessionMap[lastNum].push(currentNum);
+        stats.zoneSuccessionMap[currentNum].push(nextNum);
       }
     }
     
@@ -871,23 +871,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Lógica de renderização de Padrões: APÓS N -> M (X vezes)
   function renderZoneAnalysis() {
-    if (historyArr.length < 5) { 
-      zoneAnalysisDiv.innerHTML = '<span style="color:var(--muted)">Adicione pelo menos 5 lançamentos para começar a análise de Sucessão de Zonas.</span>';
+    if (historyArr.length < 1) { 
+      zoneAnalysisDiv.innerHTML = '<span style="color:var(--muted)">Adicione números ao histórico para análise de Sucessão de Zonas.</span>';
       return;
     }
     
-    const lastNum = historyArr[0];
-    const triggerNum = historyArr[1]; // O número que saiu ANTES do último
-    
-    if (!triggerNum && triggerNum !== 0) {
-        zoneAnalysisDiv.innerHTML = `<span style="color:var(--muted)">Aguardando o segundo lançamento para iniciar a análise de sucessão.</span>`;
-        return;
-    }
-
-    const followers = numberStats.zoneSuccessionMap[triggerNum];
+    // O triggerNum é o último número lançado (o mais recente)
+    const triggerNum = historyArr[0];
+    const followers = numberStats.zoneSuccessionMap[triggerNum]; // O que veio historicamente APÓS o triggerNum
     
     if (!followers || followers.length < 2) {
-      zoneAnalysisDiv.innerHTML = `<span style="color:var(--muted)">O último padrão de sucessão ocorreu após o número **${triggerNum}**. Necessário mais ocorrências (mínimo 2) para gerar dados de sucessão confiáveis.</span>`;
+      zoneAnalysisDiv.innerHTML = `<span style="color:var(--muted)">O último número foi **${triggerNum}**. Necessário mais ocorrências (mínimo 2) de sucessão APÓS **${triggerNum}** no histórico para gerar dados confiáveis.</span>`;
       return;
     }
     
@@ -902,9 +896,9 @@ document.addEventListener('DOMContentLoaded', () => {
       .sort((a, b) => b[1] - a[1]);
 
     let html = `<div class="analysis-output">
-                  <div class="pattern-line">Último lançamento: <span class="pattern-succession">${lastNum}</span> (Seguiu ${triggerNum})</div>
+                  <div class="pattern-line">Último lançamento (GATILHO): <span class="pattern-trigger">${triggerNum}</span></div>
                   <div class="data-separator" style="margin: 8px 0;"></div>
-                  <div style="font-size: 14px; margin-bottom: 10px;">**PADRÕES APÓS** <span class="pattern-trigger">${triggerNum}</span>:</div>`;
+                  <div style="font-size: 14px; margin-bottom: 10px;">**PRÓXIMOS MAIS PROVÁVEIS** (Histórico após **${triggerNum}**):</div>`;
     
     
     sortedFollowers.slice(0, 5).forEach(([numStr, count]) => {
@@ -915,7 +909,7 @@ document.addEventListener('DOMContentLoaded', () => {
                       &rarr; **${num}** (<span class="pattern-succession">${getColor(num).toUpperCase()}</span>) 
                   </span>
                   <span class="pattern-count">
-                      &mdash; ${count}x
+                      &mdash; ${count}x (Prob: ${(count / followers.length * 100).toFixed(1)}%)
                   </span>
               </div>`;
     });
@@ -931,9 +925,8 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
       }
       
-      const lastNum = historyArr[0];
-      const triggerNum = historyArr[1];
-      
+      const triggerNum = historyArr[0]; // Último número lançado
+
       if (!triggerNum && triggerNum !== 0) {
           betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">Aguardando mais lançamentos...</span>`;
           return;
@@ -942,7 +935,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const followers = numberStats.zoneSuccessionMap[triggerNum];
       
       if (!followers || followers.length < 5) {
-          betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">Aguardando mais recorrências após **${triggerNum}** para sugerir com segurança.</span>`;
+          betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">Aguardando mais recorrências após **${triggerNum}** para sugerir com segurança. (Mínimo 5).</span>`;
           return;
       }
 
@@ -963,8 +956,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const recentHistoryToCheck = historyArr.slice(0, ADHERENCE_LOOKBACK); 
       
       for (let i = 0; i < recentHistoryToCheck.length - 1; i++) {
-          const currentTrigger = recentHistoryToCheck[i+1]; 
-          const nextNum = recentHistoryToCheck[i]; 
+          const currentTrigger = recentHistoryToCheck[i]; // Analisa este como gatilho
+          const nextNum = recentHistoryToCheck[i+1]; // Este como o sucessor que realmente veio
           
           if (numberStats.zoneSuccessionMap[currentTrigger]) {
               const historicalFollowers = numberStats.zoneSuccessionMap[currentTrigger];
@@ -988,7 +981,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       let suggestionHTML = `
           <div style="font-size: 14px; margin-bottom: 8px; color: var(--muted);">
-              O último número foi <span style="color: var(--zero); font-weight: 700;">${lastNum}</span>, precedido por <span style="color: var(--zero); font-weight: 700;">${triggerNum}</span>.
+              O GATILHO atual é o último número lançado: <span style="color: var(--zero); font-weight: 700;">${triggerNum}</span>.
           </div>
           <div style="margin-bottom: 12px;">
               🎯 **SUGESTÃO BOOSTER**: O sucessor mais provável é **${bestNum}**. 
