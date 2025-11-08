@@ -111,6 +111,12 @@ body{
   font-weight:700;
   text-shadow:0 0 10px rgba(255,196,0,0.8);
 }
+#sessionTimer{
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'Roboto Mono', monospace;
+    margin-left: 10px;
+}
 
 /* card */
 .card{
@@ -157,15 +163,15 @@ body{
   opacity: 0.5;
 }
 
-/* ================== SITE EMBUTIDO (tradicional.bet.br) ================== */
+/* ================== SITE EMBUTIDO (Google) ================== */
 .site-embed-card {
     padding: 0;
     overflow: hidden;
 }
 .site-responsive {
     position: relative;
-    /* Ajustado para uma altura maior, o usuário pode ajustar com 'padding-bottom' */
-    padding-bottom: 100vh; 
+    /* Reduzido para ser menos intrusivo, mas ainda útil */
+    padding-bottom: 70vh; 
     height: 0;
     overflow: hidden;
     border-radius: 12px;
@@ -457,7 +463,10 @@ body{
 
 <div id="mainPanel" class="hidden">
   <div class="header">
-    <div class="title">IAP <span id="modeDisplay">REAL</span></div>
+    <div style="display: flex; align-items: center;">
+        <div class="title">IAP <span id="modeDisplay">REAL</span></div>
+        <div id="sessionTimer">Sessão: 40:00</div>
+    </div>
     <div id="clock">--:--:--</div>
   </div>
 
@@ -495,14 +504,14 @@ body{
     </div>
   </div>
   
-  <div class="card site-embed-card" id="traditionalBetCard">
-    <div class="suggestionTitle">🎰 TRADICIONAL.BET.BR (SITE DE APOSTAS)</div>
+  <div class="card site-embed-card" id="googleCard">
+    <div class="suggestionTitle">🔍 GOOGLE.COM (PESQUISA RÁPIDA)</div>
     <div class="site-responsive">
       <iframe 
         width="100%" 
         height="100%" 
-        src="https://www.tradicional.bet.br/" 
-        title="Site de Apostas" 
+        src="https://www.google.com/webhp?igu=1" 
+        title="Google Search" 
         frameborder="0"
         allowfullscreen
       ></iframe>
@@ -557,25 +566,26 @@ body{
 document.addEventListener('DOMContentLoaded', () => {
 
   /* ================== CONSTANTES DE CONFIGURAÇÃO ================== */
-  // Senha: '2025'
   const getPasswordHash = () => '2025'; 
   const BANKROLL_STORAGE_KEY = 'roletaIAPBankroll_main';
   const HISTORY_STORAGE_KEY = 'roletaIAPHistory'; 
   const CONFIG_STORAGE_KEY = 'roletaIAPConfig'; 
   
-  // Ordem circular da roleta (padrão europeu)
   const WHEEL_ORDER = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
   const WHEEL_INDEX_MAP = {};
   WHEEL_ORDER.forEach((num, index) => { WHEEL_INDEX_MAP[num] = index; });
 
   const RED_NUMBERS = new Set([1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]);
   
-  // Constantes de Stop Loss/Win
+  // Constantes de Stop Loss/Win/Sessão
   const STOP_LOSS_COUNT = 2; // 2 REDs consecutivos
   const STOP_LOSS_AMOUNT = 35.00; // R$35,00 de prejuízo total
   const STOP_WIN_COUNT = 3; // 3 WINs consecutivos
   const STOP_WIN_AMOUNT = 35.00; // R$35,00 de lucro total
   const LOCK_DURATION = 2 * 60 * 60 * 1000; // 2 horas em milissegundos
+  const SESSION_TIMEOUT = 40 * 60 * 1000; // 40 minutos em milissegundos
+  const INITIAL_LOCK = false; // <<< ALTERADO: Sessão só bloqueia por Stop/Timeout/Lock Existente
+
   
   /* ================== ELEMENTOS DOM ================== */
   const loginScreen = document.getElementById('loginScreen');
@@ -584,6 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const lockScreen = document.getElementById('lockScreen');
   const lockTitle = document.getElementById('lockTitle');
   const countdownTimer = document.getElementById('countdownTimer');
+  const sessionTimerDiv = document.getElementById('sessionTimer'); 
   const boosterCard = document.getElementById('boosterCard');
   
   const historyDiv = document.getElementById('history');
@@ -611,6 +622,7 @@ document.addEventListener('DOMContentLoaded', () => {
       isLocked: false,
       lockUntil: 0,
       lockReason: '', 
+      sessionStart: 0, 
   };
   
   let bankrollState = {
@@ -651,13 +663,188 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedConfig = localStorage.getItem(CONFIG_STORAGE_KEY);
     if (savedConfig) {
       const loaded = JSON.parse(savedConfig);
-      // Correção: Garante que as propriedades de lock sejam carregadas corretamente
       config.mode = loaded.mode || 'DEMO';
       config.isLocked = loaded.isLocked || false;
       config.lockUntil = loaded.lockUntil || 0;
       config.lockReason = loaded.lockReason || '';
+      config.sessionStart = loaded.sessionStart || 0; 
     }
     modeDisplay.textContent = config.mode;
+  }
+  
+  function setLoginStatus(isLoggedIn, mode = 'DEMO') {
+      if (isLoggedIn) {
+          localStorage.setItem('isLoggedIn_roletaIAP', 'true');
+          config.mode = mode;
+          
+          // Se não houver bloqueio pendente, ou se foi um login novo, inicia o contador
+          if (!config.isLocked || config.lockUntil <= Date.now()) {
+            config.sessionStart = Date.now(); 
+          }
+
+          saveConfig();
+      } else {
+          localStorage.removeItem('isLoggedIn_roletaIAP');
+      }
+  }
+
+  function getLoginStatus() {
+      return localStorage.getItem('isLoggedIn_roletaIAP') === 'true'; 
+  }
+  
+  /* ================== LÓGICA DE BLOQUEIO / STOP / SESSÃO ================== */
+
+  let countdownInterval;
+  let sessionInterval;
+
+  function checkLockStatus() {
+      const now = Date.now();
+      
+      // 1. Verifica se o bloqueio existente terminou
+      if (config.isLocked && config.lockUntil > now) {
+          lockScreen.classList.remove('hidden');
+          mainPanel.classList.add('hidden');
+          
+          let titleText = '';
+          if (config.lockReason === 'STOP_LOSS') { titleText = 'ZONA SEGURA ATINGIDA (STOP LOSS)'; }
+          else if (config.lockReason === 'STOP_WIN') { titleText = 'ZONA SEGURA ATINGIDA (STOP WIN)'; }
+          else if (config.lockReason === 'TIMEOUT') { titleText = 'TEMPO DE SESSÃO ESGOTADO'; }
+          else if (config.lockReason === 'INITIAL_LOCK') { titleText = 'PRIMEIRA SESSÃO BLOQUEADA'; }
+
+          lockTitle.textContent = titleText;
+          lockTitle.classList.toggle('win', config.lockReason === 'STOP_WIN');
+          document.getElementById('lockIcon').style.color = (config.lockReason === 'STOP_WIN' || config.lockReason === 'INITIAL_LOCK') ? 'var(--alert-green)' : 'var(--alert-red)';
+
+          startLockCountdown();
+          stopSessionCounter();
+          return true;
+      }
+
+      // 2. Se o bloqueio terminou, desbloqueia e **reinicia a sessão**
+      if (config.isLocked && config.lockUntil <= now) {
+          config.isLocked = false;
+          config.lockUntil = 0;
+          config.lockReason = '';
+          config.sessionStart = Date.now(); // Reinicia o timer da sessão
+          saveConfig();
+      }
+      
+      // 3. Estado Desbloqueado
+      lockScreen.classList.add('hidden');
+      if(getLoginStatus()) {
+          mainPanel.classList.remove('hidden');
+          startSessionCounter();
+      }
+      stopLockCountdown();
+      return false;
+  }
+  
+  function startLockCountdown() {
+      stopLockCountdown(); 
+      
+      countdownInterval = setInterval(() => {
+          const remainingTime = config.lockUntil - Date.now();
+          if (remainingTime <= 0) {
+              checkLockStatus(); // Chama para desbloquear e resetar
+              return;
+          }
+
+          const totalSeconds = Math.floor(remainingTime / 1000);
+          const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+          const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+          const seconds = String(totalSeconds % 60).padStart(2, '0');
+          
+          countdownTimer.textContent = `${hours}:${minutes}:${seconds}`;
+
+      }, 1000);
+  }
+
+  function stopLockCountdown() {
+      if (countdownInterval) {
+          clearInterval(countdownInterval);
+      }
+  }
+
+  function startSessionCounter() { 
+      stopSessionCounter(); 
+      
+      sessionInterval = setInterval(() => {
+          const elapsed = Date.now() - config.sessionStart;
+          const remaining = SESSION_TIMEOUT - elapsed;
+
+          if (remaining <= 0) {
+              triggerLock('TIMEOUT');
+              return;
+          }
+
+          const totalSeconds = Math.floor(remaining / 1000);
+          const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+          const seconds = String(totalSeconds % 60).padStart(2, '0');
+          
+          sessionTimerDiv.textContent = `Sessão: ${minutes}:${seconds}`;
+
+      }, 1000);
+  }
+
+  function stopSessionCounter() { 
+      if (sessionInterval) {
+          clearInterval(sessionInterval);
+      }
+      sessionTimerDiv.textContent = `Sessão: --:--`;
+  }
+  
+  function triggerLock(reason) {
+      if (config.mode !== 'REAL' && reason !== 'INITIAL_LOCK') return;
+
+      config.isLocked = true;
+      config.lockUntil = Date.now() + LOCK_DURATION;
+      config.lockReason = reason;
+      saveConfig();
+      
+      checkLockStatus();
+  }
+
+  function checkStopCondition() {
+      if (config.mode !== 'REAL' || config.isLocked || bankrollState.initial === 0) return;
+
+      const { current, initial, history } = bankrollState;
+      const totalProfit = parseFloat((current - initial).toFixed(2));
+      
+      // 1. Verificação de Saldo
+      if (totalProfit <= -STOP_LOSS_AMOUNT) {
+          triggerLock('STOP_LOSS');
+          return;
+      }
+      if (totalProfit >= STOP_WIN_AMOUNT) {
+          triggerLock('STOP_WIN');
+          return;
+      }
+      
+      // 2. Verificação de Sequência
+      let consecutiveLoss = 0;
+      let consecutiveWin = 0;
+      
+      for (let i = history.length - 1; i >= 0; i--) {
+          const amount = history[i].amount;
+          if (amount < 0) {
+              consecutiveLoss++;
+              consecutiveWin = 0; 
+          } else if (amount > 0) {
+              consecutiveWin++;
+              consecutiveLoss = 0; 
+          } else {
+              continue; 
+          }
+          
+          if (consecutiveLoss >= STOP_LOSS_COUNT) {
+              triggerLock('STOP_LOSS');
+              return;
+          }
+          if (consecutiveWin >= STOP_WIN_COUNT) {
+              triggerLock('STOP_WIN');
+              return;
+          }
+      }
   }
 
   function saveBankrollData() {
@@ -687,142 +874,6 @@ document.addEventListener('DOMContentLoaded', () => {
       historyArr = [];
     }
   }
-  
-  function setLoginStatus(isLoggedIn, mode = 'DEMO') {
-      if (isLoggedIn) {
-          localStorage.setItem('isLoggedIn_roletaIAP', 'true');
-          config.mode = mode;
-          saveConfig();
-      } else {
-          localStorage.removeItem('isLoggedIn_roletaIAP');
-      }
-  }
-
-  function getLoginStatus() {
-      return localStorage.getItem('isLoggedIn_roletaIAP') === 'true'; 
-  }
-  
-  /* ================== LÓGICA DE BLOQUEIO / STOP ================== */
-
-  let countdownInterval;
-
-  function checkLockStatus() {
-      const now = Date.now();
-      
-      if (config.isLocked && config.lockUntil > now) {
-          lockScreen.classList.remove('hidden');
-          mainPanel.classList.add('hidden');
-          
-          if (config.lockReason === 'STOP_LOSS') {
-              lockTitle.textContent = 'ZONA SEGURA ATINGIDA (STOP LOSS)';
-              lockTitle.classList.remove('win');
-              document.getElementById('lockIcon').style.color = 'var(--alert-red)';
-          } else if (config.lockReason === 'STOP_WIN') {
-              lockTitle.textContent = 'ZONA SEGURA ATINGIDA (STOP WIN)';
-              lockTitle.classList.add('win');
-              document.getElementById('lockIcon').style.color = 'var(--alert-green)';
-          }
-          startCountdown();
-          return true;
-      }
-
-      if (config.isLocked && config.lockUntil <= now) {
-          // Desbloqueia
-          config.isLocked = false;
-          config.lockUntil = 0;
-          config.lockReason = '';
-          saveConfig();
-      }
-      
-      lockScreen.classList.add('hidden');
-      if(getLoginStatus()) mainPanel.classList.remove('hidden');
-      stopCountdown();
-      return false;
-  }
-  
-  function startCountdown() {
-      stopCountdown(); 
-      
-      countdownInterval = setInterval(() => {
-          const remainingTime = config.lockUntil - Date.now();
-          if (remainingTime <= 0) {
-              checkLockStatus(); // Chama para desbloquear e parar
-              return;
-          }
-
-          const totalSeconds = Math.floor(remainingTime / 1000);
-          const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-          const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-          const seconds = String(totalSeconds % 60).padStart(2, '0');
-          
-          countdownTimer.textContent = `${hours}:${minutes}:${seconds}`;
-
-      }, 1000);
-  }
-
-  function stopCountdown() {
-      if (countdownInterval) {
-          clearInterval(countdownInterval);
-      }
-  }
-  
-  function triggerLock(reason) {
-      if (config.mode !== 'REAL') return;
-
-      config.isLocked = true;
-      config.lockUntil = Date.now() + LOCK_DURATION;
-      config.lockReason = reason;
-      saveConfig();
-      
-      checkLockStatus();
-  }
-
-  function checkStopCondition() {
-      if (config.mode !== 'REAL') return;
-      if (config.isLocked) return;
-      if (bankrollState.initial === 0) return; // Não verifica se não há banca inicial
-
-      const { current, initial, history } = bankrollState;
-      const totalProfit = parseFloat((current - initial).toFixed(2));
-      
-      // 1. Verificação de Saldo (STOP LOSS/WIN AMOUNT)
-      if (totalProfit <= -STOP_LOSS_AMOUNT) {
-          triggerLock('STOP_LOSS');
-          return;
-      }
-      if (totalProfit >= STOP_WIN_AMOUNT) {
-          triggerLock('STOP_WIN');
-          return;
-      }
-      
-      // 2. Verificação de Sequência (REDs/WINs Consecutivos)
-      let consecutiveLoss = 0;
-      let consecutiveWin = 0;
-      
-      for (let i = history.length - 1; i >= 0; i--) {
-          const amount = history[i].amount;
-          if (amount < 0) {
-              consecutiveLoss++;
-              consecutiveWin = 0; 
-          } else if (amount > 0) {
-              consecutiveWin++;
-              consecutiveLoss = 0; 
-          } else {
-              continue; 
-          }
-          
-          if (consecutiveLoss >= STOP_LOSS_COUNT) {
-              triggerLock('STOP_LOSS');
-              return;
-          }
-          if (consecutiveWin >= STOP_WIN_COUNT) {
-              triggerLock('STOP_WIN');
-              return;
-          }
-      }
-  }
-  
-  /* ================== LÓGICA DE ANÁLISE DE ZONAS ================== */
 
   function calculateStats() {
     const allNumbers = [...Array(37).keys()]; 
@@ -834,34 +885,26 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     allNumbers.forEach(n => { stats.counts[n] = { count: 0 }; });
 
-    // 1. Mapeamento de Frequência e Sucessão
     for (let i = 0; i < historyArr.length; i++) {
       const currentNum = historyArr[i];
       stats.counts[currentNum].count++;
       
       if (i < historyArr.length - 1) {
-        // currentNum (historyArr[i]) é o GATILHO que levou ao nextNum (historyArr[i+1])
         const nextNum = historyArr[i + 1]; 
-        
-        if (!stats.zoneSuccessionMap[currentNum]) {
-          stats.zoneSuccessionMap[currentNum] = [];
-        }
+        if (!stats.zoneSuccessionMap[currentNum]) { stats.zoneSuccessionMap[currentNum] = []; }
         stats.zoneSuccessionMap[currentNum].push(nextNum);
       }
     }
     
-    // 2. Hot/Cold (Métricas gerais de frequência)
     const allCounts = allNumbers.map(n => stats.counts[n].count);
     const maxCount = allCounts.length > 0 ? Math.max(...allCounts) : 0;
     const minCount = allCounts.length > 0 ? Math.min(...allCounts) : 0;
     
-    // Corrigido o cálculo de hotList e coldList para ser mais robusto
     stats.hotList = allNumbers
       .filter(n => stats.counts[n].count >= maxCount && maxCount > 0)
       .sort((a, b) => a - b)
       .slice(0, 4);
     
-    // ColdList: Números que não saíram ou saíram menos
     stats.coldList = allNumbers
       .filter(n => stats.counts[n].count <= minCount) 
       .sort((a, b) => a - b) 
@@ -871,64 +914,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   function addNumber(num) {
-    if (historyArr.length >= MAX_HISTORY) {
-      historyArr.pop(); 
-    }
-    // Bug fix: Garante que 'num' é um número (já mapeado anteriormente, mas reforça a segurança)
+    if (historyArr.length >= MAX_HISTORY) { historyArr.pop(); }
     historyArr.unshift(Number(num)); 
     saveHistoryData();
     updateUI();
   }
   
-  /* ================== RENDERIZAÇÃO DA UI E BOOSTER ================== */
-  
-  function updateUI() {
-    // 1. Lógica de Login/Lock (Mantida)
-    if(getLoginStatus() && !checkLockStatus()) {
-        mainPanel.classList.remove('hidden');
-        loginScreen.classList.add('hidden');
-    } else if (!getLoginStatus()) {
-        loginScreen.classList.remove('hidden');
-        mainPanel.classList.add('hidden');
-        return;
-    }
-    
-    // 2. Análise e Renderização
-    calculateStats();
-    renderControls(); 
-    renderBankrollDashboard();
-    renderBankrollHistory(); // Ordem 2
-    // Site Tradicional (Não requer renderização dinâmica) - Ordem 3
-    renderHistory(); // Ordem 4
-    // Entradas Rápidas (Não requer renderização dinâmica) - Ordem 5
-    renderZoneAnalysis(); // Ordem 6
-    renderHotCold(); // Dentro da Ordem 6
-    renderBetSuggestion(); // Ordem 7
-
-    historyCount.textContent = `${historyArr.length}/${MAX_HISTORY}`;
-  }
-
-  function renderControls() {
-      // O modo DEMO desabilita o registro de GREEN/RED e o Booster.
-      const isDisabled = config.mode === 'DEMO';
-      
-      btnRegisterWin.disabled = isDisabled;
-      btnRegisterLoss.disabled = isDisabled;
-      boosterCard.style.opacity = isDisabled ? '0.5' : '1';
-      
-      // Os botões de número do grid continuam habilitados em ambos os modos
-      document.querySelectorAll('.number-btn').forEach(btn => {
-          btn.disabled = false; 
-      });
-  }
-
-  // Lógica de renderização de Padrões: APÓS N -> M (X vezes)
   function renderZoneAnalysis() {
     if (historyArr.length < 1) { 
       zoneAnalysisDiv.innerHTML = '<span style="color:var(--muted)">Adicione números ao histórico para análise de Sucessão de Zonas.</span>';
       return;
     }
-    
     const triggerNum = historyArr[0];
     const followers = numberStats.zoneSuccessionMap[triggerNum];
     
@@ -936,22 +932,14 @@ document.addEventListener('DOMContentLoaded', () => {
       zoneAnalysisDiv.innerHTML = `<span style="color:var(--muted)">O último número foi **${triggerNum}**. Nenhuma ocorrência de sucessão registrada após ele.</span>`;
       return;
     }
-    
-    // Contagem dos Números Sucessores
     const followerCounts = {};
-    for (const num of followers) {
-      followerCounts[num] = (followerCounts[num] || 0) + 1;
-    }
-    
-    // Ordenar por mais frequente (Top 3)
-    const sortedFollowers = Object.entries(followerCounts)
-      .sort((a, b) => b[1] - a[1]);
+    for (const num of followers) { followerCounts[num] = (followerCounts[num] || 0) + 1; }
+    const sortedFollowers = Object.entries(followerCounts).sort((a, b) => b[1] - a[1]);
 
     let html = `<div class="analysis-output">
                   <div class="pattern-line">Último lançamento (GATILHO): <span class="pattern-trigger">${triggerNum}</span></div>
                   <div class="data-separator" style="margin: 8px 0;"></div>
                   <div style="font-size: 14px; margin-bottom: 10px;">**PRÓXIMOS MAIS PROVÁVEIS** (Top 3 após **${triggerNum}**):</div>`;
-    
     sortedFollowers.slice(0, 3).forEach(([numStr, count]) => {
       const num = Number(numStr);
       html += `<div class="pattern-line">
@@ -963,52 +951,41 @@ document.addEventListener('DOMContentLoaded', () => {
                   </span>
               </div>`;
     });
-    
     html += `</div>`;
     zoneAnalysisDiv.innerHTML = html;
   }
   
-  // Função que usa a lógica de zona (vizinhos)
   function renderBetSuggestion() {
       if (config.mode === 'DEMO' || historyArr.length < ADHERENCE_LOOKBACK) {
           betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">Booster requer Modo REAL e histórico mínimo de ${ADHERENCE_LOOKBACK} lançamentos para análise de Aderência.</span>`;
           return;
       }
-      
-      const triggerNum = historyArr[0]; // Último número lançado
-
-      if (!triggerNum && triggerNum !== 0) {
-          betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">Aguardando mais lançamentos...</span>`;
+      if (config.isLocked) {
+          betSuggestionDiv.innerHTML = `<span style="color:var(--alert-red); font-weight: bold;">ANÁLISE BLOQUEADA. Retorne após o período de resfriamento.</span>`;
           return;
       }
       
+      const triggerNum = historyArr[0]; 
       const followers = numberStats.zoneSuccessionMap[triggerNum];
-      
       if (!followers || followers.length < 5) {
           betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">Aguardando mais recorrências após **${triggerNum}** para sugerir com segurança. (Mínimo 5).</span>`;
           return;
       }
 
-      // 1. Cálculo do Booster (Número Mais Provável a Seguir)
       const followerCounts = {};
       for (const num of followers) { followerCounts[num] = (followerCounts[num] || 0) + 1; }
       const sortedFollowers = Object.entries(followerCounts).sort((a, b) => b[1] - a[1]);
       
       const bestNum = Number(sortedFollowers[0][0]);
-      const bestNumCount = sortedFollowers[0][1];
-      const bestNumProbability = (bestNumCount / followers.length) * 100;
-      
-      // A sugestão de aposta é o número MAIS PROVÁVEL e seus vizinhos (Zona 2)
+      const bestNumProbability = (sortedFollowers[0][1] / followers.length) * 100;
       const bestZone = getNeighbors(bestNum, 2);
 
-      // 2. Cálculo da Taxa de Aderência (Aderência da Roleta ao Padrão)
       let adherenceCount = 0;
       const recentHistoryToCheck = historyArr.slice(0, ADHERENCE_LOOKBACK); 
       
       for (let i = 0; i < recentHistoryToCheck.length - 1; i++) {
-          const currentTrigger = recentHistoryToCheck[i]; // Analisa este como gatilho
-          const nextNum = recentHistoryToCheck[i+1]; // Este como o sucessor que realmente veio
-          
+          const currentTrigger = recentHistoryToCheck[i];
+          const nextNum = recentHistoryToCheck[i+1];
           if (numberStats.zoneSuccessionMap[currentTrigger]) {
               const historicalFollowers = numberStats.zoneSuccessionMap[currentTrigger];
               const historicalCounts = {};
@@ -1018,10 +995,7 @@ document.addEventListener('DOMContentLoaded', () => {
               if (sortedHistorical.length > 0) {
                   const historicalBestNum = Number(sortedHistorical[0][0]);
                   const historicalBestZone = getNeighbors(historicalBestNum, 2);
-                  
-                  if (historicalBestZone.includes(nextNum)) {
-                      adherenceCount++;
-                  }
+                  if (historicalBestZone.includes(nextNum)) { adherenceCount++; }
               }
           }
       }
@@ -1042,11 +1016,9 @@ document.addEventListener('DOMContentLoaded', () => {
               📈 **Aderência do Padrão (Últimos ${checkableEntries} Lançamentos)**: <span style="color: var(--accent);">${adherenceRate.toFixed(1)}%</span>
           </div>
       `;
-      
       betSuggestionDiv.innerHTML = suggestionHTML;
   }
-
-
+  
   function renderHistory() {
     historyDiv.innerHTML = '';
     historyArr.forEach((n, i) => { 
@@ -1059,7 +1031,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderHotCold() {
-    // Renderiza tendências gerais dentro do card de análise de zonas
     const hotNumbers = numberStats.hotList || [];
     const coldNumbers = numberStats.coldList || [];
     hotColdDiv.innerHTML = `🔥 **Hot** (Mais Frequentes): ${hotNumbers.join(', ') || '-'}<br>❄️ **Cold** (Mais Atrasados): ${coldNumbers.join(', ') || '-'}`;
@@ -1141,7 +1112,6 @@ document.addEventListener('DOMContentLoaded', () => {
       item.appendChild(text); item.appendChild(deleteBtn);
       historyDiv.appendChild(item);
     });
-    // Scrolla para o topo após a renderização (para ver o mais recente)
     historyDiv.scrollTop = 0;
   }
   
@@ -1151,12 +1121,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const entryType = amount > 0 ? 'Lucro' : 'Red';
     if (confirm(`Tem certeza que deseja excluir este lançamento de ${entryType} (${formatCurrency(Math.abs(amount))})?`)) {
       bankrollState.history.splice(indexToDelete, 1);
-      
-      // Recalcular a banca do zero para evitar erros de ponto flutuante (uso de centavos)
       let newCurrent = bankrollState.initial * 100; 
       for (const item of bankrollState.history) { newCurrent += item.amount * 100; }
       bankrollState.current = newCurrent / 100; 
-      
       saveBankrollData();
       checkStopCondition();
       updateUI();
@@ -1180,7 +1147,37 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('clock').textContent = `${h}:${m}:${s}`;
   }
   
-  // OCR Logic Placeholder
+  function updateUI() {
+    if (getLoginStatus() && !checkLockStatus()) {
+        loginScreen.classList.add('hidden');
+        mainPanel.classList.remove('hidden');
+        modeDisplay.textContent = config.mode;
+        
+        calculateStats();
+        renderHistory();
+        renderZoneAnalysis();
+        renderHotCold();
+        renderBankrollDashboard();
+        renderBankrollHistory();
+        renderBetSuggestion(); 
+        
+        // Bloqueia inputs/botões se estiver no modo DEMO para reforçar
+        const isDemo = config.mode === 'DEMO';
+        btnRegisterWin.disabled = isDemo;
+        btnRegisterLoss.disabled = isDemo;
+        document.getElementById('btnSetBankroll').disabled = isDemo;
+        initialBankrollInput.disabled = isDemo;
+
+    } else if (getLoginStatus() && config.isLocked) {
+        loginScreen.classList.add('hidden');
+        mainPanel.classList.add('hidden');
+        // checkLockStatus() já exibe a lockScreen
+    } else {
+        loginScreen.classList.remove('hidden');
+        mainPanel.classList.add('hidden');
+    }
+  }
+
   btnUpload.onclick = () => uploadPhotoInput.click();
   uploadPhotoInput.onchange = (event) => {
       const file = event.target.files[0];
@@ -1190,7 +1187,7 @@ document.addEventListener('DOMContentLoaded', () => {
       loadingMessage.textContent = "OCR em andamento... aguarde.";
       loadingMessage.style.color = 'var(--zero)';
       loadingMessage.style.textAlign = 'center';
-      loadingMessage.id = 'ocr-loading-msg'; // ID para fácil remoção
+      loadingMessage.id = 'ocr-loading-msg'; 
       gridNumbers.insertAdjacentElement('afterend', loadingMessage); 
       btnUpload.disabled = true;
 
@@ -1202,13 +1199,11 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('ocr-loading-msg')?.remove(); 
           btnUpload.disabled = false;
           
-          // Regex mais estrito para encontrar números isolados de 0 a 36
           const numbers = text.match(/\b(0|[1-9]|1[0-9]|2[0-9]|3[0-6])\b/g);
           
           if (numbers && numbers.length > 0) {
               const uniqueNumbers = [...new Set(numbers.map(Number))];
               if (confirm(`OCR encontrou os números: ${uniqueNumbers.join(', ')}. Adicionar todos ao histórico?`)) {
-                  // Adiciona do mais antigo (último na lista do OCR) para o mais recente
                   uniqueNumbers.reverse().forEach(num => addNumber(num));
               }
           } else {
@@ -1228,7 +1223,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     
-    // Converte para centavos para garantir precisão antes da divisão
     const rawAmount = parseFloat(amount);
     if (isNaN(rawAmount) || rawAmount <= 0) {
         alert('Por favor, insira um valor válido.');
@@ -1237,10 +1231,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const amountInCents = Math.round(rawAmount * 100);
     const finalAmount = amountInCents / 100;
-
-    // Conversão para centavos para cálculos precisos
+    
     const currentCents = Math.round(bankrollState.current * 100);
-    const initialCents = Math.round(bankrollState.initial * 100);
 
     bankrollState.current = (currentCents + (isWin ? amountInCents : -amountInCents)) / 100;
     bankrollState.history.push({ amount: isWin ? finalAmount : -finalAmount, timestamp: Date.now() });
@@ -1251,8 +1243,6 @@ document.addEventListener('DOMContentLoaded', () => {
     betAmountInput.value = '';
   }
 
-  /* ================== INICIALIZAÇÃO E EVENTOS ================== */
-
   // 1. Popular Grid
   for (let i = 0; i <= 36; i++) {
     const btn = document.createElement('button');
@@ -1262,9 +1252,7 @@ document.addEventListener('DOMContentLoaded', () => {
     gridNumbers.appendChild(btn);
   }
 
-  // 2. Lógica de Login/Sessão e UI (Chamado ao final de DOMContentLoaded)
-  
-  // 3. Event Listeners de Banca e Controles
+  // 2. Event Listeners
   document.getElementById('btnSignInReal').onclick = () => {
       if (authPwdInput.value === getPasswordHash()) {
           setLoginStatus(true, 'REAL');
@@ -1275,7 +1263,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
   };
   
-  // MODO DEMO: Não exige senha
   document.getElementById('btnSignInDemo').onclick = () => {
       setLoginStatus(true, 'DEMO');
       loadConfig(); 
@@ -1285,17 +1272,17 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('logoutBtn').onclick = () => {
     if (confirm('Tem certeza que deseja sair?')) {
         setLoginStatus(false);
-        // Garante que o estado de bloqueio seja resetado ao sair
         config.isLocked = false;
         config.lockUntil = 0;
+        config.sessionStart = 0;
         saveConfig();
         updateUI();
+        stopSessionCounter();
     }
   };
   
   document.getElementById('btnSetBankroll').onclick = () => {
     const initialRaw = parseFloat(initialBankrollInput.value);
-    // Bug fix: Garante a precisão de duas casas decimais
     const initial = parseFloat(initialRaw.toFixed(2)); 
 
     if (isNaN(initial) || initial <= 0) {
@@ -1313,7 +1300,7 @@ document.addEventListener('DOMContentLoaded', () => {
     bankrollState.history = [];
     
     saveBankrollData();
-    checkStopCondition(); // Verifica se a nova banca ativa algum stop
+    checkStopCondition();
     updateUI();
     alert(`Banca inicial definida em ${formatCurrency(initial)}`);
   };
@@ -1329,16 +1316,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
   
-  // 4. Inicializar Relógio
+  // 3. Inicializar
   setInterval(updateClock, 1000);
   updateClock();
   
-  // 5. Carregar e Iniciar UI
   loadConfig();
   loadBankrollData();
   loadHistoryData(); 
-  checkLockStatus(); 
-  updateUI();
+  
+  // Tenta carregar o status de login para saber se deve mostrar a tela principal
+  if (getLoginStatus()) {
+    checkLockStatus(); // Verifica se o usuário está bloqueado ao entrar/recarregar
+  } else {
+    updateUI();
+  }
 });
 </script>
 
@@ -1346,7 +1337,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // Service Worker Registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    // Você precisará de um arquivo service-worker.js no mesmo diretório.
     navigator.serviceWorker.register('service-worker.js')
       .then(reg => console.log('Service Worker registrado com sucesso:', reg))
       .catch(err => console.log('Falha ao registrar Service Worker:', err));
