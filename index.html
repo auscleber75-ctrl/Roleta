@@ -3,127 +3,138 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>ROLETA IAP VANGUARDA ⚡</title>
+<title>ROLETA IAP VANGUARDA ⚡ 2.1</title>
 
 <link rel="manifest" href="manifest.webmanifest">
 
 
 <style>
-/* ================== REFORMULAÇÃO VISUAL E FONTES ================== */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&family=Roboto+Mono:wght@400;700&display=swap');
+/* ================== CONFIGURAÇÃO DE CORES E FONTES ================== */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&family=Roboto+Mono:wght@400;700&family=Share+Tech+Mono&display=swap');
 
 :root{
-  --bg:#0c011a; /* Roxo Escuro */
-  --panel:#1a0830; /* Fundo do Card */
+  --bg:#080111; /* Roxo Ultra Escuro */
+  --panel:#1c0733; /* Fundo do Card */
   --accent:#00ffae; /* Verde Neon */
+  --accent-secondary:#00aeff; /* Azul Neon */
   --muted:#a0a4b8;
   --zero:#ffc400; /* Amarelo Dourado */
   --red:#ff3b57; /* Vermelho Agressivo */
   --black:#020202; 
-  --btn-main:linear-gradient(90deg,#00ffae,#00aeff); 
-  --alert-red:#ff3b57; /* Para Stop Loss */
-  --alert-green:#00ffae; /* Para Stop Win */
-  --lock-bg:rgba(26,8,48,0.95);
+  --btn-main:linear-gradient(90deg, var(--accent), var(--accent-secondary)); 
+  --alert-red:#ff3b57;
+  --alert-green:#00ffae;
+  --lock-bg:rgba(12, 1, 26, 0.98);
 }
 *{box-sizing:border-box}
 body{
   margin:0;
-  font-family:'Roboto Mono',monospace; /* Fonte de Console para dados */
+  font-family:'Share Tech Mono',monospace; /* Fonte de console moderna */
   background:var(--bg);
   color:#e8f0ff;
   padding:14px;
 }
 .hidden { display: none !important; }
 
-/* ================== LAYOUT E COMPONENTES BÁSICOS ================== */
+/* ================== LAYOUT E COMPONENTES MODERNOS ================== */
 
 /* Header / clock */
 .header{
-  background: linear-gradient(90deg, rgba(0,255,174,0.08), rgba(255,0,255,0.04)); 
-  border-radius:12px; 
+  background: linear-gradient(90deg, rgba(0,255,174,0.15), rgba(0,174,255,0.05)); 
+  border-radius:8px; 
   padding:12px; 
   display:flex; 
   justify-content:space-between; 
   align-items:center; 
-  box-shadow:0 0 20px rgba(0,255,174,0.1);
+  box-shadow:0 0 25px rgba(0,255,174,0.1);
+  border: 1px solid rgba(0,255,174,0.3);
 }
 .title{
   font-family:'Orbitron',sans-serif;
-  font-weight:800;
-  font-size:18px;
+  font-weight:700;
+  font-size:20px;
   color: var(--accent);
+  text-shadow: 0 0 5px rgba(0,255,174,0.5);
 }
 #clock{
-  color:var(--zero); /* Destaque Amarelo */
+  color:var(--zero);
   font-family:'Orbitron',sans-serif;
   font-weight:700;
-  text-shadow:0 0 10px rgba(255,196,0,0.6);
+  text-shadow:0 0 10px rgba(255,196,0,0.8);
 }
 
 /* card */
 .card{
   background:var(--panel);
   border-radius:12px;
-  padding:12px;
-  margin-top:12px;
-  box-shadow:0 8px 40px rgba(0,0,0,0.6);
-  border:1px solid rgba(0,255,174,0.1); /* Borda sutil de neon */
+  padding:15px;
+  margin-top:14px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.8);
+  border:1px solid rgba(0,255,174,0.1);
+  transition: all 0.3s ease;
+}
+.card:hover {
+    border-color: rgba(0,255,174,0.4);
 }
 
 /* Títulos / Sugestões */
 .suggestionTitle{
   font-family:'Orbitron',sans-serif;
-  font-weight:800;
-  color:var(--accent); /* Títulos em Verde Neon */
-  margin-bottom:6px;
+  font-weight:700;
+  color:var(--accent);
+  margin-bottom:8px;
   display: flex;
   align-items: center;
   gap: 8px;
+  border-bottom: 1px dashed rgba(255,255,255,0.1);
+  padding-bottom: 5px;
 }
 .suggestionBox{
-  font-size:14px;
+  font-size:15px;
   color:#dff;
-  line-height:1.6;
+  line-height:1.7;
 }
 .iaGlow{
-  color:var(--zero); /* Booster em Amarelo */
-  text-shadow:0 0 18px rgba(255,196,0,0.4);
+  color:var(--zero);
+  text-shadow:0 0 20px rgba(255,196,0,0.6);
   animation:glowPulse 2s infinite alternate;
-  font-family:'Orbitron',sans-serif;
-  font-weight:700;
 }
 @keyframes glowPulse{
   0%{text-shadow:0 0 6px rgba(255,196,0,0.2)}
-  100%{text-shadow:0 0 18px rgba(255,196,0,0.8)}
+  100%{text-shadow:0 0 20px rgba(255,196,0,0.8)}
 }
 
 .data-separator {
   height: 1px;
-  background: linear-gradient(90deg, var(--accent), rgba(0,0,0,0));
-  margin: 10px 0;
-  opacity: 0.3;
+  background: linear-gradient(90deg, var(--accent), var(--accent-secondary), rgba(0,0,0,0));
+  margin: 12px 0;
+  opacity: 0.5;
 }
 
 /* ================== BOTÕES E INPUTS ================== */
 
 /* grid numbers */
 .grid{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+  gap:8px;
   justify-content:center;
   margin-top: 10px;
 }
 .number-btn{
-  width:46px;height:46px;
-  border-radius:50%;
+  width:100%; height:45px;
+  border-radius:8px;
   border:1px solid rgba(255,255,255,0.1);
   font-family:'Orbitron',sans-serif;
   font-weight:700;
   cursor:pointer;
-  transition:transform .14s,box-shadow .14s;
+  transition:transform .14s,box-shadow .14s, border-color 0.14s;
 }
-.number-btn:hover{transform:scale(1.05); box-shadow:0 0 15px rgba(0,255,174,0.3);}
+.number-btn:hover{
+    transform:scale(1.05); 
+    box-shadow:0 0 15px rgba(0,255,174,0.5);
+    border-color: var(--accent);
+}
 .red{background:var(--red);color:#fff}
 .black{background:var(--black);color:#fff}
 .zero, .green {background:var(--zero);color:var(--bg)} 
@@ -132,20 +143,24 @@ body{
 .control-btn{
   background:var(--btn-main);
   border:0;
-  border-radius:8px;
-  padding:10px 14px;
+  border-radius:6px;
+  padding:12px 14px;
   color:var(--bg); 
   font-weight:800;
   font-family:'Orbitron',sans-serif;
   cursor:pointer;
   transition: all .2s;
   margin: 4px 0;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
 }
-.control-btn:hover{opacity:0.9; box-shadow: 0 0 15px rgba(0,255,174,0.6);}
+.control-btn:hover{
+    opacity:0.95; 
+    box-shadow: 0 0 20px rgba(0,255,174,0.8);
+    transform: translateY(-2px);
+}
 .control-btn:active{transform: translateY(1px);}
 .control-btn:disabled { 
-    opacity: 0.4; 
+    opacity: 0.3; 
     cursor: not-allowed; 
     box-shadow: none; 
 }
@@ -154,19 +169,65 @@ body{
 .btn-win { background: var(--alert-green); color: var(--bg); }
 .btn-loss { background: var(--alert-red); color: #fff; }
 
-/* history chips */
+/* Estilos de Entrada (Input) */
+.bankroll-input {
+    width: 100%;
+    padding: 10px;
+    background: var(--black);
+    border: 1px solid rgba(0,255,174,0.3);
+    border-radius: 6px;
+    color: var(--accent);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 16px;
+    transition: border-color 0.2s;
+}
+.bankroll-input:focus {
+    outline: none;
+    border-color: var(--zero);
+    box-shadow: 0 0 8px rgba(255,196,0,0.5);
+}
+
+/* ================== ANÁLISE E DASHBOARD DE BANCA ================== */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+}
+.stat-item {
+    background: rgba(0,174,255,0.05);
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid var(--accent-secondary);
+}
+.stat-title {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 400;
+    margin-bottom: 5px;
+}
+.stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+}
+.positive { color: var(--alert-green) !important; }
+.negative { color: var(--alert-red) !important; }
+
+/* História de Padrões (Chips) */
 .history{
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
     margin-top: 10px;
-    max-height: 200px;
+    max-height: 180px;
     overflow-y: auto;
     padding: 5px;
 }
 .chip{
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -174,164 +235,38 @@ body{
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.4);
     transition: transform 0.1s;
 }
+.chip:hover { transform: scale(1.15); }
 .chip.zero { background: var(--zero); color: var(--bg); }
 .chip.red { background: var(--red); color: #fff; }
 .chip.black { background: var(--black); color: #fff; }
-.chip:hover { transform: scale(1.1); }
-.chip.hot { border: 2px solid var(--zero); } 
-.chip.cold { opacity: 0.5; }
 
-/* ================== ANÁLISE E DASHBOARD DE BANCA ================== */
-
-.analysis-table {
-    width: 100%;
-    margin-top: 10px;
-    border-collapse: collapse;
-    font-size: 13px;
-}
-.analysis-table th, .analysis-table td {
-    padding: 6px;
-    text-align: left;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-}
-.analysis-table th {
-    color: var(--zero);
-    font-weight: 400;
-}
-.analysis-table td {
-    font-weight: 700;
-    color: #e8f0ff;
-}
-
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px;
-    margin-top: 10px;
-}
-.stat-item {
-    background: rgba(0,255,174,0.05);
-    padding: 10px;
+/* Análise de Padrões/Tabela */
+.analysis-output {
+    background: rgba(0,174,255,0.08);
+    border: 1px solid var(--accent-secondary);
     border-radius: 6px;
-    border-left: 3px solid var(--accent);
+    padding: 12px;
 }
-.stat-title {
-    font-size: 11px;
-    color: var(--muted);
+.pattern-line {
+    font-size: 14px;
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+.pattern-trigger {
+    color: var(--zero);
+    font-weight: bold;
     font-family: 'Orbitron', sans-serif;
-    font-weight: 400;
-    margin-bottom: 4px;
 }
-.stat-value {
-    font-size: 16px;
-    font-weight: 700;
-    color: #fff;
-}
-.stat-value.positive { color: var(--alert-green); }
-.stat-value.negative { color: var(--alert-red); }
-
-.bankroll-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-top: 15px;
-}
-.bankroll-label {
-    font-size: 11px;
-    color: var(--muted);
-    margin-bottom: 5px;
-}
-.bankroll-input {
-    width: 100%;
-    padding: 8px;
-    background: var(--black);
-    border: 1px solid rgba(0,255,174,0.3);
-    border-radius: 4px;
+.pattern-succession {
     color: var(--accent);
-    font-family: 'Roboto Mono', monospace;
-    font-size: 14px;
+    font-weight: bold;
 }
-.bankroll-actions button {
-    width: 100%;
-    margin-top: 8px;
-}
-
-/* Extrato de Transações */
-.bankroll-history-list {
-    margin-top: 10px;
-    max-height: 150px;
-    overflow-y: auto;
-    padding: 5px 0;
-}
-.log-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
-    font-size: 14px;
-    border-bottom: 1px dashed rgba(255,255,255,0.05);
-}
-.log-win { color: var(--alert-green); font-weight: 700; }
-.log-loss { color: var(--alert-red); font-weight: 700; }
-.log-placeholder { color: var(--muted); text-align: center; padding: 10px; }
-.log-delete-btn {
-    background: none;
-    border: none;
+.pattern-count {
     color: var(--muted);
     font-size: 12px;
-    cursor: pointer;
-    transition: color 0.2s;
-}
-.log-delete-btn:hover {
-    color: var(--alert-red);
-}
-
-/* ================== TELA DE LOGIN ================== */
-
-#loginScreen{
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-}
-#loginBox {
-    background: var(--panel);
-    padding: 30px;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 350px;
-    text-align: center;
-    box-shadow: 0 0 30px rgba(0,255,174,0.15);
-}
-.login-title {
-    font-family:'Orbitron',sans-serif;
-    font-weight:800;
-    font-size: 24px;
-    color: var(--accent);
-    margin-bottom: 10px;
-}
-.login-subtitle {
-    color: var(--muted);
-    font-size: 14px;
-    margin-bottom: 20px;
-}
-#authPwd {
-    width: 100%;
-    padding: 10px;
-    background: var(--black);
-    border: 1px solid var(--accent);
-    border-radius: 6px;
-    color: var(--accent);
-    font-family: 'Roboto Mono', monospace;
-    font-size: 16px;
-    text-align: center;
-    margin-bottom: 15px;
 }
 
 /* ================== TELA DE BLOQUEIO (CADEADO) ================== */
@@ -340,7 +275,7 @@ body{
   position:fixed;
   inset:0;
   background:var(--lock-bg);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -348,10 +283,14 @@ body{
   z-index:9000;
   text-align:center;
 }
+#lockScreen svg {
+    color: var(--alert-red);
+    margin-bottom: 10px;
+}
 #lockScreen h2{
   font-family:'Orbitron',sans-serif;
   color:var(--alert-red);
-  font-size:24px;
+  font-size:28px;
 }
 #lockScreen h2.win {
   color:var(--alert-green);
@@ -363,23 +302,25 @@ body{
 }
 #lockScreen .countdown{
   font-family:'Orbitron',sans-serif;
-  font-size:36px;
+  font-size:48px;
   font-weight:800;
   color:var(--accent);
-  margin-top:15px;
-  text-shadow: 0 0 20px rgba(0,255,174,0.6);
+  margin-top:20px;
+  margin-bottom: 25px;
+  text-shadow: 0 0 30px rgba(0,255,174,0.8);
 }
 </style>
 </head>
 <body>
 
 <div id="lockScreen" class="hidden">
-  <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" viewBox="0 0 16 16" id="lockIcon">
+  <svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" fill="currentColor" viewBox="0 0 16 16" id="lockIcon">
     <path d="M8 1a2 2 0 0 0-2 2v4h4V3a2 2 0 0 0-2-2m3 6V3a3 3 0 1 0-6 0v4a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1zM4 8a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h6a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5z"/>
   </svg>
   <h2 id="lockTitle">ZONA SEGURA ATINGIDA (STOP LOSS)</h2>
   <p>Análise bloqueada. Retorne após o período de resfriamento:</p>
   <div class="countdown" id="countdownTimer">02:00:00</div>
+  <button id="closeLockBtn" class="control-btn btn-loss" style="background: var(--red);">FECHAR ZONA SEGURA (TESTE)</button>
 </div>
 
 
@@ -403,23 +344,23 @@ body{
 
 <div id="mainPanel" class="hidden">
   <div class="header">
-    <div class="title">ROLETA IAP <span id="modeDisplay">REAL</span> ⚡</div>
+    <div class="title">IAP <span id="modeDisplay">REAL</span></div>
     <div id="clock">--:--:--</div>
   </div>
 
   <div class="card">
-    <div class="suggestionTitle">🔢 INSERÇÃO RÁPIDA DE RESULTADOS</div>
+    <div class="suggestionTitle">🔢 ENTRADAS RÁPIDAS</div>
     <div class="grid" id="gridNumbers"></div>
     <div class="data-separator"></div>
     <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px;">
         <button id="btnUpload" class="control-btn" style="flex:1 1 150px;">📷 UPLOAD (OCR)</button> 
-        <button id="clearBtn" class="control-btn btn-loss" title="Limpar histórico" style="flex:1 1 100px;">LIMPAR HISTÓRICO</button>
+        <button id="clearBtn" class="control-btn btn-loss" title="Limpar histórico" style="flex:1 1 100px;">LIMPAR</button>
         <button id="logoutBtn" class="control-btn control-logout" title="Sair" style="flex:1 1 100px;">SAIR</button>
     </div>
   </div>
   
   <div class="card" id="boosterCard">
-    <div class="suggestionTitle iaGlow">⭐ SUGESTÃO DE ZONA I.A. (BOOSTER)</div>
+    <div class="suggestionTitle iaGlow">✨ BOOSTER DE APOSTA I.A.</div>
     <div id="betSuggestion" class="suggestionBox" style="font-size: 16px; font-weight: 700;">
         <span style="color:var(--muted)">Aguardando dados ou aguardando desbloqueio...</span>
     </div>
@@ -428,11 +369,11 @@ body{
   <div class="card">
     <div class="analysis-wrapper">
       <div class="analysis-main">
-        <div class="suggestionTitle">🚀 ANÁLISE DE SUCESSÃO DE ZONAS (TOP 3)</div>
+        <div class="suggestionTitle">🔄 SUCESSÃO DE ZONAS (TOP 3)</div>
         <div id="zoneAnalysis" class="suggestionBox">Adicione números ao histórico para análise de Zonas.</div>
       </div>
-      <div class="analysis-hot-cold" style="margin-top:10px;">
-        <div class="suggestionTitle">🔥 TENDÊNCIAS GERAIS</div>
+      <div class="analysis-hot-cold" style="margin-top:15px;">
+        <div class="suggestionTitle">🌡️ TENDÊNCIAS GERAIS</div>
         <div id="hotCold" class="suggestionBox">🔥 Hot: -<br>❄️ Cold: -</div>
       </div>
     </div>
@@ -511,6 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const lockScreen = document.getElementById('lockScreen');
   const lockTitle = document.getElementById('lockTitle');
   const countdownTimer = document.getElementById('countdownTimer');
+  const closeLockBtn = document.getElementById('closeLockBtn'); // Novo Botão
   const boosterCard = document.getElementById('boosterCard');
   
   const historyDiv = document.getElementById('history');
@@ -534,9 +476,10 @@ document.addEventListener('DOMContentLoaded', () => {
   let historyArr = []; 
   let numberStats = {}; 
   let config = {
-      mode: 'DEMO', // 'DEMO' ou 'REAL'
+      mode: 'DEMO', 
       isLocked: false,
       lockUntil: 0,
+      lockReason: '', 
   };
   
   let bankrollState = {
@@ -546,7 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   const MAX_HISTORY = 100;
   const HOT_THRESHOLD = 3; 
-  const ADHERENCE_LOOKBACK = 50; // <--- NOVO LIMITE DE 50 LANÇAMENTOS
+  const ADHERENCE_LOOKBACK = 50; 
   
   /* ================== UTILITÁRIOS ================== */
   const formatCurrency = (value) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -556,7 +499,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return 'black';
   }
   
-  // Calcula vizinhos em uma ordem circular (baseado em WHEEL_ORDER)
   function getNeighbors(centerNum, radius) {
     const centerIndex = WHEEL_INDEX_MAP[centerNum];
     const neighbors = [];
@@ -577,9 +519,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function loadConfig() {
     const savedConfig = localStorage.getItem(CONFIG_STORAGE_KEY);
     if (savedConfig) {
-      config = JSON.parse(savedConfig);
+      const loaded = JSON.parse(savedConfig);
+      config = { ...config, ...loaded }; 
     }
-    // Força a atualização do modo no display
     modeDisplay.textContent = config.mode;
   }
 
@@ -635,6 +577,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (config.isLocked && config.lockUntil > now) {
           lockScreen.classList.remove('hidden');
           mainPanel.classList.add('hidden');
+          
+          if (config.lockReason === 'STOP_LOSS') {
+              lockTitle.textContent = 'ZONA SEGURA ATINGIDA (STOP LOSS)';
+              lockTitle.classList.remove('win');
+              document.getElementById('lockIcon').style.color = 'var(--alert-red)';
+          } else if (config.lockReason === 'STOP_WIN') {
+              lockTitle.textContent = 'ZONA SEGURA ATINGIDA (STOP WIN)';
+              lockTitle.classList.add('win');
+              document.getElementById('lockIcon').style.color = 'var(--alert-green)';
+          }
           startCountdown();
           return true;
       }
@@ -643,6 +595,7 @@ document.addEventListener('DOMContentLoaded', () => {
           // Desbloqueia
           config.isLocked = false;
           config.lockUntil = 0;
+          config.lockReason = '';
           saveConfig();
       }
       
@@ -653,12 +606,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   function startCountdown() {
-      stopCountdown(); // Garante que apenas um contador está rodando
+      stopCountdown(); 
       
       countdownInterval = setInterval(() => {
           const remainingTime = config.lockUntil - Date.now();
           if (remainingTime <= 0) {
-              checkLockStatus(); // Deve desbloquear e parar o contador
+              checkLockStatus();
               return;
           }
 
@@ -683,24 +636,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
       config.isLocked = true;
       config.lockUntil = Date.now() + LOCK_DURATION;
+      config.lockReason = reason;
       saveConfig();
-      
-      lockScreen.classList.remove('hidden');
-      mainPanel.classList.add('hidden');
-      
-      if (reason === 'STOP_LOSS') {
-          lockTitle.textContent = 'ZONA SEGURA ATINGIDA (STOP LOSS)';
-          lockTitle.classList.remove('win');
-      } else if (reason === 'STOP_WIN') {
-          lockTitle.textContent = 'ZONA SEGURA ATINGIDA (STOP WIN)';
-          lockTitle.classList.add('win');
-      }
       
       checkLockStatus();
   }
+  
+  // Botão de Forçar Fechamento (Teste)
+  closeLockBtn.onclick = () => {
+    if (confirm('ATENÇÃO: Este botão é APENAS para testes. Forçar o fechamento anula a Zona Segura. Continuar?')) {
+        config.isLocked = false;
+        config.lockUntil = 0;
+        config.lockReason = '';
+        saveConfig();
+        checkLockStatus();
+        updateUI();
+    }
+  };
 
   function checkStopCondition() {
       if (config.mode !== 'REAL') return;
+      if (config.isLocked) return;
 
       const { current, initial, history } = bankrollState;
       const totalProfit = parseFloat((current - initial).toFixed(2));
@@ -719,7 +675,6 @@ document.addEventListener('DOMContentLoaded', () => {
       let consecutiveLoss = 0;
       let consecutiveWin = 0;
       
-      // Itera de trás para frente no histórico de transações
       for (let i = history.length - 1; i >= 0; i--) {
           const amount = history[i].amount;
           if (amount < 0) {
@@ -729,7 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
               consecutiveWin++;
               consecutiveLoss = 0; 
           } else {
-              continue; // Ignora registros de 0.00
+              continue; 
           }
           
           if (consecutiveLoss >= STOP_LOSS_COUNT) {
@@ -742,31 +697,6 @@ document.addEventListener('DOMContentLoaded', () => {
           }
       }
   }
-
-  /* ================== LÓGICA DE GESTÃO DE BANCA ================== */
-  
-  function registerTransaction(amount, isWin) {
-    if (bankrollState.initial === 0) {
-        alert('Defina sua Banca Inicial na seção "Gestão de Banca e Risco" antes de registrar entradas.');
-        return;
-    }
-    
-    const finalAmount = parseFloat(parseFloat(amount).toFixed(2));
-    if (isNaN(finalAmount) || finalAmount <= 0) {
-        alert('Por favor, insira um valor válido.');
-        return;
-    }
-    
-    bankrollState.current = (bankrollState.current * 100 + (isWin ? finalAmount : -finalAmount) * 100) / 100;
-    bankrollState.history.push({ amount: isWin ? finalAmount : -finalAmount, timestamp: Date.now() });
-    
-    saveBankrollData();
-    checkStopCondition();
-    updateUI();
-    betAmountInput.value = '';
-  }
-
-  // Event Listeners de Banca já estavam definidos no HTML
   
   /* ================== LÓGICA DE ANÁLISE DE ZONAS ================== */
 
@@ -780,7 +710,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     allNumbers.forEach(n => { stats.counts[n] = { count: 0 }; });
 
-    // 1. Mapeamento de Frequência e Sucessão de Zonas
+    // 1. Mapeamento de Frequência e Sucessão
     for (let i = historyArr.length - 1; i >= 0; i--) {
       const num = historyArr[i];
       stats.counts[num].count++;
@@ -789,18 +719,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const lastNum = historyArr[i]; 
         const currentNum = historyArr[i - 1]; 
         
-        // Define a Zona de Ocorrência (Centro: lastNum, Raio: 2)
-        const lastZone = getNeighbors(lastNum, 2).sort().join(','); // Chave da Zona de Ocorrência
-        const currentZoneCenter = currentNum; // O número que saiu na sequência
-        
-        if (!stats.zoneSuccessionMap[lastZone]) {
-          stats.zoneSuccessionMap[lastZone] = [];
+        if (!stats.zoneSuccessionMap[lastNum]) {
+          stats.zoneSuccessionMap[lastNum] = [];
         }
-        stats.zoneSuccessionMap[lastZone].push(currentZoneCenter);
+        stats.zoneSuccessionMap[lastNum].push(currentNum);
       }
     }
     
-    // 2. Hot/Cold
+    // 2. Hot/Cold (Métricas gerais de frequência)
     const allCounts = allNumbers.map(n => stats.counts[n].count);
     const minCount = allCounts.length > 0 ? Math.min(...allCounts) : 0;
     
@@ -853,116 +779,122 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderControls() {
       const isDisabled = config.mode === 'DEMO';
       
-      // Habilita/Desabilita botões de Transação (Win/Loss)
       btnRegisterWin.disabled = isDisabled;
       btnRegisterLoss.disabled = isDisabled;
-
-      // Habilita/Desabilita Sugestão (Booster)
       boosterCard.style.opacity = isDisabled ? '0.5' : '1';
       
-      // A entrada de números é sempre permitida para análise
       document.querySelectorAll('.number-btn').forEach(btn => {
           btn.disabled = false; 
       });
   }
 
+  // Lógica de renderização de Padrões: APÓS N -> M (X vezes)
   function renderZoneAnalysis() {
     if (historyArr.length < 5) { 
-      zoneAnalysisDiv.innerHTML = 'Adicione pelo menos 5 lançamentos para começar a análise de Sucessão de Zonas.';
+      zoneAnalysisDiv.innerHTML = '<span style="color:var(--muted)">Adicione pelo menos 5 lançamentos para começar a análise de Sucessão de Zonas.</span>';
       return;
     }
     
     const lastNum = historyArr[0];
-    const lastZone = getNeighbors(lastNum, 2).sort().join(','); 
-    const followers = numberStats.zoneSuccessionMap[lastZone];
+    const triggerNum = historyArr[1]; // O número que saiu ANTES do último
     
-    if (!followers || followers.length < 5) {
-      zoneAnalysisDiv.innerHTML = `O último número foi **${lastNum}** (Zona: ${getNeighbors(lastNum, 2).join(', ')}). Necessário mais ocorrências desta Zona para gerar dados de sucessão confiáveis.`;
+    if (!triggerNum && triggerNum !== 0) {
+        zoneAnalysisDiv.innerHTML = `<span style="color:var(--muted)">Aguardando o segundo lançamento para iniciar a análise de sucessão.</span>`;
+        return;
+    }
+
+    const followers = numberStats.zoneSuccessionMap[triggerNum];
+    
+    if (!followers || followers.length < 2) {
+      zoneAnalysisDiv.innerHTML = `<span style="color:var(--muted)">O último padrão de sucessão ocorreu após o número **${triggerNum}**. Necessário mais ocorrências (mínimo 2) para gerar dados de sucessão confiáveis.</span>`;
       return;
     }
     
+    // Contagem dos Números Sucessores
     const followerCounts = {};
     for (const num of followers) {
       followerCounts[num] = (followerCounts[num] || 0) + 1;
     }
     
+    // Ordenar por mais frequente
     const sortedFollowers = Object.entries(followerCounts)
       .sort((a, b) => b[1] - a[1]);
 
-    let html = `<div style="margin-bottom: 6px;">Após a **Zona de Ocorrência** (${getNeighbors(lastNum, 2).join(', ')}), as Zonas de Sucessão mais prováveis (TOP 3) foram:</div>`;
+    let html = `<div class="analysis-output">
+                  <div class="pattern-line">Último lançamento: <span class="pattern-succession">${lastNum}</span> (Seguiu ${triggerNum})</div>
+                  <div class="data-separator" style="margin: 8px 0;"></div>
+                  <div style="font-size: 14px; margin-bottom: 10px;">**PADRÕES APÓS** <span class="pattern-trigger">${triggerNum}</span>:</div>`;
     
-    let tableHTML = `<table class="analysis-table">
-                       <thead><tr><th>Zona (Centro)</th><th>Vezes</th><th>Taxa de Assertividade</th></tr></thead>
-                       <tbody>`;
     
-    sortedFollowers.slice(0, 3).forEach(([centerNumStr, count]) => {
-      const centerNum = Number(centerNumStr);
-      const zone = getNeighbors(centerNum, 2);
-      const percentage = ((count / followers.length) * 100).toFixed(1);
-      
-      tableHTML += `<tr>
-                      <td>Zona **${centerNum}** (${zone.join(', ')})</td>
-                      <td>${count}x</td>
-                      <td><span style="color:var(--accent);">${percentage}%</span></td>
-                    </tr>`;
+    sortedFollowers.slice(0, 5).forEach(([numStr, count]) => {
+      const num = Number(numStr);
+      // Aqui, mostramos o número que veio depois (num) e a contagem
+      html += `<div class="pattern-line">
+                  <span style="font-size: 16px;">
+                      &rarr; **${num}** (<span class="pattern-succession">${getColor(num).toUpperCase()}</span>) 
+                  </span>
+                  <span class="pattern-count">
+                      &mdash; ${count}x
+                  </span>
+              </div>`;
     });
     
-    tableHTML += `</tbody></table>`;
-    zoneAnalysisDiv.innerHTML = html + tableHTML;
+    html += `</div>`;
+    zoneAnalysisDiv.innerHTML = html;
   }
   
+  // Função que usa a lógica de zona (vizinhos)
   function renderBetSuggestion() {
-      if (config.mode === 'DEMO' && bankrollState.initial === 0) {
-          betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">Booster desativado no Modo DEMO. Alterne para REAL e/ou defina a Banca Inicial para sugestões de aposta.</span>`;
-          return;
-      }
-      if (historyArr.length < ADHERENCE_LOOKBACK) {
-          betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">Aguardando mais dados para ativar o Booster (mínimo ${ADHERENCE_LOOKBACK} lançamentos para análise de Aderência)...</span>`;
+      if (config.mode === 'DEMO' || historyArr.length < ADHERENCE_LOOKBACK) {
+          betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">Booster requer Modo REAL e histórico mínimo de ${ADHERENCE_LOOKBACK} lançamentos para análise de Aderência.</span>`;
           return;
       }
       
       const lastNum = historyArr[0];
-      const lastZone = getNeighbors(lastNum, 2).sort().join(',');
-      const followers = numberStats.zoneSuccessionMap[lastZone];
+      const triggerNum = historyArr[1];
+      
+      if (!triggerNum && triggerNum !== 0) {
+          betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">Aguardando mais lançamentos...</span>`;
+          return;
+      }
+      
+      const followers = numberStats.zoneSuccessionMap[triggerNum];
       
       if (!followers || followers.length < 5) {
-          betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">Aguardando mais recorrências da Zona de Ocorrência (${lastZone}) para sugerir com segurança.</span>`;
+          betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">Aguardando mais recorrências após **${triggerNum}** para sugerir com segurança.</span>`;
           return;
       }
 
-      // 1. Cálculo do Booster (Zona Mais Provável)
+      // 1. Cálculo do Booster (Número Mais Provável a Seguir)
       const followerCounts = {};
       for (const num of followers) { followerCounts[num] = (followerCounts[num] || 0) + 1; }
       const sortedFollowers = Object.entries(followerCounts).sort((a, b) => b[1] - a[1]);
       
-      const bestZoneCenter = Number(sortedFollowers[0][0]);
-      const bestZoneCount = sortedFollowers[0][1];
-      const bestZoneProbability = (bestZoneCount / followers.length) * 100;
-      const bestZone = getNeighbors(bestZoneCenter, 2);
+      const bestNum = Number(sortedFollowers[0][0]);
+      const bestNumCount = sortedFollowers[0][1];
+      const bestNumProbability = (bestNumCount / followers.length) * 100;
+      
+      // A sugestão de aposta é o número MAIS PROVÁVEL e seus vizinhos (Zona 2)
+      const bestZone = getNeighbors(bestNum, 2);
 
       // 2. Cálculo da Taxa de Aderência (Aderência da Roleta ao Padrão)
-      // *** MODIFICADO PARA USAR OS ÚLTIMOS 50 LANÇAMENTOS ***
       let adherenceCount = 0;
       const recentHistoryToCheck = historyArr.slice(0, ADHERENCE_LOOKBACK); 
       
-      // Itera sobre o histórico (0 a 49) onde i é o número que ocorreu e i+1 é o que seguiu
       for (let i = 0; i < recentHistoryToCheck.length - 1; i++) {
-          const currentZoneCenter = recentHistoryToCheck[i+1]; // O número que causou a sucessão
-          const nextNum = recentHistoryToCheck[i]; // O número que saiu
+          const currentTrigger = recentHistoryToCheck[i+1]; 
+          const nextNum = recentHistoryToCheck[i]; 
           
-          const currentZone = getNeighbors(currentZoneCenter, 2).sort().join(',');
-          
-          if (numberStats.zoneSuccessionMap[currentZone]) {
-              const historicalFollowers = numberStats.zoneSuccessionMap[currentZone];
+          if (numberStats.zoneSuccessionMap[currentTrigger]) {
+              const historicalFollowers = numberStats.zoneSuccessionMap[currentTrigger];
               const historicalCounts = {};
               for (const num of historicalFollowers) { historicalCounts[num] = (historicalCounts[num] || 0) + 1; }
               const sortedHistorical = Object.entries(historicalCounts).sort((a, b) => b[1] - a[1]);
               
               if (sortedHistorical.length > 0) {
-                  const historicalBestZoneCenter = Number(sortedHistorical[0][0]);
-                  const historicalBestZone = getNeighbors(historicalBestZoneCenter, 2);
+                  const historicalBestNum = Number(sortedHistorical[0][0]);
+                  const historicalBestZone = getNeighbors(historicalBestNum, 2);
                   
-                  // Verifica se o número que saiu (nextNum) estava na ZONA de maior sucessão da ZONA anterior.
                   if (historicalBestZone.includes(nextNum)) {
                       adherenceCount++;
                   }
@@ -975,14 +907,15 @@ document.addEventListener('DOMContentLoaded', () => {
       
       let suggestionHTML = `
           <div style="font-size: 14px; margin-bottom: 8px; color: var(--muted);">
-              Último Número: <span style="color: var(--zero); font-weight: 700;">${lastNum}</span> (Zona de Ocorrência: ${getNeighbors(lastNum, 2).join(', ')})
+              O último número foi <span style="color: var(--zero); font-weight: 700;">${lastNum}</span>, precedido por <span style="color: var(--zero); font-weight: 700;">${triggerNum}</span>.
           </div>
           <div style="margin-bottom: 12px;">
-              🎯 **SUGESTÃO BOOSTER**: Aposte na **ZONA ${bestZoneCenter}** (${bestZone.join(', ')}).
+              🎯 **SUGESTÃO BOOSTER**: O sucessor mais provável é **${bestNum}**. 
+              Aposte na **ZONA ${bestNum}** (Vizinhos 2: ${bestZone.join(', ')}).
           </div>
           <div style="font-family: 'Orbitron', sans-serif; font-size: 16px;">
-              ✨ **Taxa de Assertividade de Aposta**: <span style="color: var(--alert-green);">${bestZoneProbability.toFixed(1)}%</span><br>
-              📈 **Aderência ao Padrão da Roleta (Últimos ${checkableEntries} Lançamentos)**: <span style="color: var(--accent);">${adherenceRate.toFixed(1)}%</span>
+              ✨ **Probabilidade de Sucesso Direto**: <span class="positive">${bestNumProbability.toFixed(1)}%</span><br>
+              📈 **Aderência do Padrão (Últimos ${checkableEntries} Lançamentos)**: <span style="color: var(--accent);">${adherenceRate.toFixed(1)}%</span>
           </div>
       `;
       
@@ -990,15 +923,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
-  // Funções de renderização que não mudaram muito (History, HotCold, etc.)
-  
   function renderHistory() {
     historyDiv.innerHTML = '';
     historyArr.forEach((n, i) => { 
       const chip = document.createElement('div');
       chip.textContent = n;
       chip.className = 'chip ' + getColor(n);
-      // Aqui, a lógica de Hot/Cold nos chips é mais complexa, então focamos na cor base
       chip.onclick = () => confirmRemoveNumber(i);
       historyDiv.appendChild(chip); 
     });
@@ -1066,11 +996,12 @@ document.addEventListener('DOMContentLoaded', () => {
   
   function renderBankrollHistory() {
     const history = bankrollState.history;
+    const historyDiv = document.getElementById('bankrollHistory');
     if (history.length === 0) {
-      bankrollHistoryDiv.innerHTML = `<div class="log-item log-placeholder">Nenhum registro ainda.</div>`;
+      historyDiv.innerHTML = `<div class="log-item log-placeholder">Nenhum registro ainda.</div>`;
       return;
     }
-    bankrollHistoryDiv.innerHTML = '';
+    historyDiv.innerHTML = '';
     [...history].reverse().forEach((entry, reverseIndex) => {
       const originalIndex = history.length - 1 - reverseIndex; 
       const amount = entry.amount;
@@ -1083,10 +1014,10 @@ document.addEventListener('DOMContentLoaded', () => {
       deleteBtn.className = 'log-delete-btn'; deleteBtn.textContent = 'X'; deleteBtn.title = 'Excluir este lançamento';
       deleteBtn.onclick = () => deleteBankrollEntry(originalIndex);
       item.appendChild(text); item.appendChild(deleteBtn);
-      bankrollHistoryDiv.appendChild(item);
+      historyDiv.appendChild(item);
     });
   }
-
+  
   function deleteBankrollEntry(indexToDelete) {
     const entry = bankrollState.history[indexToDelete];
     const amount = entry.amount;
@@ -1104,7 +1035,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function confirmRemoveNumber(index) {
     const num = historyArr[index];
-    if (confirm(`Excluir o número ${num} (mais recente) do histórico?`)) {
+    if (confirm(`Excluir o número ${num} (Recente) do histórico?`)) {
       historyArr.splice(index, 1);
       saveHistoryData();
       updateUI();
@@ -1127,18 +1058,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const loadingMessage = document.createElement('p');
       loadingMessage.textContent = "OCR em andamento... aguarde.";
-      loadingMessage.style.color = var(--zero);
+      loadingMessage.style.color = 'var(--zero)';
       loadingMessage.style.textAlign = 'center';
-      gridNumbers.appendChild(loadingMessage); // Adiciona na área do grid
+      gridNumbers.insertAdjacentElement('afterend', loadingMessage); 
 
       Tesseract.recognize(
           file,
           'eng',
-          { logger: m => console.log(m) } // Opcional: para ver o progresso no console
+          { logger: m => console.log(m) } 
       ).then(({ data: { text } }) => {
-          loadingMessage.remove(); // Remove a mensagem de loading
+          loadingMessage.remove(); 
           
-          // Regex para extrair números comuns de roleta (0-36)
           const numbers = text.match(/\b(0|[1-9]|[1-2][0-9]|3[0-6])\b/g);
           
           if (numbers && numbers.length > 0) {
@@ -1156,9 +1086,30 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   };
 
+  function registerTransaction(amount, isWin) {
+    if (bankrollState.initial === 0) {
+        alert('Defina sua Banca Inicial na seção "Gestão de Banca e Risco" antes de registrar entradas.');
+        return;
+    }
+    
+    const finalAmount = parseFloat(parseFloat(amount).toFixed(2));
+    if (isNaN(finalAmount) || finalAmount <= 0) {
+        alert('Por favor, insira um valor válido.');
+        return;
+    }
+    
+    bankrollState.current = (bankrollState.current * 100 + (isWin ? finalAmount : -finalAmount) * 100) / 100;
+    bankrollState.history.push({ amount: isWin ? finalAmount : -finalAmount, timestamp: Date.now() });
+    
+    saveBankrollData();
+    checkStopCondition();
+    updateUI();
+    betAmountInput.value = '';
+  }
+
   /* ================== INICIALIZAÇÃO E EVENTOS ================== */
 
-  // 1. Popular Grid e Inicialização
+  // 1. Popular Grid
   for (let i = 0; i <= 36; i++) {
     const btn = document.createElement('button');
     btn.textContent = i;
@@ -1167,25 +1118,19 @@ document.addEventListener('DOMContentLoaded', () => {
     gridNumbers.appendChild(btn);
   }
 
-  // 2. Lógica de Login/Sessão
+  // 2. Lógica de Login/Sessão e UI
   loadConfig();
-  if (checkLockStatus()) {
-      return; // Bloqueado, não carrega o painel principal
-  }
-  
-  if (getLoginStatus()) {
-      loadBankrollData();
-      loadHistoryData(); 
-      updateUI();
-  } else {
-      updateUI(); // Renderiza apenas o login
-  }
+  loadBankrollData();
+  loadHistoryData(); 
+  checkLockStatus(); 
+  updateUI();
 
-  // 3. Event Listeners Finais
+  // 3. Event Listeners de Banca e Controles
   document.getElementById('btnSignInReal').onclick = () => {
       if (authPwdInput.value === getPasswordHash()) {
           setLoginStatus(true, 'REAL');
-          location.reload(); 
+          loadConfig(); // Força o carregamento do novo modo
+          updateUI();   // Atualiza a interface (fecha login, abre painel)
       } else {
           alert('Senha incorreta.');
       }
@@ -1193,7 +1138,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnSignInDemo').onclick = () => {
       if (authPwdInput.value === getPasswordHash()) {
           setLoginStatus(true, 'DEMO');
-          location.reload(); 
+          loadConfig(); // Força o carregamento do novo modo
+          updateUI();   // Atualiza a interface (fecha login, abre painel)
       } else {
           alert('Senha incorreta.');
       }
@@ -1204,7 +1150,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setLoginStatus(false);
         config.isLocked = false;
         saveConfig();
-        location.reload();
+        updateUI(); // Atualiza a interface (fecha painel, abre login)
     }
   };
   
