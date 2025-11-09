@@ -599,7 +599,9 @@ body.login-active {
 document.addEventListener('DOMContentLoaded', () => {
 
   /* ================== CONSTANTES DE CONFIGURAÇÃO ================== */
-  const getPasswordHash = () => '1571'; 
+  // --- SENHA ALTERADA PARA 2025 ---
+  const getPasswordHash = () => '2025'; 
+  // ---------------------------------
   const BANKROLL_STORAGE_KEY = 'roletaIAPBankroll_main';
   const HISTORY_STORAGE_KEY = 'roletaIAPHistory'; 
   const CONFIG_STORAGE_KEY = 'roletaIAPConfig'; 
@@ -621,7 +623,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* =========================================================================================
    * CONFIGURAÇÕES ESPECÍFICAS DO NOVO BOOSTER I.A. (Intersecção de Zonas)
-   * As variáveis WHEEL, historyArr e config já estão definidas acima ou no escopo global.
    ========================================================================================= */
   const SUCCESSOR_LOOKBACK = 100; // Analisa os últimos 100 lançamentos
   const SUGGESTION_THRESHOLD = 80; // Limite de ativação de 80%
@@ -685,9 +686,6 @@ document.addEventListener('DOMContentLoaded', () => {
   
   /**
    * Função auxiliar para encontrar vizinhos em um determinado range (Vizinhos 2 para Zona 5).
-   * @param {number} number - O número central.
-   * @param {number} range - A quantidade de vizinhos em cada lado (ex: 2 para Zona 5).
-   * @returns {number[]} Array dos vizinhos, incluindo o número central.
    */
   function getNeighbors(centerNum, radius) {
     const centerIndex = WHEEL_INDEX_MAP[centerNum];
@@ -698,10 +696,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const index = (centerIndex + i + len) % len;
         neighbors.push(WHEEL_ORDER[index]);
     }
-    // Note: Esta versão não ordena por valor, mas sim pela sequência da roleta
     return neighbors; 
-    // Para manter o comportamento original do seu código:
-    // return neighbors.sort((a, b) => a - b); 
   }
   
   /* ================== PERSISTÊNCIA E SESSÃO ================== */
@@ -1054,7 +1049,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (totalOccurrences === 0) { 
-      zoneAnalysisDiv.innerHTML = `<span style="color:var(--muted)">A **Zona ${triggerNum}** (${triggerZone.join(', ')}) não teve ocorrências registradas como predecessor nos últimos ${Math.min(historyArr.length, LOOKBACK)} lançamentos.</span>`;
+      zoneAnalysisDiv.innerHTML = `<span style="color:var(--muted)">A **Zona ${triggerNum}** (${triggerZone.join(', ')} ) não teve ocorrências registradas como predecessor nos últimos ${Math.min(historyArr.length, LOOKBACK)} lançamentos.</span>`;
       return;
     }
     
@@ -1088,7 +1083,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   
   // =========================================================================================
-  // LOGICA PRINCIPAL DO BOOSTER I.A. (SUBSTITUIÇÃO PELO CÓDIGO FORNECIDO PELO USUÁRIO)
+  // LOGICA PRINCIPAL DO BOOSTER I.A. (MANTIDA)
   // =========================================================================================
 
   /**
@@ -1097,8 +1092,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderBetSuggestion() {
       
       // --- Guardrails e Verificações Iniciais ---
-      // O historyArr original precisa de um preenchimento inicial para que o cálculo funcione.
-      // Substituindo o historyArr inicial no script principal para simular o que o usuário enviou
       if (historyArr.length < SUCCESSOR_LOOKBACK) {
           betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">Booster requer histórico mínimo de ${SUCCESSOR_LOOKBACK} lançamentos para análise.</span>`;
           return;
@@ -1116,7 +1109,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const triggerNum = historyArr[0]; // Último número lançado (Gatilho)
       
       // 1. Definir a Zona de Aposta Alvo (Zona 5 do Gatilho)
-      // Usamos getNeighbors(num, 2) que retorna [N-2, N-1, N, N+1, N+2]
       const targetZoneArr = getNeighbors(triggerNum, 2); 
       const targetZone = new Set(targetZoneArr); 
 
@@ -1224,7 +1216,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   // =========================================================================================
-  // FIM DA SUBSTITUIÇÃO DO CÓDIGO
+  // FIM DA LOGICA PRINCIPAL
   // =========================================================================================
 
 
