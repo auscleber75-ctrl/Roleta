@@ -1037,11 +1037,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     
-    // --- CORREÇÃO DE ORDEM DO HISTÓRICO OCR ---
-    // O Tesseract tipicamente lê o log da esquerda/topo (Antigo) para a direita/fundo (Recente).
-    // Para que o Recente fique no historyArr[0] (topo), precisamos INVERTER a ordem dos novos números.
-    const correctlyOrderedNumbers = validNumbers.reverse();
-    // ------------------------------------------
+    // --- CORREÇÃO APLICADA AQUI ---
+    // Removemos o .reverse() anterior, assumindo que o Tesseract já entrega 
+    // na ordem visual (Recente -> Antigo) para esta imagem específica.
+    const correctlyOrderedNumbers = validNumbers; 
+    // -----------------------------
     
     // Adiciona os números (agora Recente -> Antigo) no início do histórico
     historyArr = [...correctlyOrderedNumbers, ...historyArr];
@@ -1492,7 +1492,6 @@ document.addEventListener('DOMContentLoaded', () => {
       
       if (matches && matches.length > 0) {
         
-        // CORREÇÃO: Removida a inversão aqui, ela será aplicada em addMultipleNumbers
         const numbersFromOCR = matches.map(Number); 
         
         addMultipleNumbers(numbersFromOCR); 
