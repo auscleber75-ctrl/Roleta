@@ -619,7 +619,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const STOP_WIN_AMOUNT = 35.00; // R$35,00 de lucro total
   const LOCK_DURATION = 2 * 60 * 60 * 1000; // 2 horas em milissegundos
   const SESSION_TIMEOUT = 40 * 60 * 1000; // 40 minutos em milissegundos
-  const INITIAL_LOCK = false; 
 
   /* =========================================================================================
    * CONFIGURAÇÕES ESPECÍFICAS DO NOVO BOOSTER I.A. (Intersecção de Zonas)
@@ -632,7 +631,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const bodyTag = document.getElementById('bodyTag');
   const loginScreen = document.getElementById('loginScreen');
   const mainPanel = document.getElementById('mainPanel');
-  // const modeDisplay = document.getElementById('modeDisplay'); // Removido do HTML
   const lockScreen = document.getElementById('lockScreen');
   const lockTitle = document.getElementById('lockTitle');
   const countdownTimer = document.getElementById('countdownTimer');
@@ -643,7 +641,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const historyCount = document.getElementById('historyCount');
   const zoneAnalysisDiv = document.getElementById('zoneAnalysis');
   const hotColdDiv = document.getElementById('hotCold');
-  const betSuggestionDiv = document.getElementById('betSuggestion'); // Onde a sugestão do booster é exibida
+  const betSuggestionDiv = document.getElementById('betSuggestion'); 
   const gridNumbers = document.getElementById('gridNumbers');
 
   const btnRegisterWin = document.getElementById('btnRegisterWin');
@@ -674,9 +672,8 @@ document.addEventListener('DOMContentLoaded', () => {
     history: [] 
   };
   const MAX_HISTORY = 100;
-  const ADHERENCE_LOOKBACK = 50; 
   
-  /* ================== UTILITÁRIOS ================== */
+  /* ================== UTILITÁRIOS OTIMIZADOS ================== */
   const formatCurrency = (value) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 });
   function getColor(num) {
     if (num === 0) return 'zero';
@@ -684,6 +681,12 @@ document.addEventListener('DOMContentLoaded', () => {
     return 'black';
   }
   
+  /**
+   * Função crítica para garantir a precisão de ponto flutuante em operações monetárias.
+   */
+  const safeMath = (num) => parseFloat(num.toFixed(2));
+
+
   /**
    * Função auxiliar para encontrar vizinhos em um determinado range (Vizinhos 2 para Zona 5).
    */
@@ -723,17 +726,17 @@ document.addEventListener('DOMContentLoaded', () => {
   
   function setLoginStatus(isLoggedIn, mode = 'DEMO') {
       config.isLoggedIn = isLoggedIn;
-      if (isLoggedIn) {
-          config.mode = mode;
+      config.mode = mode; // Atualiza o modo antes de salvar
           
+      if (isLoggedIn) {
+          // Reinicia a sessão apenas se for a primeira vez ou se o timeout expirou
           if (config.sessionStart === 0 || (Date.now() - config.sessionStart) >= SESSION_TIMEOUT) {
               config.sessionStart = Date.now();
           }
       } else {
           // Resetar o estado de login
           config.sessionStart = 0; 
-          config.isLocked = false; 
-          config.lockUntil = 0;
+          // Mantém o lockAté e lockReason para não perder o "castigo" se o usuário sair/voltar rápido.
       }
       saveConfig();
   }
@@ -742,7 +745,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return config.isLoggedIn; 
   }
   
-  /* ================== LÓGICA DE BLOQUEIO / STOP / SESSÃO (MANTIDA) ================== */
+  /* ================== LÓGICA DE BLOQUEIO / STOP / SESSÃO ================== */
 
   let countdownInterval;
   let sessionInterval;
@@ -766,7 +769,7 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('lockIcon').style.color = (config.lockReason === 'STOP_WIN') ? 'var(--alert-green)' : 'var(--alert-red)';
 
           startLockCountdown();
-          stopSessionCounter();
+          stopSessionCounter(); // Garante que o contador de sessão pare
           return true; // Bloqueado por Lock Ativo
       }
 
@@ -781,7 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       // 3. Verifica o Status da Sessão de 40 Minutos 
-      if (config.isLoggedIn && !config.isLocked && config.mode === 'REAL') { // Verifica apenas em modo REAL
+      if (config.isLoggedIn && !config.isLocked && config.mode === 'REAL') { 
           if (config.sessionStart === 0) {
               config.sessionStart = Date.now();
               saveConfig();
@@ -798,6 +801,7 @@ document.addEventListener('DOMContentLoaded', () => {
           loginScreen.classList.add('hidden');
           bodyTag.classList.remove('login-active');
           if (config.mode === 'REAL') startSessionCounter(); // Só conta sessão no REAL
+          else stopSessionCounter(); // Garante que pare no DEMO
       } else {
           // Não logado
           loginScreen.classList.remove('hidden');
@@ -814,7 +818,7 @@ document.addEventListener('DOMContentLoaded', () => {
       countdownInterval = setInterval(() => {
           const remainingTime = config.lockUntil - Date.now();
           if (remainingTime <= 0) {
-              checkLockStatus(); // Chama para desbloquear e resetar
+              checkLockStatus(); 
               return;
           }
 
@@ -831,11 +835,13 @@ document.addEventListener('DOMContentLoaded', () => {
   function stopLockCountdown() {
       if (countdownInterval) {
           clearInterval(countdownInterval);
+          countdownInterval = null; // Limpa a referência
       }
   }
 
   function startSessionCounter() { 
-      stopSessionCounter(); 
+      // Não inicia se já estiver rodando ou não for REAL
+      if (sessionInterval || config.mode !== 'REAL') return; 
       
       sessionInterval = setInterval(() => {
           if (config.sessionStart === 0) {
@@ -863,8 +869,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function stopSessionCounter() { 
       if (sessionInterval) {
           clearInterval(sessionInterval);
+          sessionInterval = null; // Limpa a referência
       }
-      sessionTimerDiv.textContent = `Sessão: 40:00`; // Reset ou valor inicial
+      sessionTimerDiv.textContent = `Sessão: 40:00`; 
   }
   
   function triggerLock(reason) {
@@ -882,7 +889,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (config.mode !== 'REAL' || config.isLocked || bankrollState.initial === 0) return;
 
       const { current, initial, history } = bankrollState;
-      const totalProfit = parseFloat((current - initial).toFixed(2));
+      // USANDO safeMath para garantir precisão
+      const totalProfit = safeMath(current - initial); 
       
       // 1. Verificação de Saldo
       if (totalProfit <= -STOP_LOSS_AMOUNT) {
@@ -898,6 +906,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let consecutiveLoss = 0;
       let consecutiveWin = 0;
       
+      // Itera o histórico em ordem reversa
       for (let i = history.length - 1; i >= 0; i--) {
           const amount = history[i].amount;
           if (amount < 0) {
@@ -907,7 +916,7 @@ document.addEventListener('DOMContentLoaded', () => {
               consecutiveWin++;
               consecutiveLoss = 0; 
           } else {
-              continue; 
+              continue; // Ignora entradas de valor 0, se houver
           }
           
           if (consecutiveLoss >= STOP_LOSS_COUNT) {
@@ -929,9 +938,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedData = localStorage.getItem(BANKROLL_STORAGE_KEY);
         if (savedData) {
           bankrollState = JSON.parse(savedData);
-          bankrollState.initial = bankrollState.initial || 0;
-          bankrollState.current = bankrollState.current || 0;
+          bankrollState.initial = safeMath(bankrollState.initial || 0); // safeMath
+          bankrollState.current = safeMath(bankrollState.current || 0); // safeMath
           bankrollState.history = bankrollState.history || [];
+          // Garantir que os valores do histórico sejam numéricos
+          bankrollState.history = bankrollState.history.map(item => ({
+              amount: safeMath(item.amount),
+              timestamp: item.timestamp 
+          }));
         } else {
           bankrollState = { initial: 0, current: 0, history: [] };
         }
@@ -948,7 +962,10 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
         const savedHistory = localStorage.getItem(HISTORY_STORAGE_KEY);
         if (savedHistory) {
-          historyArr = JSON.parse(savedHistory).map(Number);
+          // Filtra e garante que apenas números válidos sejam carregados
+          historyArr = JSON.parse(savedHistory)
+            .map(n => parseInt(n, 10))
+            .filter(n => !isNaN(n) && n >= 0 && n <= 36);
         } else {
           historyArr = [];
         }
@@ -978,41 +995,47 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     
+    // Calcula hot/cold com base na média para evitar listas vazias
     const allCounts = allNumbers.map(n => stats.counts[n].count);
-    const maxCount = allCounts.length > 0 ? Math.max(...allCounts) : 0;
-    const minCount = allCounts.length > 0 ? Math.min(...allCounts) : 0;
-    
+    const avgCount = allCounts.length > 0 ? allCounts.reduce((a, b) => a + b, 0) / allCounts.length : 0;
+
     stats.hotList = allNumbers
-      .filter(n => stats.counts[n].count >= maxCount && maxCount > 0)
-      .sort((a, b) => a - b)
+      .filter(n => stats.counts[n].count > avgCount) 
+      .sort((a, b) => stats.counts[b].count - stats.counts[a].count) // Ordena por maior contagem
       .slice(0, 4);
     
     stats.coldList = allNumbers
-      .filter(n => stats.counts[n].count <= minCount) 
-      .sort((a, b) => a - b) 
+      .filter(n => stats.counts[n].count < avgCount)
+      .sort((a, b) => stats.counts[a].count - stats.counts[b].count) // Ordena por menor contagem
       .slice(0, 4);
 
     numberStats = stats;
   }
   
   function addNumber(num) {
+    if (num < 0 || num > 36 || isNaN(num)) {
+        console.error("Tentativa de adicionar número inválido:", num);
+        return;
+    }
     if (historyArr.length >= MAX_HISTORY) { historyArr.pop(); }
     historyArr.unshift(Number(num)); 
     saveHistoryData();
-    updateUI(); // Chama updateUI após adicionar, garantindo renderização
+    updateUI(); 
   }
   
   function addMultipleNumbers(numArray) {
-    const numbersToAdd = numArray
+    // Garante que apenas números válidos sejam adicionados (entre 0 e 36)
+    const validNumbers = numArray
       .map(n => parseInt(n, 10))
       .filter(n => !isNaN(n) && n >= 0 && n <= 36);
       
-    if (numbersToAdd.length === 0) {
-        alert('Nenhum número de 0 a 36 identificado.');
+    if (validNumbers.length === 0) {
+        alert('Nenhum número de 0 a 36 válido identificado.');
         return;
     }
     
-    historyArr = [...numbersToAdd, ...historyArr];
+    // Adiciona os novos números no início (mais recentes)
+    historyArr = [...validNumbers, ...historyArr];
     
     if (historyArr.length > MAX_HISTORY) {
       historyArr = historyArr.slice(0, MAX_HISTORY);
@@ -1036,10 +1059,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const zoneFollowers = {};
     let totalOccurrences = 0;
     
+    // A iteração deve ser de i=1 (predecessor) para i-1 (sucessor)
     for (let i = 1; i < historyArr.length && i <= LOOKBACK; i++) {
         const predecessorNum = historyArr[i];
         const successorNum = historyArr[i - 1];
         
+        // Verifica se o predecessor faz parte da Zona do último lançamento (triggerNum)
         if (triggerZone.includes(predecessorNum)) {
             zoneFollowers[successorNum] = (zoneFollowers[successorNum] || 0) + 1;
             totalOccurrences++;
@@ -1078,7 +1103,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   
   // =========================================================================================
-  // LOGICA PRINCIPAL DO BOOSTER I.A. (MANTIDA)
+  // LOGICA PRINCIPAL DO BOOSTER I.A.
   // =========================================================================================
 
   function renderBetSuggestion() {
@@ -1104,6 +1129,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const frequentSuccessors = {};
       const limit = Math.min(historyArr.length - 1, SUCCESSOR_LOOKBACK);
 
+      // Busca por ocorrências do GATILHO (triggerNum) nos *predecessores*
       for (let i = 1; i <= limit; i++) {
           const predecessor = historyArr[i];
           const successor = historyArr[i - 1]; 
@@ -1123,10 +1149,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       let intersectionCount = 0;
       
+      // Itera sobre os sucessores históricos do GATILHO (triggerNum)
       for (const historicSuccessor of triggerSuccessors) {
           const successorZone = getNeighbors(historicSuccessor, 2); 
           
           let hasIntersection = false;
+          // Verifica se a Zona do Sucessor Intercepta a Zona do GATILHO Atual (targetZone)
           for (const num of successorZone) {
               if (targetZone.has(num)) {
                   hasIntersection = true;
@@ -1219,15 +1247,16 @@ document.addEventListener('DOMContentLoaded', () => {
       dashboardElement.innerHTML = `<span class="stat-title" style="grid-column: 1 / -1;">Defina sua banca inicial para começar.</span>`;
       return;
     }
-    const totalProfit = parseFloat((current - initial).toFixed(2));
-    const totalProfitPercent = (initial > 0) ? ((totalProfit / initial) * 100).toFixed(1) : 0;
+    // USANDO safeMath
+    const totalProfit = safeMath(current - initial); 
+    const totalProfitPercent = (initial > 0) ? safeMath((totalProfit / initial) * 100).toFixed(1) : 0;
     const wins = history.filter(v => v.amount > 0).length;
     const losses = history.filter(v => v.amount < 0).length;
     const totalBets = history.length;
-    const winRate = (totalBets > 0) ? (wins / totalBets) * 100 : 0;
-    const avgProfitPerBet = (totalBets > 0) ? (totalProfit / totalBets) : 0;
-    const projection30Entries = (current + (avgProfitPerBet * 30));
-    const suggestedBet = parseFloat((current * 0.02).toFixed(2));
+    const winRate = (totalBets > 0) ? safeMath((wins / totalBets) * 100) : 0;
+    const avgProfitPerBet = (totalBets > 0) ? safeMath(totalProfit / totalBets) : 0;
+    const projection30Entries = safeMath(current + (avgProfitPerBet * 30));
+    const suggestedBet = safeMath(current * 0.02);
     const profitClass = totalProfit > 0 ? 'positive' : totalProfit < 0 ? 'negative' : '';
     const projectionClass = projection30Entries > current ? 'positive' : projection30Entries < current ? 'negative' : '';
 
@@ -1279,8 +1308,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const item = document.createElement('div');
       item.className = 'log-item';
       const text = document.createElement('span');
-      if (amount > 0) { text.textContent = `+ ${formatCurrency(amount)}`; item.classList.add('log-win'); } 
-      else { text.textContent = `${formatCurrency(amount)}`; item.classList.add('log-loss'); }
+      // USANDO safeMath para garantir que o valor exibido é preciso
+      if (amount > 0) { text.textContent = `+ ${formatCurrency(safeMath(amount))}`; item.classList.add('log-win'); } 
+      else { text.textContent = `${formatCurrency(safeMath(amount))}`; item.classList.add('log-loss'); }
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'log-delete-btn'; deleteBtn.textContent = 'X'; deleteBtn.title = 'Excluir este lançamento';
       deleteBtn.onclick = () => deleteBankrollEntry(originalIndex);
@@ -1294,12 +1324,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const entry = bankrollState.history[indexToDelete];
     const amount = entry.amount;
     const entryType = amount > 0 ? 'Lucro' : 'Red';
-    if (confirm(`Tem certeza que deseja excluir este lançamento de ${entryType} (${formatCurrency(Math.abs(amount))})?`)) {
+    
+    // USANDO safeMath para o valor exibido na confirmação
+    if (confirm(`Tem certeza que deseja excluir este lançamento de ${entryType} (${formatCurrency(Math.abs(safeMath(amount)))})?`)) {
       bankrollState.history.splice(indexToDelete, 1);
       
       let newCurrent = bankrollState.initial; 
-      for (const item of bankrollState.history) { newCurrent += item.amount; }
-      bankrollState.current = parseFloat(newCurrent.toFixed(2));
+      for (const item of bankrollState.history) { 
+          // USANDO safeMath
+          newCurrent = safeMath(newCurrent + item.amount); 
+      }
+      bankrollState.current = safeMath(newCurrent);
       
       saveBankrollData();
       checkStopCondition();
@@ -1327,6 +1362,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateUI() {
     // 1. Verificar Status de Bloqueio/Login
     if (getLoginStatus() && !checkLockStatus()) {
+        // Logado e Desbloqueado
         loginScreen.classList.add('hidden');
         mainPanel.classList.remove('hidden');
         bodyTag.classList.remove('login-active'); 
@@ -1352,25 +1388,23 @@ document.addEventListener('DOMContentLoaded', () => {
             
         } catch (e) {
             console.error("Erro durante a renderização da UI:", e);
-            // Mostrar erro na tela se algo falhar na renderização
-            zoneAnalysisDiv.innerHTML = `<span style="color:var(--alert-red); font-weight: bold;">ERRO DE RENDERIZAÇÃO: ${e.message}</span>`;
-            betSuggestionDiv.innerHTML = `<span style="color:var(--alert-red); font-weight: bold;">ERRO DE RENDERIZAÇÃO: ${e.message}</span>`;
         }
 
     } else if (getLoginStatus() && config.isLocked) {
+        // Logado, mas Bloqueado
         loginScreen.classList.add('hidden');
         mainPanel.classList.add('hidden');
         bodyTag.classList.remove('login-active');
     } else {
+        // Não logado
         loginScreen.classList.remove('hidden');
         mainPanel.classList.add('hidden');
         bodyTag.classList.add('login-active'); 
     }
   }
   
-  // ==================== LÓGICA OCR COM PRÉ-PROCESSAMENTO (MANTIDA DO SEU ENVIO) ====================
+  // ==================== LÓGICA OCR COM PRÉ-PROCESSAMENTO ====================
     
-  // Função de pré-processamento P&B
   function preprocessImage(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -1429,7 +1463,6 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('Iniciando pré-processamento P&B...');
       const processedImage = await preprocessImage(file);
 
-      // Usando Tesseract global (garantir que o CDN foi carregado)
       if (typeof Tesseract === 'undefined' || !Tesseract.recognize) {
           throw new Error("A biblioteca Tesseract (OCR) não foi carregada corretamente. Verifique o CDN.");
       }
@@ -1450,21 +1483,25 @@ document.addEventListener('DOMContentLoaded', () => {
       
       if (matches && matches.length > 0) {
         
-        const numbersFromOCR = matches.map(Number); 
+        // CORREÇÃO: Os números lidos do OCR são geralmente do mais antigo para o mais recente se lidos em linha.
+        // Se a imagem for um histórico, o primeiro número lido será o mais antigo.
+        // No entanto, para fins de histórico, os números são lidos em ordem de aparição na imagem.
+        // O código original REVERTE o array, o que é comum para logs de roleta (mais recente no topo).
+        const numbersFromOCR = matches.map(Number).reverse(); 
         
-        addMultipleNumbers(numbersFromOCR.reverse()); 
+        addMultipleNumbers(numbersFromOCR); 
         
-        alert(`OCR identificou e adicionou ${numbersFromOCR.length} números ao histórico.`);
+        alert(`OCR identificou e adicionou ${numbersFromOCR.length} números ao histórico. (Revertido para 'mais recente' no topo)`);
         
       } else {
         alert('Nenhum número de 0 a 36 foi identificado na imagem.');
       }
     } catch (err) {
       console.error(err);
-      alert('ERRO no OCR: ' + err.message);
+      alert('ERRO no OCR: ' + (err.message || 'Falha desconhecida.'));
     } finally {
       btnUpload.textContent = originalBtnText;
-      btnUpload.disabled = (config.mode !== 'REAL'); // Volta ao estado normal
+      btnUpload.disabled = (config.mode !== 'REAL'); 
     }
   });
   // ==================== FIM LÓGICA OCR ====================
@@ -1482,14 +1519,15 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const rawAmount = parseFloat(amount);
     if (isNaN(rawAmount) || rawAmount <= 0) {
-        alert('Por favor, insira um valor válido.');
+        alert('Por favor, insira um valor válido e positivo.');
         return;
     }
     
-    // Usando toFixed(2) para garantir precisão monetária
-    const finalAmount = parseFloat(rawAmount.toFixed(2));
+    // USANDO safeMath para garantir a precisão antes do cálculo
+    const finalAmount = safeMath(rawAmount); 
     
-    bankrollState.current = parseFloat((bankrollState.current + (isWin ? finalAmount : -finalAmount)).toFixed(2));
+    // USANDO safeMath para garantir a precisão no cálculo do saldo atual
+    bankrollState.current = safeMath(bankrollState.current + (isWin ? finalAmount : -finalAmount));
     bankrollState.history.push({ amount: isWin ? finalAmount : -finalAmount, timestamp: Date.now() });
     
     saveBankrollData();
@@ -1500,11 +1538,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 1. Popular Grid (FUNÇÃO DE INICIALIZAÇÃO)
   function setupNumberGrid() {
+      gridNumbers.innerHTML = ''; // Garante que não duplique
       for (let i = 0; i <= 36; i++) {
         const btn = document.createElement('button');
         btn.textContent = i;
         btn.className = 'number-btn ' + getColor(i);
-        // Garante que a função addNumber seja corretamente vinculada
         btn.onclick = () => addNumber(i); 
         gridNumbers.appendChild(btn);
       }
@@ -1542,9 +1580,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     const initialRaw = parseFloat(initialBankrollInput.value);
-    const initial = parseFloat(initialRaw.toFixed(2)); 
+    // USANDO safeMath para garantir a precisão do valor inicial
+    const initial = safeMath(initialRaw); 
 
-    if (isNaN(initial) || initial <= 0) {
+    if (isNaN(initial) || initial < 0) { // Permitir 0, mas avisar se for 0.
       alert('Por favor, insira um valor de banca inicial válido.');
       return;
     }
@@ -1555,12 +1594,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     bankrollState.initial = initial;
-    bankrollState.current = initial;
+    bankrollState.current = initial; // CORREÇÃO: Define o current como o initial
     bankrollState.history = [];
     
     saveBankrollData();
     checkStopCondition();
-    updateUI(); // Chama updateUI após definir, garantindo renderização
+    updateUI(); 
     alert(`Banca inicial definida em ${formatCurrency(initial)}`);
   };
 
@@ -1568,7 +1607,7 @@ document.addEventListener('DOMContentLoaded', () => {
   btnRegisterLoss.onclick = () => registerTransaction(betAmountInput.value, false);
 
   clearBtn.onclick = () => {
-    if (confirm('Tem certeza que deseja limpar TODO o histórico de lançamentos da roleta?')) {
+    if (confirm('Tem certeza que deseja limpar TODO o histórico de lançamentos da roleta? (Isso não afeta a Banca)')) {
       historyArr = [];
       saveHistoryData();
       updateUI();
@@ -1576,7 +1615,6 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   
   // 3. Inicializar
-  // --- Sequência de Inicialização Otimizada ---
   function initialize() {
       setInterval(updateClock, 1000);
       updateClock();
@@ -1584,14 +1622,13 @@ document.addEventListener('DOMContentLoaded', () => {
       loadConfig();
       loadBankrollData();
       loadHistoryData(); 
-      setupNumberGrid(); // Popula o grid de números
+      setupNumberGrid(); 
       
-      checkLockStatus(); // Inicia a verificação de login/lock
-      updateUI(); // Renderização inicial
+      checkLockStatus(); 
+      updateUI(); 
   }
 
   initialize();
-  // ---------------------------------------------
 });
 </script>
 
