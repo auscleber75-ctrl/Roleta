@@ -632,7 +632,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const bodyTag = document.getElementById('bodyTag');
   const loginScreen = document.getElementById('loginScreen');
   const mainPanel = document.getElementById('mainPanel');
-  const modeDisplay = document.getElementById('modeDisplay');
+  // const modeDisplay = document.getElementById('modeDisplay'); // Removido do HTML
   const lockScreen = document.getElementById('lockScreen');
   const lockTitle = document.getElementById('lockTitle');
   const countdownTimer = document.getElementById('countdownTimer');
@@ -705,17 +705,20 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
   }
   function loadConfig() {
-    const savedConfig = localStorage.getItem(CONFIG_STORAGE_KEY);
-    if (savedConfig) {
-      const loaded = JSON.parse(savedConfig);
-      config.mode = loaded.mode || 'DEMO';
-      config.isLoggedIn = loaded.isLoggedIn || false; 
-      config.isLocked = loaded.isLocked || false;
-      config.lockUntil = loaded.lockUntil || 0;
-      config.lockReason = loaded.lockReason || '';
-      config.sessionStart = loaded.sessionStart || 0; 
+    try {
+        const savedConfig = localStorage.getItem(CONFIG_STORAGE_KEY);
+        if (savedConfig) {
+          const loaded = JSON.parse(savedConfig);
+          config.mode = loaded.mode || 'DEMO';
+          config.isLoggedIn = loaded.isLoggedIn || false; 
+          config.isLocked = loaded.isLocked || false;
+          config.lockUntil = loaded.lockUntil || 0;
+          config.lockReason = loaded.lockReason || '';
+          config.sessionStart = loaded.sessionStart || 0; 
+        }
+    } catch (e) {
+        console.error("Erro ao carregar configuração:", e);
     }
-    modeDisplay.textContent = config.mode;
   }
   
   function setLoginStatus(isLoggedIn, mode = 'DEMO') {
@@ -778,7 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       // 3. Verifica o Status da Sessão de 40 Minutos 
-      if (config.isLoggedIn && !config.isLocked) {
+      if (config.isLoggedIn && !config.isLocked && config.mode === 'REAL') { // Verifica apenas em modo REAL
           if (config.sessionStart === 0) {
               config.sessionStart = Date.now();
               saveConfig();
@@ -794,7 +797,7 @@ document.addEventListener('DOMContentLoaded', () => {
           mainPanel.classList.remove('hidden');
           loginScreen.classList.add('hidden');
           bodyTag.classList.remove('login-active');
-          startSessionCounter();
+          if (config.mode === 'REAL') startSessionCounter(); // Só conta sessão no REAL
       } else {
           // Não logado
           loginScreen.classList.remove('hidden');
@@ -836,7 +839,6 @@ document.addEventListener('DOMContentLoaded', () => {
       
       sessionInterval = setInterval(() => {
           if (config.sessionStart === 0) {
-              // Isso não deve acontecer se o checkLockStatus funcionar, mas é uma garantia
               config.sessionStart = Date.now();
               saveConfig();
           }
@@ -862,7 +864,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (sessionInterval) {
           clearInterval(sessionInterval);
       }
-      sessionTimerDiv.textContent = `Sessão: --:--`;
+      sessionTimerDiv.textContent = `Sessão: 40:00`; // Reset ou valor inicial
   }
   
   function triggerLock(reason) {
@@ -923,27 +925,35 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem(BANKROLL_STORAGE_KEY, JSON.stringify(bankrollState));
   }
   function loadBankrollData() {
-    const savedData = localStorage.getItem(BANKROLL_STORAGE_KEY);
-    if (savedData) {
-      bankrollState = JSON.parse(savedData);
-      bankrollState.initial = bankrollState.initial || 0;
-      bankrollState.current = bankrollState.current || 0;
-      bankrollState.history = bankrollState.history || [];
-    } else {
-      bankrollState = { initial: 0, current: 0, history: [] };
+    try {
+        const savedData = localStorage.getItem(BANKROLL_STORAGE_KEY);
+        if (savedData) {
+          bankrollState = JSON.parse(savedData);
+          bankrollState.initial = bankrollState.initial || 0;
+          bankrollState.current = bankrollState.current || 0;
+          bankrollState.history = bankrollState.history || [];
+        } else {
+          bankrollState = { initial: 0, current: 0, history: [] };
+        }
+        initialBankrollInput.value = bankrollState.initial > 0 ? bankrollState.initial : '';
+    } catch (e) {
+        console.error("Erro ao carregar dados da Banca:", e);
     }
-    initialBankrollInput.value = bankrollState.initial > 0 ? bankrollState.initial : '';
   }
 
   function saveHistoryData() {
     localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyArr));
   }
   function loadHistoryData() {
-    const savedHistory = localStorage.getItem(HISTORY_STORAGE_KEY);
-    if (savedHistory) {
-      historyArr = JSON.parse(savedHistory).map(Number);
-    } else {
-      historyArr = [];
+    try {
+        const savedHistory = localStorage.getItem(HISTORY_STORAGE_KEY);
+        if (savedHistory) {
+          historyArr = JSON.parse(savedHistory).map(Number);
+        } else {
+          historyArr = [];
+        }
+    } catch (e) {
+        console.error("Erro ao carregar Histórico:", e);
     }
   }
 
@@ -989,7 +999,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (historyArr.length >= MAX_HISTORY) { historyArr.pop(); }
     historyArr.unshift(Number(num)); 
     saveHistoryData();
-    updateUI();
+    updateUI(); // Chama updateUI após adicionar, garantindo renderização
   }
   
   function addMultipleNumbers(numArray) {
@@ -1002,11 +1012,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     
-    // Concatena os novos números na frente do histórico
     historyArr = [...numbersToAdd, ...historyArr];
     
     if (historyArr.length > MAX_HISTORY) {
-      // GARANTIA: Limita o histórico aos 100 números mais recentes
       historyArr = historyArr.slice(0, MAX_HISTORY);
     }
     
@@ -1016,33 +1024,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ==================== LÓGICA DE ANÁLISE DE SUCESSÃO DE ZONAS (ZONA 5) ====================
   function renderZoneAnalysis() {
-    // Mínimo de 2 para ter um número e um sucessor
     if (historyArr.length < 2) { 
       zoneAnalysisDiv.innerHTML = '<span style="color:var(--muted)">Adicione pelo menos 2 números ao histórico para análise de Sucessão de Zonas.</span>';
       return;
     }
     
     const LOOKBACK = 100;
-    // O gatilho primário é o último número lançado
     const triggerNum = historyArr[0]; 
-    
-    // Define a ZONA GATILHO: Número X + 2 vizinhos para cada lado (Zona de 5 números)
-    // Usando a função getNeighbors com range 2
     const triggerZone = getNeighbors(triggerNum, 2); 
     
-    // Mapa para armazenar a contagem de sucessores
     const zoneFollowers = {};
     let totalOccurrences = 0;
     
-    // Itera pelo histórico (pares predecessor/sucessor)
-    // historyArr[i] é o predecessor, historyArr[i-1] é o sucessor
     for (let i = 1; i < historyArr.length && i <= LOOKBACK; i++) {
         const predecessorNum = historyArr[i];
         const successorNum = historyArr[i - 1];
         
-        // Verifica se o predecessor pertence à Zona Gatilho
         if (triggerZone.includes(predecessorNum)) {
-            // Se sim, registra o sucessor
             zoneFollowers[successorNum] = (zoneFollowers[successorNum] || 0) + 1;
             totalOccurrences++;
         }
@@ -1053,17 +1051,14 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     
-    // 1. Ordena os sucessores pela repetição (mais frequente primeiro)
     const sortedFollowers = Object.entries(zoneFollowers).sort((a, b) => b[1] - a[1]);
     
-    // 2. Monta o HTML do relatório
     let html = `<div class="analysis-output">
                   <div class="pattern-line">Último lançamento (GATILHO): <span class="pattern-trigger">${triggerNum}</span></div>
                   <div class="pattern-line pattern-count">**ZONA DE ANÁLISE (5 Números):** <span style="font-weight: bold; color: var(--accent);">${triggerZone.join(', ')}</span></div>
                   <div class="data-separator" style="margin: 8px 0;"></div>
                   <div style="font-size: 14px; margin-bottom: 10px; font-weight: bold; color: var(--accent);">**RELATÓRIO DE SUCESSORES** (${totalOccurrences} Ocorrências após esta Zona):</div>`;
     
-    // 3. Adiciona cada sucessor ao relatório
     sortedFollowers.forEach(([numStr, count]) => {
       const num = Number(numStr);
       const probability = (count / totalOccurrences * 100).toFixed(1);
@@ -1086,12 +1081,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // LOGICA PRINCIPAL DO BOOSTER I.A. (MANTIDA)
   // =========================================================================================
 
-  /**
-   * Calcula e renderiza a sugestão de aposta baseada no Padrão de Intersecção de Zonas.
-   */
   function renderBetSuggestion() {
       
-      // --- Guardrails e Verificações Iniciais ---
       if (historyArr.length < SUCCESSOR_LOOKBACK) {
           betSuggestionDiv.innerHTML = `<span style="color:var(--muted)">Booster requer histórico mínimo de ${SUCCESSOR_LOOKBACK} lançamentos para análise.</span>`;
           return;
@@ -1104,28 +1095,21 @@ document.addEventListener('DOMContentLoaded', () => {
           betSuggestionDiv.innerHTML = `<span style="color:var(--alert-red); font-weight: bold;">ANÁLISE BLOQUEADA. Retorne após o período de resfriamento.</span>`;
           return;
       }
-      // --- Fim dos Guardrails ---
 
-      const triggerNum = historyArr[0]; // Último número lançado (Gatilho)
-      
-      // 1. Definir a Zona de Aposta Alvo (Zona 5 do Gatilho)
+      const triggerNum = historyArr[0];
       const targetZoneArr = getNeighbors(triggerNum, 2); 
       const targetZone = new Set(targetZoneArr); 
 
-      // 2. Mapear os Sucessores do Gatilho
       const triggerSuccessors = []; 
-      const frequentSuccessors = {}; // Para contar a frequência
-
+      const frequentSuccessors = {};
       const limit = Math.min(historyArr.length - 1, SUCCESSOR_LOOKBACK);
 
-      // Itera no histórico para encontrar pares (Predecessor: Gatilho, Sucessor: o que veio depois)
       for (let i = 1; i <= limit; i++) {
           const predecessor = historyArr[i];
           const successor = historyArr[i - 1]; 
           
           if (predecessor === triggerNum) {
               triggerSuccessors.push(successor);
-              // Contagem de frequência de sucessores
               frequentSuccessors[successor] = (frequentSuccessors[successor] || 0) + 1;
           }
       }
@@ -1137,14 +1121,11 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
       }
 
-      // 3. Contar as Intersecções
       let intersectionCount = 0;
       
       for (const historicSuccessor of triggerSuccessors) {
-          // Obter a Zona 5 do Sucessor Histórico
           const successorZone = getNeighbors(historicSuccessor, 2); 
           
-          // Verificar se HÁ INTERSECÇÃO entre a Zona do Sucessor e a Zona Alvo (do Gatilho)
           let hasIntersection = false;
           for (const num of successorZone) {
               if (targetZone.has(num)) {
@@ -1158,12 +1139,8 @@ document.addEventListener('DOMContentLoaded', () => {
           }
       }
       
-      // 4. Calcular a Taxa de Intersecção
       const intersectionRate = (intersectionCount / totalTriggerCount) * 100;
       
-      // 5. Determinar a Sugestão
-      
-      // Encontrar os 3 Sucessores mais Frequentes para a sugestão de aposta
       const sortedSuccessors = Object.entries(frequentSuccessors)
           .sort(([, a], [, b]) => b - a)
           .slice(0, 3)
@@ -1180,9 +1157,6 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       
       if (intersectionRate >= SUGGESTION_THRESHOLD) {
-          // SUGESTÃO ATIVA
-          
-          // Define as zonas de aposta (Zonas 5 dos 3 sucessores mais frequentes)
           const betZones = sortedSuccessors.map(num => `Zona ${num}: ${getNeighbors(num, 2).join(', ')}`);
           
           suggestionHTML += `
@@ -1200,7 +1174,6 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
           `;
       } else {
-          // SUGESTÃO BLOQUEADA
           suggestionHTML += `
               <div style="margin-top: 12px; margin-bottom: 12px;">
                   <span style="color: var(--alert-red); font-weight: 800; font-size: 18px;">🛑 APOSTA BOOSTER BLOQUEADA!</span>
@@ -1211,7 +1184,6 @@ document.addEventListener('DOMContentLoaded', () => {
           `;
       }
 
-      // Renderiza o resultado no elemento 'betSuggestion' do HTML principal
       document.getElementById('betSuggestion').innerHTML = suggestionHTML; 
   }
   
@@ -1230,7 +1202,6 @@ document.addEventListener('DOMContentLoaded', () => {
       historyDiv.appendChild(chip); 
     });
     historyCount.textContent = `${historyArr.length}/${MAX_HISTORY}`;
-    // Rola para a esquerda para mostrar os mais recentes
     historyDiv.scrollLeft = 0; 
   }
 
@@ -1354,34 +1325,43 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   function updateUI() {
+    // 1. Verificar Status de Bloqueio/Login
     if (getLoginStatus() && !checkLockStatus()) {
         loginScreen.classList.add('hidden');
         mainPanel.classList.remove('hidden');
         bodyTag.classList.remove('login-active'); 
-        modeDisplay.textContent = config.mode;
         
-        calculateStats();
-        renderHistory();
-        renderZoneAnalysis();
-        renderHotCold();
-        renderBankrollDashboard();
-        renderBankrollHistory();
-        renderBetSuggestion(); // Chamando a nova função do Booster I.A.
-        
-        // Bloqueia inputs/botões se estiver no modo DEMO para reforçar
-        const isDemo = config.mode === 'DEMO';
-        btnRegisterWin.disabled = isDemo;
-        btnRegisterLoss.disabled = isDemo;
-        document.getElementById('btnSetBankroll').disabled = isDemo;
-        initialBankrollInput.disabled = isDemo;
-        betAmountInput.disabled = isDemo;
-        
+        // 2. Renderizar todas as partes da UI
+        try {
+            calculateStats();
+            renderHistory();
+            renderZoneAnalysis();
+            renderHotCold();
+            renderBankrollDashboard();
+            renderBankrollHistory();
+            renderBetSuggestion(); 
+            
+            // Bloqueia inputs/botões se estiver no modo DEMO para reforçar
+            const isDemo = config.mode === 'DEMO';
+            btnRegisterWin.disabled = isDemo;
+            btnRegisterLoss.disabled = isDemo;
+            document.getElementById('btnSetBankroll').disabled = isDemo;
+            initialBankrollInput.disabled = isDemo;
+            betAmountInput.disabled = isDemo;
+            btnUpload.disabled = isDemo;
+            
+        } catch (e) {
+            console.error("Erro durante a renderização da UI:", e);
+            // Mostrar erro na tela se algo falhar na renderização
+            zoneAnalysisDiv.innerHTML = `<span style="color:var(--alert-red); font-weight: bold;">ERRO DE RENDERIZAÇÃO: ${e.message}</span>`;
+            betSuggestionDiv.innerHTML = `<span style="color:var(--alert-red); font-weight: bold;">ERRO DE RENDERIZAÇÃO: ${e.message}</span>`;
+        }
+
     } else if (getLoginStatus() && config.isLocked) {
         loginScreen.classList.add('hidden');
         mainPanel.classList.add('hidden');
         bodyTag.classList.remove('login-active');
     } else {
-        // Não logado: Garante que o loginScreen está visível e impede rolagem
         loginScreen.classList.remove('hidden');
         mainPanel.classList.add('hidden');
         bodyTag.classList.add('login-active'); 
@@ -1428,6 +1408,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
   // Lógica para acionar a foto
   btnUpload.onclick = () => {
+    if (config.mode !== 'REAL' || config.isLocked) {
+        alert("O OCR de fotos só é permitido no Modo REAL e desbloqueado.");
+        return;
+    }
     uploadPhotoInput.value = null; 
     uploadPhotoInput.click();
   };
@@ -1445,6 +1429,11 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('Iniciando pré-processamento P&B...');
       const processedImage = await preprocessImage(file);
 
+      // Usando Tesseract global (garantir que o CDN foi carregado)
+      if (typeof Tesseract === 'undefined' || !Tesseract.recognize) {
+          throw new Error("A biblioteca Tesseract (OCR) não foi carregada corretamente. Verifique o CDN.");
+      }
+
       const { data: { text } } = await Tesseract.recognize(
         processedImage,
         'eng', 
@@ -1457,16 +1446,12 @@ document.addEventListener('DOMContentLoaded', () => {
       
       console.log('OCR Text Original:', text);
       
-      // Mantém apenas números válidos de 0 a 36
       const matches = text.match(/\b(0|[1-9]|[12][0-9]|3[0-6])\b/g);
       
       if (matches && matches.length > 0) {
         
         const numbersFromOCR = matches.map(Number); 
         
-        // CORREÇÃO: Usando numbersFromOCR.reverse() para garantir que o mais recente 
-        // lido pelo OCR (que pode ser o último da string lida) entre como o primeiro 
-        // na lista (historyArr[0])
         addMultipleNumbers(numbersFromOCR.reverse()); 
         
         alert(`OCR identificou e adicionou ${numbersFromOCR.length} números ao histórico.`);
@@ -1476,10 +1461,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (err) {
       console.error(err);
-      alert('Erro ao processar a imagem. Veja o console para detalhes.');
+      alert('ERRO no OCR: ' + err.message);
     } finally {
       btnUpload.textContent = originalBtnText;
-      btnUpload.disabled = false;
+      btnUpload.disabled = (config.mode !== 'REAL'); // Volta ao estado normal
     }
   });
   // ==================== FIM LÓGICA OCR ====================
@@ -1513,13 +1498,16 @@ document.addEventListener('DOMContentLoaded', () => {
     betAmountInput.value = '';
   }
 
-  // 1. Popular Grid
-  for (let i = 0; i <= 36; i++) {
-    const btn = document.createElement('button');
-    btn.textContent = i;
-    btn.className = 'number-btn ' + getColor(i);
-    btn.onclick = () => addNumber(i);
-    gridNumbers.appendChild(btn);
+  // 1. Popular Grid (FUNÇÃO DE INICIALIZAÇÃO)
+  function setupNumberGrid() {
+      for (let i = 0; i <= 36; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.className = 'number-btn ' + getColor(i);
+        // Garante que a função addNumber seja corretamente vinculada
+        btn.onclick = () => addNumber(i); 
+        gridNumbers.appendChild(btn);
+      }
   }
 
   // 2. Event Listeners
@@ -1548,6 +1536,11 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   
   document.getElementById('btnSetBankroll').onclick = () => {
+    if (config.mode === 'DEMO') {
+        alert('Definir Banca é restrito ao Modo REAL.');
+        return;
+    }
+    
     const initialRaw = parseFloat(initialBankrollInput.value);
     const initial = parseFloat(initialRaw.toFixed(2)); 
 
@@ -1567,7 +1560,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     saveBankrollData();
     checkStopCondition();
-    updateUI();
+    updateUI(); // Chama updateUI após definir, garantindo renderização
     alert(`Banca inicial definida em ${formatCurrency(initial)}`);
   };
 
@@ -1583,27 +1576,23 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   
   // 3. Inicializar
-  setInterval(updateClock, 1000);
-  updateClock();
-  
-  loadConfig();
-  loadBankrollData();
-  loadHistoryData(); 
-  
-  checkLockStatus(); 
-});
-</script>
+  // --- Sequência de Inicialização Otimizada ---
+  function initialize() {
+      setInterval(updateClock, 1000);
+      updateClock();
+      
+      loadConfig();
+      loadBankrollData();
+      loadHistoryData(); 
+      setupNumberGrid(); // Popula o grid de números
+      
+      checkLockStatus(); // Inicia a verificação de login/lock
+      updateUI(); // Renderização inicial
+  }
 
-<script>
-// Service Worker Registration
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    // Note: service-worker.js file is required for this block to run without errors in the console.
-    navigator.serviceWorker.register('service-worker.js')
-      .then(reg => console.log('Service Worker registrado com sucesso:', reg))
-      .catch(err => console.log('Falha ao registrar Service Worker:', err));
-  });
-}
+  initialize();
+  // ---------------------------------------------
+});
 </script>
 
 </body>
