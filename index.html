@@ -796,7 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // 4. Estado Desbloqueado e Logado
       lockScreen.classList.add('hidden');
-      if(getLoginStatus()) {
+      if (getLoginStatus()) {
           mainPanel.classList.remove('hidden');
           loginScreen.classList.add('hidden');
           bodyTag.classList.remove('login-active');
@@ -1023,6 +1023,9 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUI(); 
   }
   
+  /**
+   * CORREÇÃO DE ORDEM DO OCR: Adiciona números lidos em lote, garantindo que o mais recente vá para o topo.
+   */
   function addMultipleNumbers(numArray) {
     // Garante que apenas números válidos sejam adicionados (entre 0 e 36)
     const validNumbers = numArray
@@ -1034,8 +1037,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     
-    // Adiciona os novos números no início (mais recentes)
-    historyArr = [...validNumbers, ...historyArr];
+    // --- CORREÇÃO DE ORDEM DO HISTÓRICO OCR ---
+    // O Tesseract tipicamente lê o log da esquerda/topo (Antigo) para a direita/fundo (Recente).
+    // Para que o Recente fique no historyArr[0] (topo), precisamos INVERTER a ordem dos novos números.
+    const correctlyOrderedNumbers = validNumbers.reverse();
+    // ------------------------------------------
+    
+    // Adiciona os números (agora Recente -> Antigo) no início do histórico
+    historyArr = [...correctlyOrderedNumbers, ...historyArr];
     
     if (historyArr.length > MAX_HISTORY) {
       historyArr = historyArr.slice(0, MAX_HISTORY);
@@ -1483,15 +1492,12 @@ document.addEventListener('DOMContentLoaded', () => {
       
       if (matches && matches.length > 0) {
         
-        // CORREÇÃO: Os números lidos do OCR são geralmente do mais antigo para o mais recente se lidos em linha.
-        // Se a imagem for um histórico, o primeiro número lido será o mais antigo.
-        // No entanto, para fins de histórico, os números são lidos em ordem de aparição na imagem.
-        // O código original REVERTE o array, o que é comum para logs de roleta (mais recente no topo).
-        const numbersFromOCR = matches.map(Number).reverse(); 
+        // CORREÇÃO: Removida a inversão aqui, ela será aplicada em addMultipleNumbers
+        const numbersFromOCR = matches.map(Number); 
         
         addMultipleNumbers(numbersFromOCR); 
         
-        alert(`OCR identificou e adicionou ${numbersFromOCR.length} números ao histórico. (Revertido para 'mais recente' no topo)`);
+        alert(`OCR identificou e adicionou ${numbersFromOCR.length} números ao histórico. (Ordem: Recente → Antigo)`);
         
       } else {
         alert('Nenhum número de 0 a 36 foi identificado na imagem.');
