@@ -590,7 +590,7 @@ body.login-active {
 document.addEventListener('DOMContentLoaded', () => {
 
   /* ================== CONSTANTES DE CONFIGURAÇÃO ================== */
-  const getPasswordHash = () => '2025'; 
+  const getPasswordHash = () => '1571'; 
   const BANKROLL_STORAGE_KEY = 'roletaIAPBankroll_main';
   const HISTORY_STORAGE_KEY = 'roletaIAPHistory'; 
   const CONFIG_STORAGE_KEY = 'roletaIAPConfig'; 
@@ -753,14 +753,18 @@ document.addEventListener('DOMContentLoaded', () => {
           config.isLocked = false;
           config.lockUntil = 0;
           config.lockReason = '';
+          config.sessionStart = Date.now(); // Reinicia a sessão ao desbloquear
           saveConfig();
       }
       
-      // 3. Verifica o Status da Sessão de 40 Minutos (Correção Aplicada)
-      if (config.isLoggedIn) {
-          if (config.sessionStart === 0 || (now - config.sessionStart) >= SESSION_TIMEOUT) {
+      // 3. Verifica o Status da Sessão de 40 Minutos 
+      if (config.isLoggedIn && !config.isLocked) {
+          if (config.sessionStart === 0) {
               config.sessionStart = Date.now();
               saveConfig();
+          } else if ((now - config.sessionStart) >= SESSION_TIMEOUT) {
+              triggerLock('TIMEOUT');
+              return true;
           }
       }
       
@@ -812,6 +816,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       sessionInterval = setInterval(() => {
           if (config.sessionStart === 0) {
+              // Isso não deve acontecer se o checkLockStatus funcionar, mas é uma garantia
               config.sessionStart = Date.now();
               saveConfig();
           }
@@ -867,7 +872,7 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
       }
       
-      // 2. Verificação de Sequência
+      // 2. Verificação de Sequência (apenas entradas Win/Loss)
       let consecutiveLoss = 0;
       let consecutiveWin = 0;
       
@@ -967,7 +972,29 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUI();
   }
   
-  // ==================== NOVA LÓGICA DE ANÁLISE DE SUCESSÃO DE ZONAS (ZONA 5) ====================
+  function addMultipleNumbers(numArray) {
+    const numbersToAdd = numArray
+      .map(n => parseInt(n, 10))
+      .filter(n => !isNaN(n) && n >= 0 && n <= 36);
+      
+    if (numbersToAdd.length === 0) {
+        alert('Nenhum número de 0 a 36 identificado.');
+        return;
+    }
+    
+    // Concatena os novos números na frente do histórico
+    historyArr = [...numbersToAdd, ...historyArr];
+    
+    if (historyArr.length > MAX_HISTORY) {
+      // GARANTIA: Limita o histórico aos 100 números mais recentes
+      historyArr = historyArr.slice(0, MAX_HISTORY);
+    }
+    
+    saveHistoryData();
+    updateUI();
+  }
+
+  // ==================== LÓGICA DE ANÁLISE DE SUCESSÃO DE ZONAS (ZONA 5) ====================
   function renderZoneAnalysis() {
     // Mínimo de 2 para ter um número e um sucessor
     if (historyArr.length < 2) { 
@@ -1224,9 +1251,9 @@ document.addEventListener('DOMContentLoaded', () => {
       deleteBtn.className = 'log-delete-btn'; deleteBtn.textContent = 'X'; deleteBtn.title = 'Excluir este lançamento';
       deleteBtn.onclick = () => deleteBankrollEntry(originalIndex);
       item.appendChild(text); item.appendChild(deleteBtn);
-      historyDiv.appendChild(item);
+      bankrollHistoryDiv.appendChild(item);
     });
-    historyDiv.scrollTop = 0;
+    bankrollHistoryDiv.scrollTop = 0;
   }
   
   function deleteBankrollEntry(indexToDelete) {
@@ -1235,9 +1262,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const entryType = amount > 0 ? 'Lucro' : 'Red';
     if (confirm(`Tem certeza que deseja excluir este lançamento de ${entryType} (${formatCurrency(Math.abs(amount))})?`)) {
       bankrollState.history.splice(indexToDelete, 1);
-      let newCurrent = bankrollState.initial * 100; 
-      for (const item of bankrollState.history) { newCurrent += item.amount * 100; }
-      bankrollState.current = newCurrent / 100; 
+      
+      let newCurrent = bankrollState.initial; 
+      for (const item of bankrollState.history) { newCurrent += item.amount; }
+      bankrollState.current = parseFloat(newCurrent.toFixed(2));
+      
       saveBankrollData();
       checkStopCondition();
       updateUI();
@@ -1282,7 +1311,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btnRegisterLoss.disabled = isDemo;
         document.getElementById('btnSetBankroll').disabled = isDemo;
         initialBankrollInput.disabled = isDemo;
-
+        betAmountInput.disabled = isDemo;
+        
     } else if (getLoginStatus() && config.isLocked) {
         loginScreen.classList.add('hidden');
         mainPanel.classList.add('hidden');
@@ -1294,47 +1324,109 @@ document.addEventListener('DOMContentLoaded', () => {
         bodyTag.classList.add('login-active'); 
     }
   }
-
-  btnUpload.onclick = () => uploadPhotoInput.click();
-  uploadPhotoInput.onchange = (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const loadingMessage = document.createElement('p');
-      loadingMessage.textContent = "OCR em andamento... aguarde.";
-      loadingMessage.style.color = 'var(--zero)';
-      loadingMessage.style.textAlign = 'center';
-      loadingMessage.id = 'ocr-loading-msg'; 
-      gridNumbers.insertAdjacentElement('afterend', loadingMessage); 
-      btnUpload.disabled = true;
-
-      Tesseract.recognize(
-          file,
-          'eng',
-          { logger: m => console.log(m) } 
-      ).then(({ data: { text } }) => {
-          document.getElementById('ocr-loading-msg')?.remove(); 
-          btnUpload.disabled = false;
+  
+  // ==================== LÓGICA OCR COM PRÉ-PROCESSAMENTO (MANTIDA DO SEU ENVIO) ====================
+    
+  // Função de pré-processamento P&B
+  function preprocessImage(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const image = new Image();
+        image.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = image.width;
+          canvas.height = image.height;
+          const ctx = canvas.getContext('2d');
           
-          const numbers = text.match(/\b(0|[1-9]|1[0-9]|2[0-9]|3[0-6])\b/g);
-          
-          if (numbers && numbers.length > 0) {
-              const uniqueNumbers = [...new Set(numbers.map(Number))];
-              if (confirm(`OCR encontrou os números: ${uniqueNumbers.join(', ')}. Adicionar todos ao histórico?`)) {
-                  uniqueNumbers.reverse().forEach(num => addNumber(num));
-              }
-          } else {
-              alert('OCR não conseguiu identificar números válidos (0-36) na imagem. Tente uma captura mais clara.');
+          ctx.drawImage(image, 0, 0);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+          const threshold = 128; 
+
+          for (let i = 0; i < data.length; i += 4) {
+            const luminance = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+            const value = luminance > threshold ? 255 : 0;
+            data[i] = value;
+            data[i + 1] = value;
+            data[i + 2] = value;
           }
-      }).catch(err => {
-          document.getElementById('ocr-loading-msg')?.remove();
-          btnUpload.disabled = false;
-          alert('Erro no processamento OCR. Verifique o console.');
-          console.error(err);
-      });
+          
+          ctx.putImageData(imageData, 0, 0);
+          resolve(canvas.toDataURL('image/jpeg', 0.9));
+        };
+        image.onerror = (err) => reject(err);
+        image.src = event.target.result;
+      };
+      reader.onerror = (err) => reject(err);
+      reader.readAsDataURL(file);
+    });
+  }
+    
+  // Lógica para acionar a foto
+  btnUpload.onclick = () => {
+    uploadPhotoInput.value = null; 
+    uploadPhotoInput.click();
   };
+    
+  // Lógica principal do OCR
+  uploadPhotoInput.addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
 
+    const originalBtnText = btnUpload.textContent;
+    btnUpload.textContent = 'Processando...';
+    btnUpload.disabled = true;
+
+    try {
+      console.log('Iniciando pré-processamento P&B...');
+      const processedImage = await preprocessImage(file);
+
+      const { data: { text } } = await Tesseract.recognize(
+        processedImage,
+        'eng', 
+        {
+          logger: m => console.log(m.status === 'recognizing text' ? `OCR: ${(m.progress * 100).toFixed(0)}%` : m.status),
+          tessedit_pageseg_mode: '6', 
+          tessedit_char_whitelist: '0123456789 ' 
+        }
+      );
+      
+      console.log('OCR Text Original:', text);
+      
+      // Mantém apenas números válidos de 0 a 36
+      const matches = text.match(/\b(0|[1-9]|[12][0-9]|3[0-6])\b/g);
+      
+      if (matches && matches.length > 0) {
+        
+        const numbersFromOCR = matches.map(Number); 
+        
+        // CORREÇÃO: Usando numbersFromOCR.reverse() para garantir que o mais recente 
+        // lido pelo OCR (que pode ser o último da string lida) entre como o primeiro 
+        // na lista (historyArr[0])
+        addMultipleNumbers(numbersFromOCR.reverse()); 
+        
+        alert(`OCR identificou e adicionou ${numbersFromOCR.length} números ao histórico.`);
+        
+      } else {
+        alert('Nenhum número de 0 a 36 foi identificado na imagem.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao processar a imagem. Veja o console para detalhes.');
+    } finally {
+      btnUpload.textContent = originalBtnText;
+      btnUpload.disabled = false;
+    }
+  });
+  // ==================== FIM LÓGICA OCR ====================
+  
+  
   function registerTransaction(amount, isWin) {
+    if (config.mode === 'DEMO') {
+      alert('Você está no Modo DEMO. Alterne para o Modo REAL para registrar transações.');
+      return;
+    }
     if (bankrollState.initial === 0) {
         alert('Defina sua Banca Inicial na seção "Gestão de Banca e Risco" antes de registrar entradas.');
         return;
@@ -1346,12 +1438,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     
-    const amountInCents = Math.round(rawAmount * 100);
-    const finalAmount = amountInCents / 100;
+    // Usando toFixed(2) para garantir precisão monetária
+    const finalAmount = parseFloat(rawAmount.toFixed(2));
     
-    const currentCents = Math.round(bankrollState.current * 100);
-
-    bankrollState.current = (currentCents + (isWin ? amountInCents : -amountInCents)) / 100;
+    bankrollState.current = parseFloat((bankrollState.current + (isWin ? finalAmount : -finalAmount)).toFixed(2));
     bankrollState.history.push({ amount: isWin ? finalAmount : -finalAmount, timestamp: Date.now() });
     
     saveBankrollData();
@@ -1445,6 +1535,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Service Worker Registration
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
+    // Note: service-worker.js file is required for this block to run without errors in the console.
     navigator.serviceWorker.register('service-worker.js')
       .then(reg => console.log('Service Worker registrado com sucesso:', reg))
       .catch(err => console.log('Falha ao registrar Service Worker:', err));
