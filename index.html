@@ -1024,7 +1024,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   /**
-   * CORREÇÃO DE ORDEM DO OCR: Adiciona números lidos em lote, garantindo que o mais recente vá para o topo.
+   * Adiciona números lidos em lote, garantindo que o mais recente vá para o topo.
+   * FIX: Remoção do .reverse() para corrigir a ordem do OCR.
    */
   function addMultipleNumbers(numArray) {
     // Garante que apenas números válidos sejam adicionados (entre 0 e 36)
@@ -1037,13 +1038,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     
-    // --- CORREÇÃO APLICADA AQUI ---
-    // Removemos o .reverse() anterior, assumindo que o Tesseract já entrega 
-    // na ordem visual (Recente -> Antigo) para esta imagem específica.
+    // Assumimos que o Tesseract devolve na ordem visível (Recente -> Antigo),
+    // o que anula a necessidade de inversão.
     const correctlyOrderedNumbers = validNumbers; 
-    // -----------------------------
     
-    // Adiciona os números (agora Recente -> Antigo) no início do histórico
+    // Adiciona os números (Recente -> Antigo) no início do histórico
     historyArr = [...correctlyOrderedNumbers, ...historyArr];
     
     if (historyArr.length > MAX_HISTORY) {
@@ -1054,7 +1053,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUI();
   }
 
-  // ==================== LÓGICA DE ANÁLISE DE SUCESSÃO DE ZONAS (ZONA 5) ====================
+  // ==================== LÓGICA DE ANÁLISE DE SUCESSÃO DE ZONAS (ZONA 5) - FINAL ====================
   function renderZoneAnalysis() {
     if (historyArr.length < 2) { 
       zoneAnalysisDiv.innerHTML = '<span style="color:var(--muted)">Adicione pelo menos 2 números ao histórico para análise de Sucessão de Zonas.</span>';
@@ -1068,7 +1067,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const zoneFollowers = {};
     let totalOccurrences = 0;
     
-    // A iteração deve ser de i=1 (predecessor) para i-1 (sucessor)
+    // 1. Coleta os dados brutos de sucessores
     for (let i = 1; i < historyArr.length && i <= LOOKBACK; i++) {
         const predecessorNum = historyArr[i];
         const successorNum = historyArr[i - 1];
@@ -1085,23 +1084,77 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     
-    const sortedFollowers = Object.entries(zoneFollowers).sort((a, b) => b[1] - a[1]);
+    // 2. AGRUPAMENTO DE SUCESSORES VIZINHOS (Nova Lógica)
+    const processed = new Set();
+    const successorGroups = [];
+
+    // Itera na ordem física da roleta (WHEEL_ORDER)
+    for (const num of WHEEL_ORDER) {
+        if (zoneFollowers[num] && !processed.has(num)) {
+            let group = [num];
+            let groupCount = zoneFollowers[num];
+            processed.add(num);
+
+            let currentIdx = WHEEL_INDEX_MAP[num];
+            
+            // Loop para encontrar a cadeia contígua de sucessores
+            let isContiguous = true;
+            while (isContiguous) {
+                // Calcula o próximo índice com wrap-around (volta ao 0)
+                let nextIdx = (currentIdx + 1) % WHEEL_ORDER.length;
+                let nextNum = WHEEL_ORDER[nextIdx];
+                
+                // Se o próximo for um sucessor e não foi processado:
+                if (zoneFollowers[nextNum] && !processed.has(nextNum)) {
+                    group.push(nextNum);
+                    groupCount += zoneFollowers[nextNum];
+                    processed.add(nextNum);
+                    currentIdx = nextIdx;
+                } else {
+                    isContiguous = false; // Interrompe a sequência
+                }
+                
+                if (group.length === WHEEL_ORDER.length) break; // Segurança
+            }
+            
+            successorGroups.push({ numbers: group, count: groupCount });
+        }
+    }
+
+    // 3. Ordena os grupos pela contagem total (descendente)
+    successorGroups.sort((a, b) => b.count - a.count);
     
+    // 4. Renderiza o HTML com os grupos
     let html = `<div class="analysis-output">
                   <div class="pattern-line">Último lançamento (GATILHO): <span class="pattern-trigger">${triggerNum}</span></div>
                   <div class="pattern-line pattern-count">**ZONA DE ANÁLISE (5 Números):** <span style="font-weight: bold; color: var(--accent);">${triggerZone.join(', ')}</span></div>
                   <div class="data-separator" style="margin: 8px 0;"></div>
-                  <div style="font-size: 14px; margin-bottom: 10px; font-weight: bold; color: var(--accent);">**RELATÓRIO DE SUCESSORES** (${totalOccurrences} Ocorrências após esta Zona):</div>`;
+                  <div style="font-size: 14px; margin-bottom: 10px; font-weight: bold; color: var(--accent);">**RELATÓRIO DE SUCESSORES AGRUPADOS** (${totalOccurrences} Ocorrências após esta Zona):</div>`;
     
-    sortedFollowers.forEach(([numStr, count]) => {
-      const num = Number(numStr);
+    successorGroups.forEach(groupInfo => {
+      const group = groupInfo.numbers;
+      const count = groupInfo.count;
       const probability = (count / totalOccurrences * 100).toFixed(1);
+      
+      let groupDisplay;
+      
+      if (group.length === 1) {
+          // Exibe número único (Formato de linha individual)
+          const num = group[0];
+          groupDisplay = `**${num}** (<span class="pattern-succession">${getColor(num).toUpperCase()}</span>)`;
+      } else {
+          // Exibe o grupo como um intervalo (Formato de Vizinhos → Vizinhos)
+          const first = group[0];
+          const last = group[group.length - 1];
+          groupDisplay = `**${first} → ${last}** (${group.length} vizinhos)`;
+      }
+      
       html += `<div class="pattern-line">
                   <span style="font-size: 16px;">
-                      → **${num}** (<span class="pattern-succession">${getColor(num).toUpperCase()}</span>) 
+                      → ${groupDisplay}
                   </span>
                   <span class="pattern-count">
-                      — Repetições: **${count}x** (Prob: ${probability}%)
+                      — Repetições Totais: **${count}x** (Prob: ${probability}%)
                   </span>
               </div>`;
     });
@@ -1109,6 +1162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     html += `</div>`;
     zoneAnalysisDiv.innerHTML = html;
   }
+  // ==================== FIM LÓGICA DE ANÁLISE DE SUCESSÃO DE ZONAS ====================
   
   
   // =========================================================================================
