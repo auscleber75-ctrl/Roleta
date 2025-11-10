@@ -451,6 +451,12 @@ body.login-active {
   <h2 id="lockTitle">ZONA SEGURA ATINGIDA (STOP LOSS)</h2>
   <p>Análise bloqueada. Retorne após o período de resfriamento:</p>
   <div class="countdown" id="countdownTimer">02:00:00</div>
+  
+  <button id="btnSkipLock" class="control-btn" 
+          style="margin-top: 30px; background: #6c757d; font-size: 16px;">
+      <span class="material-symbols-outlined">lock_open</span>
+      PULAR BLOQUEIO (QUEBRAR REGRA)
+  </button>
 </div>
 
 
@@ -633,6 +639,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const lockScreen = document.getElementById('lockScreen');
   const lockTitle = document.getElementById('lockTitle');
   const countdownTimer = document.getElementById('countdownTimer');
+  const btnSkipLock = document.getElementById('btnSkipLock'); // <--- NOVO
   const sessionTimerDiv = document.getElementById('sessionTimer'); 
   const boosterCard = document.getElementById('boosterCard');
   
@@ -755,6 +762,7 @@ document.addEventListener('DOMContentLoaded', () => {
           let titleText = '';
           if (config.lockReason === 'STOP_LOSS') { titleText = 'ZONA SEGURA ATINGIDA (STOP LOSS)'; }
           else if (config.lockReason === 'STOP_WIN') { titleText = 'ZONA SEGURA ATINGIDA (STOP WIN)'; }
+          else if (config.lockReason === 'SKIPPED') { titleText = 'BLOQUEIO INTERROMPIDO'; } // Pouco provável de aparecer aqui
 
           lockTitle.textContent = titleText;
           lockTitle.classList.toggle('win', config.lockReason === 'STOP_WIN');
@@ -836,6 +844,31 @@ document.addEventListener('DOMContentLoaded', () => {
       
       checkLockStatus();
   }
+  
+  // FUNÇÃO SOLICITADA PARA PULAR O BLOQUEIO
+  function skipLock() {
+    if (!config.isLocked) return;
+
+    if (confirm('ATENÇÃO! Você está prestes a quebrar a regra de Stop Loss/Win. Isso pode comprometer sua gestão de risco. Tem certeza que deseja pular o bloqueio?')) {
+        // Redefine o estado de bloqueio para o momento atual (força o fim)
+        config.lockUntil = Date.now() - 1; 
+        config.isLocked = false;
+        config.lockReason = 'SKIPPED';
+        saveConfig();
+        
+        // **IMPORTANTE:** Resetar a banca e o histórico de transações para começar novo ciclo
+        if (bankrollState.initial > 0) {
+            bankrollState.initial = bankrollState.current; 
+            bankrollState.history = []; // RESET DO HISTÓRICO PARA NOVO CICLO
+            saveBankrollData();
+        }
+
+        config.sessionStart = Date.now(); 
+        stopLockCountdown(); // Para o contador
+        checkLockStatus(); // Força a atualização da tela
+        updateUI(); // Força a renderização do painel principal
+    }
+}
 
   function checkStopCondition() {
       if (config.mode !== 'REAL' || config.isLocked || bankrollState.initial === 0) return;
@@ -1644,6 +1677,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
   
+  // Listener para o novo botão de Pular Bloqueio
+  btnSkipLock.onclick = skipLock; 
+
   document.getElementById('btnSetBankroll').onclick = () => {
     if (config.mode === 'DEMO') {
         alert('Definir Banca é restrito ao Modo REAL.');
