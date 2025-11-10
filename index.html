@@ -476,7 +476,7 @@ body.login-active {
   <div class="header">
     <div style="display: flex; align-items: center;">
         <div class="title">IAP BRASIL</div>
-        <div id="sessionTimer">Sessão: 40:00</div>
+        <div id="sessionTimer">Sessão: -:-</div>
     </div>
     <div id="clock">--:--:--</div>
   </div>
@@ -618,7 +618,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const STOP_WIN_COUNT = 3; // 3 WINs consecutivos
   const STOP_WIN_AMOUNT = 35.00; // R$35,00 de lucro total
   const LOCK_DURATION = 2 * 60 * 60 * 1000; // 2 horas em milissegundos
-  const SESSION_TIMEOUT = 40 * 60 * 1000; // 40 minutos em milissegundos
 
   /* =========================================================================================
    * CONFIGURAÇÕES ESPECÍFICAS DO NOVO BOOSTER I.A. (Intersecção de Zonas)
@@ -729,14 +728,9 @@ document.addEventListener('DOMContentLoaded', () => {
       config.mode = mode; // Atualiza o modo antes de salvar
           
       if (isLoggedIn) {
-          // Reinicia a sessão apenas se for a primeira vez ou se o timeout expirou
-          if (config.sessionStart === 0 || (Date.now() - config.sessionStart) >= SESSION_TIMEOUT) {
-              config.sessionStart = Date.now();
-          }
+          config.sessionStart = Date.now();
       } else {
-          // Resetar o estado de login
           config.sessionStart = 0; 
-          // Mantém o lockAté e lockReason para não perder o "castigo" se o usuário sair/voltar rápido.
       }
       saveConfig();
   }
@@ -748,7 +742,6 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ================== LÓGICA DE BLOQUEIO / STOP / SESSÃO ================== */
 
   let countdownInterval;
-  let sessionInterval;
 
   function checkLockStatus() {
       const now = Date.now();
@@ -762,14 +755,12 @@ document.addEventListener('DOMContentLoaded', () => {
           let titleText = '';
           if (config.lockReason === 'STOP_LOSS') { titleText = 'ZONA SEGURA ATINGIDA (STOP LOSS)'; }
           else if (config.lockReason === 'STOP_WIN') { titleText = 'ZONA SEGURA ATINGIDA (STOP WIN)'; }
-          else if (config.lockReason === 'TIMEOUT') { titleText = 'TEMPO DE SESSÃO ESGOTADO'; }
 
           lockTitle.textContent = titleText;
           lockTitle.classList.toggle('win', config.lockReason === 'STOP_WIN');
           document.getElementById('lockIcon').style.color = (config.lockReason === 'STOP_WIN') ? 'var(--alert-green)' : 'var(--alert-red)';
 
           startLockCountdown();
-          stopSessionCounter(); // Garante que o contador de sessão pare
           return true; // Bloqueado por Lock Ativo
       }
 
@@ -779,29 +770,25 @@ document.addEventListener('DOMContentLoaded', () => {
           config.isLocked = false;
           config.lockUntil = 0;
           config.lockReason = '';
-          config.sessionStart = Date.now(); // Reinicia a sessão ao desbloquear
+          
+          // **AJUSTE CRÍTICO**: Reset da banca e do histórico de transações.
+          if (bankrollState.initial > 0) {
+            bankrollState.initial = bankrollState.current; 
+            bankrollState.history = []; // RESET DO HISTÓRICO PARA NOVO CICLO
+            saveBankrollData();
+          }
+
+          config.sessionStart = Date.now(); 
           saveConfig();
       }
       
-      // 3. Verifica o Status da Sessão de 40 Minutos 
-      if (config.isLoggedIn && !config.isLocked && config.mode === 'REAL') { 
-          if (config.sessionStart === 0) {
-              config.sessionStart = Date.now();
-              saveConfig();
-          } else if ((now - config.sessionStart) >= SESSION_TIMEOUT) {
-              triggerLock('TIMEOUT');
-              return true;
-          }
-      }
-      
-      // 4. Estado Desbloqueado e Logado
+      // 3. Estado Desbloqueado e Logado
       lockScreen.classList.add('hidden');
       if (getLoginStatus()) {
           mainPanel.classList.remove('hidden');
           loginScreen.classList.add('hidden');
           bodyTag.classList.remove('login-active');
-          if (config.mode === 'REAL') startSessionCounter(); // Só conta sessão no REAL
-          else stopSessionCounter(); // Garante que pare no DEMO
+          sessionTimerDiv.textContent = `Sessão: -:-`; // Define o texto como "sem contagem"
       } else {
           // Não logado
           loginScreen.classList.remove('hidden');
@@ -838,41 +825,6 @@ document.addEventListener('DOMContentLoaded', () => {
           countdownInterval = null; // Limpa a referência
       }
   }
-
-  function startSessionCounter() { 
-      // Não inicia se já estiver rodando ou não for REAL
-      if (sessionInterval || config.mode !== 'REAL') return; 
-      
-      sessionInterval = setInterval(() => {
-          if (config.sessionStart === 0) {
-              config.sessionStart = Date.now();
-              saveConfig();
-          }
-
-          const elapsed = Date.now() - config.sessionStart;
-          const remaining = SESSION_TIMEOUT - elapsed;
-
-          if (remaining <= 0) {
-              triggerLock('TIMEOUT');
-              return;
-          }
-
-          const totalSeconds = Math.floor(remaining / 1000);
-          const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
-          const seconds = String(totalSeconds % 60).padStart(2, '0');
-          
-          sessionTimerDiv.textContent = `Sessão: ${minutes}:${seconds}`;
-
-      }, 1000);
-  }
-
-  function stopSessionCounter() { 
-      if (sessionInterval) {
-          clearInterval(sessionInterval);
-          sessionInterval = null; // Limpa a referência
-      }
-      sessionTimerDiv.textContent = `Sessão: 40:00`; 
-  }
   
   function triggerLock(reason) {
       if (config.mode !== 'REAL') return;
@@ -892,7 +844,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // USANDO safeMath para garantir precisão
       const totalProfit = safeMath(current - initial); 
       
-      // 1. Verificação de Saldo
+      // 1. Verificação de Saldo (Stop Loss/Win)
       if (totalProfit <= -STOP_LOSS_AMOUNT) {
           triggerLock('STOP_LOSS');
           return;
@@ -909,14 +861,16 @@ document.addEventListener('DOMContentLoaded', () => {
       // Itera o histórico em ordem reversa
       for (let i = history.length - 1; i >= 0; i--) {
           const amount = history[i].amount;
+          
+          // Ignorar transações de 0, se houver
+          if (amount === 0) continue; 
+          
           if (amount < 0) {
               consecutiveLoss++;
               consecutiveWin = 0; 
           } else if (amount > 0) {
               consecutiveWin++;
               consecutiveLoss = 0; 
-          } else {
-              continue; // Ignora entradas de valor 0, se houver
           }
           
           if (consecutiveLoss >= STOP_LOSS_COUNT) {
@@ -1025,7 +979,6 @@ document.addEventListener('DOMContentLoaded', () => {
   
   /**
    * Adiciona números lidos em lote, garantindo que o mais recente vá para o topo.
-   * FIX: Remoção do .reverse() para corrigir a ordem do OCR.
    */
   function addMultipleNumbers(numArray) {
     // Garante que apenas números válidos sejam adicionados (entre 0 e 36)
@@ -1038,8 +991,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     
-    // Assumimos que o Tesseract devolve na ordem visível (Recente -> Antigo),
-    // o que anula a necessidade de inversão.
     const correctlyOrderedNumbers = validNumbers; 
     
     // Adiciona os números (Recente -> Antigo) no início do histórico
@@ -1117,19 +1068,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (group.length === WHEEL_ORDER.length) break; // Segurança
             }
             
-            successorGroups.push({ numbers: group, count: groupCount });
+            successorGroups.push({ 
+                numbers: group, 
+                count: groupCount,
+                first: group[0],
+                last: group[group.length - 1]
+            });
         }
     }
 
     // 3. Ordena os grupos pela contagem total (descendente)
     successorGroups.sort((a, b) => b.count - a.count);
     
-    // 4. Renderiza o HTML com os grupos
-    let html = `<div class="analysis-output">
-                  <div class="pattern-line">Último lançamento (GATILHO): <span class="pattern-trigger">${triggerNum}</span></div>
-                  <div class="pattern-line pattern-count">**ZONA DE ANÁLISE (5 Números):** <span style="font-weight: bold; color: var(--accent);">${triggerZone.join(', ')}</span></div>
-                  <div class="data-separator" style="margin: 8px 0;"></div>
-                  <div style="font-size: 14px; margin-bottom: 10px; font-weight: bold; color: var(--accent);">**RELATÓRIO DE SUCESSORES AGRUPADOS** (${totalOccurrences} Ocorrências após esta Zona):</div>`;
+    // 4. Renderiza o HTML do Relatório
+    let html = `
+        <div class="analysis-output">
+            <div class="pattern-line">Último lançamento (GATILHO): <span class="pattern-trigger">${triggerNum}</span></div>
+            <div class="pattern-line pattern-count">**ZONA DE ANÁLISE (5 Números):** <span style="font-weight: bold; color: var(--accent);">${triggerZone.join(', ')}</span></div>
+            <div class="data-separator" style="margin: 8px 0;"></div>
+            <div style="font-size: 14px; margin-bottom: 10px; font-weight: bold; color: var(--accent);">**RELATÓRIO DE SUCESSORES AGRUPADOS** (${totalOccurrences} Ocorrências após esta Zona):</div>
+            <div id="successorGroupsReport">
+    `;
     
     successorGroups.forEach(groupInfo => {
       const group = groupInfo.numbers;
@@ -1139,14 +1098,10 @@ document.addEventListener('DOMContentLoaded', () => {
       let groupDisplay;
       
       if (group.length === 1) {
-          // Exibe número único (Formato de linha individual)
           const num = group[0];
           groupDisplay = `**${num}** (<span class="pattern-succession">${getColor(num).toUpperCase()}</span>)`;
       } else {
-          // Exibe o grupo como um intervalo (Formato de Vizinhos → Vizinhos)
-          const first = group[0];
-          const last = group[group.length - 1];
-          groupDisplay = `**${first} → ${last}** (${group.length} vizinhos)`;
+          groupDisplay = `**${groupInfo.first} → ${groupInfo.last}** (${group.length} vizinhos)`;
       }
       
       html += `<div class="pattern-line">
@@ -1159,7 +1114,65 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>`;
     });
     
-    html += `</div>`;
+    html += `</div>`; // Fecha successorGroupsReport
+
+    // 5. Geração da Sugestão de Aposta (LÓGICA ATUALIZADA)
+    const filteredSuggestions = successorGroups.filter(g => g.count >= 2);
+    
+    html += `
+        <div class="data-separator"></div>
+        <div class="suggestionTitle" style="color: var(--zero); border-bottom-color: var(--zero);">
+            <span class="material-symbols-outlined">gavel</span>
+            SUGESTÃO DE APOSTA (REPETIÇÃO 2x+)
+        </div>
+        <div style="margin-top: 10px; font-size: 15px;">
+    `;
+
+    if (filteredSuggestions.length === 0) {
+        html += `<span style="color:var(--muted)">Nenhum grupo de sucessores se repetiu 2x ou mais. Aguarde mais lançamentos.</span>`;
+    } else {
+        filteredSuggestions.forEach((groupInfo) => {
+            const count = groupInfo.count;
+            const group = groupInfo.numbers;
+            
+            let suggestionText;
+            let targetAnchor; // O número central para a cobertura de 2 vizinhos
+            const coverageRadius = 2; // 2 vizinhos para cada lado = 5 números no total
+            
+            // Determina a âncora: o primeiro número do grupo (lado "esquerdo")
+            targetAnchor = groupInfo.first; 
+            
+            // Calcula a cobertura de 5 números (2 vizinhos)
+            const coveredNumbers = getNeighbors(targetAnchor, coverageRadius);
+            
+            // Monta o texto da sugestão
+            if (group.length === 1) {
+                suggestionText = `Aposte no **${targetAnchor}** com **2 Vizinhos para cada lado** (Total de 5 números).`;
+            } else {
+                let rangeText = `${groupInfo.first} → ${groupInfo.last}`;
+                suggestionText = `Aposte na **Zona 5** centrada em **${targetAnchor}** (${coveredNumbers.join(', ')}).`;
+            }
+            
+            // Renderiza a sugestão
+            html += `
+                <div class="pattern-line" style="margin-bottom: 12px; padding: 5px; background: rgba(0, 121, 192, 0.05); border-left: 3px solid var(--zero);">
+                    <div style="font-weight: 700;">
+                        🔁 Grupo Repetido: <span style="color: var(--zero);">${count}x</span>
+                    </div>
+                    <div style="margin-top: 4px;">
+                        Zona de Sucessão: <span style="font-weight: bold; color: var(--accent);">${group.join(', ')}</span>
+                    </div>
+                    <div style="font-size: 14px; margin-top: 4px;">
+                        **SUGESTÃO DE COBERTURA 5 NÚMEROS (2 VIZINHOS):** <span style="color: var(--black); font-weight: bold;">${suggestionText}</span>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    html += `</div>`; // Fecha a seção de sugestão
+    html += `</div>`; // Fecha analysis-output
+    
     zoneAnalysisDiv.innerHTML = html;
   }
   // ==================== FIM LÓGICA DE ANÁLISE DE SUCESSÃO DE ZONAS ====================
@@ -1628,7 +1641,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (confirm('Tem certeza que deseja sair?')) {
         setLoginStatus(false); 
         updateUI();
-        stopSessionCounter();
     }
   };
   
