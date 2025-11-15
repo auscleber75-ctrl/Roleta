@@ -544,15 +544,7 @@ body.login-active {
     <div id="history" class="history"></div>
   </div>
   
-  <div class="card" id="latestSuccessorsCard" style="display:none;">
-    <div class="suggestionTitle" style="color: var(--accent-secondary); border-bottom-color: var(--accent-secondary);">
-        <span class="material-symbols-outlined">repeat</span>
-        ÚLTIMOS SUCESSORES DO GATILHO (<span id="successorTriggerNum" style="font-weight: 700;">-</span>)
-    </div>
-    <div id="latestSuccessorsList" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
-        <span style="color:var(--muted)">Adicione números ao histórico para ver os sucessores.</span>
-    </div>
-  </div>
+
   <div class="card">
     <div class="suggestionTitle">
         <span class="material-symbols-outlined">dialpad</span>
@@ -576,6 +568,15 @@ body.login-active {
     </div>
   </div>
   
+  <div class="card" id="latestSuccessorsCard" style="display:none;">
+    <div class="suggestionTitle" style="color: var(--accent-secondary); border-bottom-color: var(--accent-secondary);">
+        <span class="material-symbols-outlined">repeat</span>
+        ÚLTIMOS SUCESSORES DO GATILHO (<span id="successorTriggerNum" style="font-weight: 700;">-</span>)
+    </div>
+    <div id="latestSuccessorsList" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+        <span style="color:var(--muted)">Adicione números ao histórico para ver os sucessores.</span>
+    </div>
+  </div>
   <div class="card">
     <div class="analysis-wrapper">
       <div class="analysis-main">
@@ -1559,7 +1560,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             calculateStats();
             renderHistory();
-            renderLatestSuccessors(); // <--- NOVA CHAMADA: Renderiza o card de sucessores imediatos
+            renderLatestSuccessors(); // <--- CHAMADA para renderizar o card de sucessores imediatos
             renderZoneAnalysis();
             renderHotCold();
             renderBankrollDashboard();
